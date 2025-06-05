@@ -1,0 +1,107 @@
+{
+  "carts": [
+    {
+      "id": 1,
+      "title": "Wall Mounted 6u Rack - 600 X 450",
+      "image": "/assets/images/product-1.png",
+      "price": "$58,000",
+      "discountedPrice": "$90,845",
+      "isSales": true,
+      "sales": {
+        "name": "Black Friday",
+        "color": "#30313D"
+      }
+    },
+    {
+      "id": 2,
+      "title": "Ergonomic Office Chair",
+      "image": "/assets/images/hard-drive.png",
+      "price": "$25,000",
+      "discountedPrice": "$40,000",
+      "isSales": true,
+      "sales": {
+        "name": "Easter Sales",
+        "color": "#82398B"
+      }
+    }
+  ],
+
+  "deals": [
+    {
+      "id": 4,
+      "title": "Smart LED TV 55\"",
+      "image": "/assets/images/rack.png",
+      "price": "$120,000",
+      "discountedPrice": "$150,000",
+      "isSales": false,
+      "sales": {
+        "name": "Black Friday",
+        "color": "#30313D"
+      }
+    },
+    {
+      "id": 5,
+      "title": "Gaming Laptop",
+      "image": "/assets/images/product-1.png",
+      "price": "$200,000",
+      "discountedPrice": "$250,000",
+      "isSales": true,
+      "sales": {
+        "name": "Black Friday",
+        "color": "#30313D"
+      }
+    }
+  ],
+
+  "sales": [
+    {
+      "id": 1,
+      "name": "Recommended",
+      "bgcolor": "#ffffff",
+      "color": "#30313d",
+      "length": 20
+    },
+    {
+      "id": 2,
+      "name": "Deals",
+      "bgcolor": "#FF5B00",
+      "color": "#ffffff",
+      "length": 4
+    },
+    {
+      "id": 3,
+      "name": "Coupon",
+      "bgcolor": "#ffffff",
+      "color": "#30313d",
+      "length": 2
+    },
+    {
+      "id": 4,
+      "name": "Recommended",
+      "bgcolor": "#ffffff",
+      "color": "#30313d",
+      "length": 40
+    }
+  ],
+
+  "coupons": [
+    {
+      "id": 1,
+      "title": "gift voucher",
+      "discount": "10%",
+      "image": "/assets/images/product-1.png",
+      "code": "FIRST20",
+      "expirationDate": "2023-12-31",
+      "isUsed": false
+    },
+    {
+      "id": 2,
+      "title": "on your next order",
+      "discount": "10%",
+      "image": "/assets/images/product-1.png",
+      "code": "NEXT10",
+      "expirationDate": "2023-12-31",
+      "isUsed": true
+    }
+  ]
+}

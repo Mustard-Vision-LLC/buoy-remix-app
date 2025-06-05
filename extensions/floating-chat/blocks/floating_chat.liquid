@@ -1,0 +1,45 @@
+{{ 'output.css' | asset_url | stylesheet_tag }}
+
+<div class="buoy-btn shadow-black shadow-2xl" style="position: fixed; width: 50px; height: 50px; background: #ff5b00; border-radius: 50%; display: grid; place-content: center; right: 20px; bottom: 20px; z-index: 2147483648;">
+  <img src="{{ 'message-square.svg' | asset_url }}" width="32" height="32" alt="message" />
+</div>
+
+<iframe src="https://www.wikipedia.org/" style="border: none; opacity: 0; transform: scale(0); height: min(704px, 100% - 104px); position: fixed; font-size: 16px; box-shadow: rgba(0, 0, 0, 0.02) 0px 6px 6px 0px, rgba(0, 0, 0, 0.12) 0px 8px 24px 0px; transform-origin: right bottom; transition: transform 0.3s cubic-bezier(0, 1.2, 1, 1), opacity 0.2s ease-out; right: 20px; bottom: 80px; width: 400px; z-index: 2147483647; border-radius: 0.75rem;"></iframe>
+
+<script>
+  const btn = document.querySelector('.buoy-btn');
+  const iframe = document.querySelector('iframe');
+
+  btn.addEventListener('click', () => {
+    if (iframe.style.opacity === '1') {
+      iframe.style.opacity = '0';
+      iframe.style.transform = 'scale(0)';
+    } else {
+      iframe.style.opacity = '1';
+      iframe.style.transform = 'scale(1)';
+    }
+  });
+
+  // Set the src of the iframe to the product URL
+  const productUrl = '{{ product.url }}';
+
+  console.log('Product URL:', productUrl);
+
+  window.addEventListener('message', (event) => {
+    if (event.data === 'closeChat') {
+      iframe.style.opacity = '0';
+      iframe.style.transform = 'scale(0)';
+    }
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Buoy AI Chat",
+  "target": "body",
+  "settings": [
+    { "type": "product", "id": "product", "label": "product", "autofill": true, },
+    { "type": "text", "id": "image_id", "label": "thumbs", "default": "message-square.svg" }
+  ],
+}
+{% endschema %}

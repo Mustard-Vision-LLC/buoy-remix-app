@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light dark;
+
+  --background: #30313d;
+  --color: #fff0e8b2;
+  --border: #5a5b61;
+  --container: #d5d5d7;
+  --inner-background: #ffffff99;
+  --inner-border: #ffffff80;
+
+  --primary: #ff5b00;
+
+  --secondary: #6a7383;
+
+  --disabled: #a3acba;
+
+  --success: #228403;
+  --success-accent: #e1ffdf;
+
+  --danger: #df1b41;
+  --danger-accent: #ffd7df;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  @media (prefers-color-scheme: light) {
+    --background: #fff0e8b2;
+    --color: #30313d;
+    --border: #ffe5d7;
+    --container: #ebf0f4;
+    --inner-background: #ffffff99;
+    --inner-border: #ffffff80;
+  }
+}
+
+@layer {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .writing-vertical-lr {
+    writing-mode: vertical-lr;
+    -webkit-writing-mode: vertical-lr;
+    -ms-writing-mode: tb-lr;
+  }
+
+  .writing-vertical-rl {
+    writing-mode: vertical-rl;
+    -webkit-writing-mode: vertical-rl;
+    -ms-writing-mode: tb-rl;
+  }
+
+  .coupon-box {
+    width: 11rem;
+    height: 6.25rem;
+    display: flex;
+    align-items: center;
+    background-color: #ffffff;
+    border: 0.0625rem solid var(--border);
+    border-radius: 0.5rem;
+    /* Create a circular hole using a radial gradient as mask */
+    -webkit-mask-image: radial-gradient(
+      circle 12px at 0px 50px,
+      transparent 100%,
+      black
+    );
+    mask-composite: exclude;
+    -webkit-mask-composite: destination-out;
+    mask-image: radial-gradient(
+      circle 12px at 0px 50px,
+      transparent 100%,
+      black 100%
+    );
+    -webkit-mask-composite: destination-out;
+    mask-composite: exclude;
+    mask-repeat: no-repeat;
+  }
+}
+
+html,
+body {
+  font-family: Poppins, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
