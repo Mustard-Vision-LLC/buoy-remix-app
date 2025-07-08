@@ -1,3 +1,45 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --primary: #ff5b00;
+  --btn-size: 50px;
+}
+
+.buoy-btn {
+  position: fixed;
+  width: var(--btn-size);
+  height: var(--btn-size);
+  background: var(--primary);
+  border-radius: 50%;
+  display: grid;
+  place-content: center;
+  right: 20px;
+  bottom: 20px;
+  z-index: 2147483648;
+  cursor: pointer;
+
+  @apply shadow-black shadow-2xl;
+}
+
+.buoy-chat-frame {
+  width: 400px;
+  height: min(704px, 100% - 104px);
+  border: none;
+  opacity: 0;
+  position: fixed;
+  right: 20px;
+  bottom: 80px;
+  border-radius: 0.75rem;
+  z-index: 2147483647;
+  font-size: 16px;
+  box-shadow:
+    rgba(0, 0, 0, 0.02) 0px 6px 6px 0px,
+    rgba(0, 0, 0, 0.12) 0px 8px 24px 0px;
+  transform: scale(0);
+  transform-origin: right bottom;
+  transition:
+    transform 0.3s cubic-bezier(0, 1.2, 1, 1),
+    opacity 0.2s ease-out;
+}

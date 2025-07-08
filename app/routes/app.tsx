@@ -24,6 +24,7 @@ export default function App() {
         <Link to="/app" rel="home">
           Home
         </Link>
+        <Link to="/app/home">Fishook Setup</Link>
         <Link to="/app/chat">AI Assistance</Link>
         <Link to="/app/window_shopper">Window Shopper</Link>
         <Link to="/app/additional">Additional page</Link>

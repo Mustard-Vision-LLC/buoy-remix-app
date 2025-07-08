@@ -1,0 +1,13 @@
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('form[action^="/cart/add"]').forEach(function (form) {
+      form.addEventListener('submit', function () {
+        const formData = new FormData(form);
+        const variantId = formData.get('id');
+        window.dispatchEvent(new CustomEvent('product:selected', {
+          detail: { variantId }
+        }));
+      });
+    });
+  });
+</script>

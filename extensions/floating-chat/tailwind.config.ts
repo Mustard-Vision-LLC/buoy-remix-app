@@ -1,7 +1,11 @@
 import type { Config } from "tailwindcss";
 
 export default {
-  content: ["./blocks/**/*.liquid", "./snippets/**/*.liquid"],
+  content: [
+    "./blocks/**/*.liquid",
+    "./snippets/**/*.liquid",
+    "./assets/tailwind.css",
+  ],
   safelist: ["border-solid", "shadow-black", "text-white"],
   theme: {
     extend: {},

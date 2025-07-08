@@ -87,6 +87,18 @@
     mask-composite: exclude;
     mask-repeat: no-repeat;
   }
+
+  .fishook-auth-banner {
+    background-color: #ffefe5;
+    background-image:
+      url("/assets/images/world_map_dots.png"),
+      url("/assets/images/angles.png"), url("/assets/images/bars.png");
+    background-repeat: no-repeat;
+    background-position:
+      left center,
+      90% 30%,
+      right bottom;
+  }
 }
 
 html,

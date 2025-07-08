@@ -49,7 +49,7 @@
   --tw-contain-size:  ;
   --tw-contain-layout:  ;
   --tw-contain-paint:  ;
-  --tw-contain-style:  
+  --tw-contain-style:  ;
 }
 
 ::backdrop {
@@ -103,47 +103,45 @@
   --tw-contain-size:  ;
   --tw-contain-layout:  ;
   --tw-contain-paint:  ;
-  --tw-contain-style:  
+  --tw-contain-style:  ;
 }
 
 .fixed {
-  position: fixed
+  position: fixed;
 }
 
 .block {
-  display: block
+  display: block;
 }
 
 .grid {
-  display: grid
+  display: grid;
 }
 
 .transform {
-  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
 .border {
-  border-width: 1px
+  border-width: 1px;
 }
 
 .border-solid {
-  border-style: solid
+  border-style: solid;
 }
 
 .text-white {
   --tw-text-opacity: 1;
-  color: rgb(255 255 255 / var(--tw-text-opacity, 1))
-}
-
-.shadow-2xl {
-  --tw-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-  --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)
+  color: rgb(255 255 255 / var(--tw-text-opacity, 1));
 }
 
 .shadow-black {
   --tw-shadow-color: #000;
-  --tw-shadow: var(--tw-shadow-colored)
+  --tw-shadow: var(--tw-shadow-colored);
+}
+
+.filter {
+  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
 }
 
 .transition {
@@ -151,5 +149,50 @@
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-backdrop-filter;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms
+  transition-duration: 150ms;
+}
+
+:root {
+  --primary: #ff5b00;
+  --btn-size: 50px;
+}
+
+.buoy-btn {
+  position: fixed;
+  width: var(--btn-size);
+  height: var(--btn-size);
+  background: var(--primary);
+  border-radius: 50%;
+  display: grid;
+  place-content: center;
+  right: 20px;
+  bottom: 20px;
+  z-index: 2147483648;
+  cursor: pointer;
+  --tw-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  --tw-shadow-color: #000;
+  --tw-shadow: var(--tw-shadow-colored);
+}
+
+.buoy-chat-frame {
+  width: 400px;
+  height: min(704px, 100% - 104px);
+  border: none;
+  opacity: 0;
+  position: fixed;
+  right: 20px;
+  bottom: 80px;
+  border-radius: 0.75rem;
+  z-index: 2147483647;
+  font-size: 16px;
+  box-shadow:
+    rgba(0, 0, 0, 0.02) 0px 6px 6px 0px,
+    rgba(0, 0, 0, 0.12) 0px 8px 24px 0px;
+  transform: scale(0);
+  transform-origin: right bottom;
+  transition:
+    transform 0.3s cubic-bezier(0, 1.2, 1, 1),
+    opacity 0.2s ease-out;
 }
