@@ -1,11 +1,10 @@
-import { useEffect } from "react";
 import { authenticate } from "../shopify.server";
 import { useLoaderData } from "@remix-run/react";
-import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
+import { TitleBar } from "@shopify/app-bridge-react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { BlockStack, Layout, Page } from "@shopify/polaris";
 
-const dashboardUrl = "https://sandbox-dashboard.fishook.online/";
+const dashboardUrl = "https://sandbox-dashboard.fishook.online/?source=shopify";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
@@ -37,7 +36,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export const action = async ({ request }: ActionFunctionArgs) => {};
 
 export default function Home() {
-  const shopify = useAppBridge();
+  // const shopify = useAppBridge();
   const { session, jsonData } = useLoaderData<{
     session: string;
     jsonData: any;
@@ -46,36 +45,36 @@ export default function Home() {
   console.log(session, "session");
   console.log(jsonData, "json data");
 
-  useEffect(() => {
-    shopify.toast.show("Product created");
-  }, [shopify]);
+  // useEffect(() => {
+  //   shopify.toast.show("Product created");
+  // }, [shopify]);
 
   const goToLogin = () => {
     window.open(dashboardUrl, "_blank", "noopener,noreferrer");
   };
 
-  const widgetInstall = async () => {
-    try {
-      const body = {
-        shop_id: "89d0c014-ab1a-4a14-ad4a-5cfb0417158b",
-        merchant_id: "6e5f9023-e711-4a79-bf8b-0d22cd79dc88",
-        widget_name: "demo_name",
-      };
+  // const widgetInstall = async () => {
+  //   try {
+  //     const body = {
+  //       shop_id: "89d0c014-ab1a-4a14-ad4a-5cfb0417158b",
+  //       merchant_id: "6e5f9023-e711-4a79-bf8b-0d22cd79dc88",
+  //       widget_name: "demo_name",
+  //     };
 
-      const response = await fetch(
-        `${process.env.VITE_API_BASE_URL}/shopify/widgets`,
-        {
-          method: "POST",
-          body: JSON.stringify(body),
-        },
-      );
+  //     const response = await fetch(
+  //       `${process.env.VITE_API_BASE_URL}/shopify/widgets`,
+  //       {
+  //         method: "POST",
+  //         body: JSON.stringify(body),
+  //       },
+  //     );
 
-      const json = await response.json();
-      console.log(json);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  //     const json = await response.json();
+  //     console.log(json);
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // };
 
   return (
     <Page>
@@ -92,37 +91,37 @@ export default function Home() {
 
       <BlockStack gap="500">
         <Layout>
-          {jsonData?.data ? (
+          {/* {jsonData?.data ? (
             <div>
               <p>You are logged in now!</p>
 
               <button onClick={widgetInstall}>Install Widget</button>
             </div>
-          ) : (
-            <div className="fishook-auth-banner w-full min-h-60 rounded-2xl grid place-content-center pt-13 pb-8 mt-8">
-              <div className="grid justify-center mb-5">
-                <img
-                  src="/assets/images/fishook-logo.png"
-                  className="h-20"
-                  alt="fishook-logo"
-                  loading="lazy"
-                />
-              </div>
-
-              <div className="flex items-center flex-nowrap gap-4">
-                <p className="text-lg font-medium">
-                  Please login here to activate Fishook Widget!
-                </p>
-
-                <button
-                  className="h-12 bg-primary text-white font-medium rounded-xl px-8 py-3"
-                  onClick={goToLogin}
-                >
-                  Log In
-                </button>
-              </div>
+          ) : ( */}
+          <div className="fishook-auth-banner w-full min-h-60 rounded-2xl grid place-content-center pt-13 pb-8 mt-8">
+            <div className="grid justify-center mb-5">
+              <img
+                src="/assets/images/fishook-logo.png"
+                className="h-20"
+                alt="fishook-logo"
+                loading="lazy"
+              />
             </div>
-          )}
+
+            <div className="flex items-center flex-nowrap gap-4">
+              <p className="text-lg font-medium">
+                Please login here to activate Fishook Widget!
+              </p>
+
+              <button
+                className="h-12 bg-primary text-white font-medium rounded-xl px-8 py-3"
+                onClick={goToLogin}
+              >
+                View dashboard
+              </button>
+            </div>
+          </div>
+          {/* )} */}
         </Layout>
       </BlockStack>
     </Page>

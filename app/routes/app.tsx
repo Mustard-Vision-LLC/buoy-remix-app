@@ -28,6 +28,7 @@ export default function App() {
         <Link to="/app/chat">AI Assistance</Link>
         <Link to="/app/window_shopper">Window Shopper</Link>
         <Link to="/app/additional">Additional page</Link>
+        <Link to="/app/billing">Billing</Link>
       </NavMenu>
       <Outlet />
     </AppProvider>

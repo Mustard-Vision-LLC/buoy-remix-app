@@ -4,6 +4,7 @@ api_version = "2025-04"
 # Change the merchant-facing name of the extension in locales/en.default.json
 name = "t:name"
 handle = "wishlist-block"
+uid = "bce56164-6d4d-b471-b983-ab571b36519859907ade"
 type = "ui_extension"
 
 

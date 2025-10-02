@@ -1,14 +1,13 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "d0f416a00e31e62a4d4bb6f4ecc698f9"
-name = "buoy-widget"
-handle = "buoy-widget-1"
-application_url = "https://sandbox.fishook.online"
+name = "fishook"
+handle = "fishook-1"
+application_url = "https://sandbox.fishook.online/"
 embedded = true
 
 [build]
 automatically_update_urls_on_dev = false
-include_config_on_deploy = true
 
 [webhooks]
 api_version = "2025-04"
@@ -20,6 +19,11 @@ api_version = "2025-04"
   [[webhooks.subscriptions]]
   topics = [ "app/uninstalled" ]
   uri = "/webhooks/app/uninstalled"
+
+[webhooks.privacy_compliance]
+customer_deletion_url = "https://sandbox.fishook.online/shopify/webhook"
+customer_data_request_url = "https://sandbox.fishook.online/shopify/webhook"
+shop_deletion_url = "https://sandbox.fishook.online/shopify/webhook"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
