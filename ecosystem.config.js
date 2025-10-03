@@ -1,12 +1,12 @@
-module.exports = {
+export default {
     apps: [{
-      name: 'fishook-remix-app',
+      name: 'shopify-app',
       script: 'npm',
       args: 'start',
-      cwd: '/var/www/prod',
+      cwd: '/var/www/shopify-app',
       env: {
         NODE_ENV: 'production',
-        PORT: 8000
+        PORT: 3000
       },
       instances: 1,
       exec_mode: 'fork'
