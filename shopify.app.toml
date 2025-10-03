@@ -3,7 +3,7 @@
 client_id = "d0f416a00e31e62a4d4bb6f4ecc698f9"
 name = "fishook"
 handle = "fishook-1"
-application_url = "https://sandbox.fishook.online/"
+application_url = "https://remix.fishook.online/"
 embedded = true
 
 [build]
