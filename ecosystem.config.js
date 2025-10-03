@@ -6,7 +6,7 @@ export default {
       cwd: '/var/www/prod',
       env: {
         NODE_ENV: 'production',
-        PORT: 3000
+        PORT: 8000
       },
       instances: 1,
       exec_mode: 'fork'
