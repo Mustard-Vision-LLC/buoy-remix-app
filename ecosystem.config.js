@@ -1,9 +1,9 @@
 export default {
     apps: [{
-      name: 'shopify-app',
+      name: 'fishook-remix-app',
       script: 'npm',
       args: 'start',
-      cwd: '/var/www/shopify-app',
+      cwd: '/var/www/prod',
       env: {
         NODE_ENV: 'production',
         PORT: 3000
