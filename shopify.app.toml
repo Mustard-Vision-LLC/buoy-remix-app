@@ -3,7 +3,7 @@
 client_id = "d0f416a00e31e62a4d4bb6f4ecc698f9"
 name = "fishook"
 handle = "fishook-1"
-application_url = "https://remix.fishook.online/"
+application_url = "https://buoy-remix-app.fly.dev/"
 embedded = true
 
 [build]
@@ -21,9 +21,9 @@ api_version = "2025-04"
   uri = "/webhooks/app/uninstalled"
 
 [webhooks.privacy_compliance]
-customer_deletion_url = "https://sandbox.fishook.online/shopify/webhook"
-customer_data_request_url = "https://sandbox.fishook.online/shopify/webhook"
-shop_deletion_url = "https://sandbox.fishook.online/shopify/webhook"
+customer_deletion_url = "https://buoy-remix-app.fly.dev/shopify/webhook"
+customer_data_request_url = "https://buoy-remix-app.fly.dev/shopify/webhook"
+shop_deletion_url = "https://buoy-remix-app.fly.dev/shopify/webhook"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
@@ -31,7 +31,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://sandbox.fishook.online/oauth/shopify/callback"
+  "https://buoy-remix-app.fly.dev/auth/callback",
+  "https://buoy-remix-app.fly.dev/auth/shopify/callback",
+  "https://buoy-remix-app.fly.dev/api/auth/callback"
 ]
 
 [pos]
