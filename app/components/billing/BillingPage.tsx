@@ -10,7 +10,7 @@ import {
   InlineStack,
   Box,
   ProgressBar,
-  // DataTable,
+  DataTable,
   Thumbnail,
   Spinner,
 } from "@shopify/polaris";
@@ -81,18 +81,18 @@ export default function BillingPage() {
     100,
   );
 
-  // const billingHistoryRows = data.billingHistory.map((item) => [
-  //   item.transactionRef,
-  //   item.type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
-  //   item.date,
-  //   <Badge
-  //     progress={item.status === "successful" ? "complete" : "incomplete"}
-  //     key={item.id}
-  //   >
-  //     {item.status === "successful" ? "Successful" : "Failed"}
-  //   </Badge>,
-  //   item.amount,
-  // ]);
+  const billingHistoryRows = data.billingHistory.map((item) => [
+    item.transactionRef,
+    item.type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+    item.date,
+    <Badge
+      progress={item.status === "successful" ? "complete" : "incomplete"}
+      key={item.id}
+    >
+      {item.status === "successful" ? "Successful" : "Failed"}
+    </Badge>,
+    item.amount,
+  ]);
 
   return (
     <Page
@@ -273,19 +273,19 @@ export default function BillingPage() {
                       </Text>
                     </BlockStack>
                   </InlineStack>
-                  {/* <Button
+                  <Button
                     onClick={() => setShowChangePlanModal(true)}
                     fullWidth
                   >
                     Upgrade Plan
-                  </Button> */}
+                  </Button>
                 </BlockStack>
               </InlineStack>
             </BlockStack>
           </Card>
         </Layout.Section>
 
-        {/* <Layout.Section>
+        <Layout.Section>
           <Card>
             <BlockStack gap="400">
               <Text variant="headingMd" as="h2">
@@ -304,7 +304,7 @@ export default function BillingPage() {
               />
             </BlockStack>
           </Card>
-        </Layout.Section> */}
+        </Layout.Section>
       </Layout>
 
       {/* Top-up Modal */}
