@@ -108,7 +108,7 @@ export default function Home() {
               />
             </div>
 
-            <div className="flex items-center flex-nowrap gap-4">
+            <div className="flex justify-center items-center flex-nowrap gap-4">
               <button
                 className="h-12 bg-primary text-white font-medium rounded-xl px-8 py-3"
                 onClick={goToLogin}
