@@ -3,7 +3,7 @@
 client_id = "d0f416a00e31e62a4d4bb6f4ecc698f9"
 name = "fishook"
 handle = "fishook-1"
-application_url = "https://buoy-remix-app.fly.dev/"
+application_url = "https://buoy-remix-app-rough-glitter-2019.fly.dev/"
 embedded = true
 
 [build]
@@ -21,19 +21,17 @@ api_version = "2025-04"
   uri = "/webhooks/app/uninstalled"
 
 [webhooks.privacy_compliance]
-customer_deletion_url = "https://buoy-remix-app.fly.dev/shopify/webhook"
-customer_data_request_url = "https://buoy-remix-app.fly.dev/shopify/webhook"
-shop_deletion_url = "https://buoy-remix-app.fly.dev/shopify/webhook"
+customer_deletion_url = "https://sandbox.fishook.online/shopify/webhook"
+customer_data_request_url = "https://sandbox.fishook.online/shopify/webhook"
+shop_deletion_url = "https://sandbox.fishook.online/shopify/webhook"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "read_price_rules,write_price_rules,read_discounts,write_discounts,read_discounts_allocator_functions,write_discounts_allocator_functions,read_inventory,read_inventory_shipments,read_inventory_shipments_received_items,read_inventory_transfers,read_orders,read_product_feeds,read_product_listings,read_products,write_products,read_script_tags,write_script_tags,customer_read_orders,unauthenticated_read_product_listings"
+scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://buoy-remix-app.fly.dev/auth/callback",
-  "https://buoy-remix-app.fly.dev/auth/shopify/callback",
-  "https://buoy-remix-app.fly.dev/api/auth/callback"
+  "https://sandbox.fishook.online/oauth/shopify/callback"
 ]
 
 [pos]
