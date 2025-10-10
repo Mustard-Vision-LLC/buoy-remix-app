@@ -109,15 +109,11 @@ export default function Home() {
             </div>
 
             <div className="flex items-center flex-nowrap gap-4">
-              <p className="text-lg font-medium">
-                Please login here to activate Fishook Widget!
-              </p>
-
               <button
                 className="h-12 bg-primary text-white font-medium rounded-xl px-8 py-3"
                 onClick={goToLogin}
               >
-                View dashboard
+                View Dashboard
               </button>
             </div>
           </div>
