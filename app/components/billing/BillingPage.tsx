@@ -6,32 +6,25 @@ import {
   Page,
   Text,
   Button,
-  Badge,
   InlineStack,
   Box,
   ProgressBar,
-  DataTable,
-  Thumbnail,
   Spinner,
 } from "@shopify/polaris";
 import ChangePlanModal from "./ChangePlanModal";
-import AddCardModal from "./AddCardModal";
 import TopUpModal from "./TopUpModal";
 import {
   useBillingData,
   useTopUp,
-  useAddCard,
   useChangePlan,
 } from "../../hooks/useBilling";
 
 export default function BillingPage() {
   const { data: billingData, loading, error, refetch } = useBillingData();
   const { topUp, loading: topUpLoading } = useTopUp();
-  const { addCard, loading: addCardLoading } = useAddCard();
   const { changePlan, loading: changePlanLoading } = useChangePlan();
 
   const [showTopUpModal, setShowTopUpModal] = useState(false);
-  const [showAddCardModal, setShowAddCardModal] = useState(false);
   const [showChangePlanModal, setShowChangePlanModal] = useState(false);
 
   // Show loading state
@@ -81,27 +74,8 @@ export default function BillingPage() {
     100,
   );
 
-  const billingHistoryRows = data.billingHistory.map((item) => [
-    item.transactionRef,
-    item.type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
-    item.date,
-    <Badge
-      progress={item.status === "successful" ? "complete" : "incomplete"}
-      key={item.id}
-    >
-      {item.status === "successful" ? "Successful" : "Failed"}
-    </Badge>,
-    item.amount,
-  ]);
-
   return (
-    <Page
-      title="Billing"
-      primaryAction={{
-        content: "Add Card",
-        onAction: () => setShowAddCardModal(true),
-      }}
-    >
+    <Page title="Billing">
       <Layout>
         <Layout.Section variant="oneHalf">
           <Card>
@@ -131,59 +105,6 @@ export default function BillingPage() {
                   </Button>
                 </BlockStack>
               </Box>
-            </BlockStack>
-          </Card>
-        </Layout.Section>
-
-        <Layout.Section variant="oneHalf">
-          <Card>
-            <BlockStack gap="400">
-              <Text variant="headingMd" as="h2">
-                Payment Methods
-              </Text>
-              {data.cards.length > 0 ? (
-                <BlockStack gap="300">
-                  {data.cards.map((card) => (
-                    <Box
-                      key={card.id}
-                      padding="400"
-                      background="bg-surface-secondary"
-                      borderRadius="200"
-                    >
-                      <InlineStack align="space-between">
-                        <InlineStack gap="300">
-                          <Thumbnail
-                            source={`/images/${card.brand.toLowerCase()}.png`}
-                            alt={`${card.brand} card`}
-                            size="small"
-                          />
-                          <BlockStack gap="050">
-                            <Text variant="bodyMd" as="p" fontWeight="semibold">
-                              {card.name}
-                            </Text>
-                            <Text variant="bodySm" as="p" tone="subdued">
-                              **** **** **** {card.last4}
-                            </Text>
-                            <InlineStack gap="200">
-                              <Text variant="bodySm" as="p" tone="subdued">
-                                {card.expiry}
-                              </Text>
-                              {card.isDefault && <Badge>Default</Badge>}
-                            </InlineStack>
-                          </BlockStack>
-                        </InlineStack>
-                        <Button size="slim" variant="secondary">
-                          Edit
-                        </Button>
-                      </InlineStack>
-                    </Box>
-                  ))}
-                </BlockStack>
-              ) : (
-                <Text variant="bodyMd" as="p" tone="subdued">
-                  No saved cards
-                </Text>
-              )}
             </BlockStack>
           </Card>
         </Layout.Section>
@@ -284,27 +205,6 @@ export default function BillingPage() {
             </BlockStack>
           </Card>
         </Layout.Section>
-
-        <Layout.Section>
-          <Card>
-            <BlockStack gap="400">
-              <Text variant="headingMd" as="h2">
-                Billing History
-              </Text>
-              <DataTable
-                columnContentTypes={["text", "text", "text", "text", "text"]}
-                headings={[
-                  "Transaction Ref",
-                  "Type",
-                  "Date",
-                  "Status",
-                  "Amount",
-                ]}
-                rows={billingHistoryRows}
-              />
-            </BlockStack>
-          </Card>
-        </Layout.Section>
       </Layout>
 
       {/* Top-up Modal */}
@@ -321,22 +221,6 @@ export default function BillingPage() {
           }
         }}
         isLoading={topUpLoading}
-      />
-
-      {/* Add Card Modal */}
-      <AddCardModal
-        open={showAddCardModal}
-        onClose={() => setShowAddCardModal(false)}
-        onSubmit={async (cardData) => {
-          try {
-            await addCard(cardData);
-            setShowAddCardModal(false);
-            refetch(); // Refresh billing data
-          } catch (error) {
-            console.error("Add card failed:", error);
-          }
-        }}
-        isLoading={addCardLoading}
       />
 
       {/* Change Plan Modal */}
