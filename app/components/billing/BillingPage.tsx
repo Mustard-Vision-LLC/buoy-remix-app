@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLoaderData, useRevalidator } from "@remix-run/react";
 import {
   BlockStack,
   Card,
@@ -13,22 +14,28 @@ import {
 } from "@shopify/polaris";
 import ChangePlanModal from "./ChangePlanModal";
 import TopUpModal from "./TopUpModal";
-import {
-  useBillingData,
-  useTopUp,
-  useChangePlan,
-} from "../../hooks/useBilling";
+import { useTopUp, useChangePlan } from "../../hooks/useBilling";
 
 export default function BillingPage() {
-  const { data: billingData, loading, error, refetch } = useBillingData();
+  const loaderData = useLoaderData<any>();
+  const revalidator = useRevalidator();
   const { topUp, loading: topUpLoading } = useTopUp();
   const { changePlan, loading: changePlanLoading } = useChangePlan();
 
   const [showTopUpModal, setShowTopUpModal] = useState(false);
   const [showChangePlanModal, setShowChangePlanModal] = useState(false);
 
-  // Show loading state
-  if (loading) {
+  // Store JWT tokens in localStorage when they're available
+  useEffect(() => {
+    if (loaderData?.jwtToken && loaderData?.refreshToken) {
+      localStorage.setItem("jwt_token", loaderData.jwtToken);
+      localStorage.setItem("refresh_jwt_token", loaderData.refreshToken);
+      console.log("✅ JWT tokens stored from server data");
+    }
+  }, [loaderData]);
+
+  // Show loading state during revalidation
+  if (revalidator.state === "loading" && !loaderData) {
     return (
       <Page title="Billing">
         <Layout>
@@ -48,7 +55,7 @@ export default function BillingPage() {
   }
 
   // Show error state
-  if (error || !billingData) {
+  if (loaderData?.error || !loaderData?.billingData) {
     return (
       <Page title="Billing">
         <Layout>
@@ -56,9 +63,9 @@ export default function BillingPage() {
             <Card>
               <div style={{ textAlign: "center", padding: "2rem" }}>
                 <Text variant="bodyMd" as="p" tone="critical">
-                  {error || "Failed to load billing data"}
+                  {loaderData?.error || "Failed to load billing data"}
                 </Text>
-                <Button onClick={refetch}>Retry</Button>
+                <Button onClick={() => revalidator.revalidate()}>Retry</Button>
               </div>
             </Card>
           </Layout.Section>
@@ -67,7 +74,7 @@ export default function BillingPage() {
     );
   }
 
-  const data = billingData;
+  const data = loaderData.billingData;
 
   const interactionUsagePercentage = Math.min(
     (data.interactions.total / data.interactions.limit) * 100,
@@ -224,7 +231,7 @@ export default function BillingPage() {
           try {
             await topUp(amount);
             setShowTopUpModal(false);
-            refetch(); // Refresh billing data
+            revalidator.revalidate(); // Refresh billing data
           } catch (error) {
             console.error("Top-up failed:", error);
           }
@@ -240,7 +247,7 @@ export default function BillingPage() {
           try {
             await changePlan(planId, planName);
             setShowChangePlanModal(false);
-            refetch(); // Refresh billing data
+            revalidator.revalidate(); // Refresh billing data
           } catch (error) {
             console.error("Plan change failed:", error);
           }
