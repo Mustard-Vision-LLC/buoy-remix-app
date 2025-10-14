@@ -74,6 +74,11 @@ export default function BillingPage() {
     100,
   );
 
+  const storeUsagePercentage =
+    data.connectedStores.total > 0
+      ? (data.connectedStores.active / data.connectedStores.total) * 100
+      : 0;
+
   return (
     <Page title="Billing">
       <Layout>
@@ -172,13 +177,17 @@ export default function BillingPage() {
 
                     <BlockStack gap="200">
                       <Box>
-                        <ProgressBar progress={25} size="small" />
+                        <ProgressBar
+                          progress={storeUsagePercentage}
+                          size="small"
+                        />
                       </Box>
                       <Text variant="bodyXs" as="p" fontWeight="semibold">
                         Connected Stores
                       </Text>
                       <Text variant="bodyXs" as="p" tone="subdued">
-                        {data.connectedStores} / unlimited
+                        {data.connectedStores.active} /{" "}
+                        {data.connectedStores.total}
                       </Text>
                     </BlockStack>
 
