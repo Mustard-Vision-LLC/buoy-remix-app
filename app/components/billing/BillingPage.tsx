@@ -109,7 +109,7 @@ export default function BillingPage() {
           </Card>
         </Layout.Section>
 
-        <Layout.Section>
+        <Layout.Section variant="oneHalf">
           <Card>
             <BlockStack gap="400">
               <Text variant="headingMd" as="h2">
