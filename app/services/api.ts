@@ -53,25 +53,15 @@ class ApiClient {
 
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
-      console.log("🔑 Using token:", token.substring(0, 20) + "...");
-    } else {
-      console.warn("⚠️ No JWT token found in localStorage");
     }
-
-    console.log(
-      `📡 API Request: ${options.method || "GET"} ${this.baseURL}${endpoint}`,
-    );
 
     const response = await fetch(`${this.baseURL}${endpoint}`, {
       ...options,
       headers,
     });
 
-    console.log(`📥 Response status: ${response.status}`);
-
     // Handle token expiration
     if (response.status === 401) {
-      console.log("🔄 Token expired, attempting refresh...");
       const refreshToken = tokenManager.getRefreshToken();
       if (refreshToken) {
         const newTokens = await this.refreshToken(refreshToken);
@@ -82,18 +72,13 @@ class ApiClient {
 
         // Retry the original request with new token
         headers["Authorization"] = `Bearer ${newTokens.jwt_token}`;
-        console.log("✅ Token refreshed, retrying request...");
         const retryResponse = await fetch(`${this.baseURL}${endpoint}`, {
           ...options,
           headers,
         });
 
         if (!retryResponse.ok) {
-          const errorData = await retryResponse.json();
-          console.error("❌ Retry failed:", errorData);
-          throw new Error(
-            `HTTP error! status: ${retryResponse.status}\n${JSON.stringify(errorData)}`,
-          );
+          throw new Error(`HTTP error! status: ${retryResponse.status}`);
         }
 
         return retryResponse.json();
@@ -101,11 +86,7 @@ class ApiClient {
     }
 
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error("❌ API Error:", errorData);
-      throw new Error(
-        `HTTP error! status: ${response.status}\n${JSON.stringify(errorData)}`,
-      );
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     return response.json();

@@ -15,31 +15,21 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     throw new Error("Missing session data");
   }
 
-  console.log("🏪 Shop:", session.shop);
-
   // Login to Fishook API to get JWT tokens
   try {
-    const payload = {
-      shop_url: session.shop,
-      access_token: session.accessToken,
-      shop_type: "SHOPIFY",
-    };
-
-    console.log("📤 Sending login request to Fishook API...");
-
     const response = await fetch(`${API_BASE_URL}/shopify/admin/init`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        shop_url: session.shop,
+        access_token: session.accessToken,
+        shop_type: "SHOPIFY",
+      }),
     });
 
     const loginData = await response.json();
 
-    console.log("📥 Login response status:", response.status);
-    console.log("📦 Login response data:", JSON.stringify(loginData, null, 2));
-
     if (loginData.status_code === 200 && loginData.data?.jwtDetails) {
-      console.log("✅ Login successful, returning JWT tokens");
       // Return JWT tokens to be stored on the client side
       return {
         session: {
@@ -53,12 +43,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       };
     }
 
-    console.error("❌ Login failed:", loginData);
-    throw new Error(
-      `Failed to authenticate with Fishook API: ${loginData.message || "Unknown error"}`,
-    );
+    throw new Error("Failed to authenticate with Fishook API");
   } catch (error) {
-    console.error("❌ Fishook API login error:", error);
+    console.error("Fishook API login error:", error);
     throw new Error("Failed to initialize Fishook session");
   }
 };
@@ -81,26 +68,15 @@ export default function Home() {
 
   // Store JWT tokens in localStorage on component mount
   React.useEffect(() => {
-    console.log("🔐 Checking JWT tokens...");
     if (jwtTokens?.jwt_token && jwtTokens?.refresh_jwt_token) {
       localStorage.setItem("jwt_token", jwtTokens.jwt_token);
       localStorage.setItem("refresh_jwt_token", jwtTokens.refresh_jwt_token);
-      console.log("✅ JWT tokens stored successfully");
-      console.log(
-        "🔑 JWT Token (first 30 chars):",
-        jwtTokens.jwt_token.substring(0, 30) + "...",
-      );
-      console.log(
-        "🔄 Refresh Token (first 30 chars):",
-        jwtTokens.refresh_jwt_token.substring(0, 30) + "...",
-      );
-    } else {
-      console.error("❌ No JWT tokens received from loader");
+      console.log("JWT tokens stored successfully");
     }
   }, [jwtTokens]);
 
-  console.log("🏪 Session shop:", session.shop);
-  console.log("📦 Shop data:", shopData);
+  console.log("Session shop:", session.shop);
+  console.log("Shop data:", shopData);
 
   // useEffect(() => {
   //   shopify.toast.show("Product created");
