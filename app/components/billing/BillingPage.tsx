@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLoaderData } from "@remix-run/react";
 import {
   BlockStack,
   Card,
@@ -19,8 +20,40 @@ import {
   useTopUp,
   useChangePlan,
 } from "../../hooks/useBilling";
+import { setAccessToken } from "../../utils/api";
 
 export default function BillingPage() {
+  const loaderData = useLoaderData<{
+    shop: string;
+    accessToken?: string;
+    error?: string;
+  }>();
+
+  // Set access token when loader data is received
+  useEffect(() => {
+    if (loaderData.accessToken) {
+      setAccessToken(loaderData.accessToken);
+      console.log("🔑 Access token received from loader");
+    }
+  }, [loaderData.accessToken]);
+
+  // Crypto-js sample - runs once on mount
+  useEffect(() => {
+    const secretKey =
+      "$2a$10$YqnDG0Fu5.MdXVBlm9gRI.D75C0$YqnDG0Fu5.$10$YqnDG0Fu5.MdXVBlm9gR-i8cbLojkjfyba-.D75CQQvBU0.pGyrfGdFXAEAHrcLq3Tsa";
+
+    const originalText = "Hello, this is a secret message!";
+    console.log("📝 Original Text:", originalText);
+
+    const encrypted = CryptoJS.AES.encrypt(originalText, secretKey).toString();
+    console.log("🔒 Encrypted:", encrypted);
+
+    const decrypted = CryptoJS.AES.decrypt(encrypted, secretKey).toString(
+      CryptoJS.enc.Utf8,
+    );
+    console.log("🔓 Decrypted:", decrypted);
+  }, []);
+
   const { data: billingData, loading, error, refetch } = useBillingData();
   const { topUp, loading: topUpLoading } = useTopUp();
   const { changePlan, loading: changePlanLoading } = useChangePlan();
@@ -28,43 +61,24 @@ export default function BillingPage() {
   const [showTopUpModal, setShowTopUpModal] = useState(false);
   const [showChangePlanModal, setShowChangePlanModal] = useState(false);
 
-  // Crypto-js sample - runs once on mount
-  useEffect(() => {
-    // Secret key for encryption (should be stored securely in real app)
-    const secretKey = "my-secret-key-12345";
-
-    // Original text to encrypt
-    const originalText = "Hello, this is a secret message!";
-    console.log("📝 Original Text:", originalText);
-
-    // Encrypt the text
-    const encrypted = CryptoJS.AES.encrypt(originalText, secretKey).toString();
-    console.log("🔒 Encrypted:", encrypted);
-
-    // Decrypt the text
-    const decrypted = CryptoJS.AES.decrypt(encrypted, secretKey).toString(
-      CryptoJS.enc.Utf8,
+  // Show loader error
+  if (loaderData.error) {
+    return (
+      <Page title="Billing">
+        <Layout>
+          <Layout.Section>
+            <Card>
+              <div style={{ textAlign: "center", padding: "2rem" }}>
+                <Text variant="bodyMd" as="p" tone="critical">
+                  {loaderData.error}
+                </Text>
+              </div>
+            </Card>
+          </Layout.Section>
+        </Layout>
+      </Page>
     );
-    console.log("🔓 Decrypted:", decrypted);
-
-    // Verify they match
-    console.log("✅ Match:", originalText === decrypted);
-
-    // Example with object
-    const userData = { email: "user@example.com", balance: 1000 };
-    const encryptedData = CryptoJS.AES.encrypt(
-      JSON.stringify(userData),
-      secretKey,
-    ).toString();
-    console.log("🔒 Encrypted Object:", encryptedData);
-
-    const decryptedData = JSON.parse(
-      CryptoJS.AES.decrypt(encryptedData, secretKey).toString(
-        CryptoJS.enc.Utf8,
-      ),
-    );
-    console.log("🔓 Decrypted Object:", decryptedData);
-  }, []);
+  }
 
   // Show loading state
   if (loading) {
@@ -217,7 +231,8 @@ export default function BillingPage() {
                         Connected Stores
                       </Text>
                       <Text variant="bodyXs" as="p" tone="subdued">
-                        {data.connectedStores} / unlimited
+                        {data.connectedStores.active} active /{" "}
+                        {data.connectedStores.total} total
                       </Text>
                     </BlockStack>
 
