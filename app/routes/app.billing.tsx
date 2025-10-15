@@ -1,95 +1,116 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
-import { useLoaderData } from "@remix-run/react";
-import { getJWTSession, jwtSessionStorage } from "../session.server";
+import BillingPage from "../components/billing/BillingPage";
+import {
+  loginToFishook,
+  getBillingData,
+  jwtSessionStorage,
+  topUpWallet,
+} from "../session.server";
+
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const { session: shopifySession } = await authenticate.admin(request);
+
+  if (!shopifySession?.shop || !shopifySession?.accessToken) {
+    throw new Error("Missing Shopify session data");
+  }
+
+  try {
+    const formData = await request.json();
+    const { amount } = formData;
+
+    if (!amount || isNaN(Number(amount))) {
+      return json({ error: "Invalid amount" }, { status: 400 });
+    }
+
+    // Top up wallet
+    const { session } = await topUpWallet(request, Number(amount));
+
+    return json(
+      { success: true },
+      {
+        headers: {
+          "Set-Cookie": await jwtSessionStorage.commitSession(session),
+        },
+      },
+    );
+  } catch (error) {
+    console.error("❌ Error in top-up action:", error);
+    return json(
+      { error: error instanceof Error ? error.message : "Top-up failed" },
+      { status: 500 },
+    );
+  }
+};
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session: shopifySession } = await authenticate.admin(request);
 
-  console.log("🔍 Testing cookie session storage...");
-  console.log("Shop Domain:", shopifySession.shop);
-
-  // Get our cookie session
-  const cookieSession = await getJWTSession(request);
-
-  // Check if we already have data in the cookie
-  let randomNumber = cookieSession.get("randomNumber") as number | undefined;
-  let timestamp = cookieSession.get("timestamp") as string | undefined;
-  let testValue = cookieSession.get("testValue") as string | undefined;
-
-  // If no data exists, create new data
-  if (!randomNumber) {
-    randomNumber = Math.floor(Math.random() * 1000);
-    timestamp = new Date().toISOString();
-    testValue = "Hello from Cookie Session!";
-
-    // Store in cookie session
-    cookieSession.set("randomNumber", randomNumber);
-    cookieSession.set("timestamp", timestamp);
-    cookieSession.set("testValue", testValue);
-
-    console.log("✅ NEW data stored in cookie session");
-  } else {
-    console.log("✅ EXISTING data retrieved from cookie session");
+  if (!shopifySession?.shop || !shopifySession?.accessToken) {
+    throw new Error("Missing Shopify session data");
   }
 
-  console.log("📦 Random number:", randomNumber);
-  console.log("📦 Timestamp:", timestamp);
-  console.log("📦 Test value:", testValue);
+  try {
+    // Step 1: Login to Fishook and store JWT tokens in cookie
+    const { session: cookieSession } = await loginToFishook(
+      request,
+      shopifySession.shop,
+      shopifySession.accessToken,
+    );
 
-  // Return JSON with Set-Cookie header
-  return json(
-    {
-      shop: shopifySession.shop,
-      testValue,
-      timestamp,
-      randomNumber,
-      sessionId: shopifySession.id,
-    },
-    {
-      headers: {
-        "Set-Cookie": await jwtSessionStorage.commitSession(cookieSession),
+    // Step 2: Fetch billing data using the JWT token from cookie
+    const { data: billingData, session: updatedSession } =
+      await getBillingData(request);
+
+    // Use updated session if token was refreshed, otherwise use original
+    const finalSession = updatedSession || cookieSession;
+
+    // Step 3: Transform and return data
+    return json(
+      {
+        shop: shopifySession.shop,
+        billingData: {
+          balance: billingData.balance,
+          currentPlan: {
+            name: billingData.current_plan.name,
+            costPerToken: billingData.current_plan.cost_per_token,
+          },
+          interactions: {
+            total: billingData.total_store_interactions,
+            limit: 300,
+            cost: billingData.total_store_interaction_cost,
+            tokenBalance: billingData.total_store_interaction_token_balance,
+          },
+          connectedStores: {
+            active: billingData.connected_stores.active,
+            inactive: billingData.connected_stores.inactive,
+            total: billingData.connected_stores.total_stores,
+          },
+          customers: billingData.customers,
+          extraBundle: billingData.extra_bundle,
+          extraBundleCost: billingData.extra_bundle_cost,
+        },
       },
-    },
-  );
+      {
+        headers: {
+          "Set-Cookie": await jwtSessionStorage.commitSession(finalSession),
+        },
+      },
+    );
+  } catch (error) {
+    console.error("❌ Error in billing loader:", error);
+
+    // Return error state
+    return json({
+      shop: shopifySession.shop,
+      error:
+        error instanceof Error ? error.message : "Failed to load billing data",
+      billingData: null,
+    });
+  }
 };
 
 export default function Index() {
-  const data = useLoaderData<typeof loader>();
-
-  return (
-    <div style={{ padding: "2rem" }}>
-      <h1>Cookie Session Storage Test</h1>
-      <div
-        style={{
-          marginTop: "1rem",
-          padding: "1rem",
-          background: "#f0f0f0",
-          borderRadius: "8px",
-        }}
-      >
-        <p>
-          <strong>Shop:</strong> {data.shop}
-        </p>
-        <p>
-          <strong>Shopify Session ID:</strong> {data.sessionId}
-        </p>
-        <p>
-          <strong>Test Value:</strong> {data.testValue}
-        </p>
-        <p>
-          <strong>Timestamp:</strong> {data.timestamp}
-        </p>
-        <p>
-          <strong>Random Number:</strong> {data.randomNumber}
-        </p>
-        <p style={{ marginTop: "1rem", fontSize: "0.9rem", color: "#666" }}>
-          ✅ <strong>TEST:</strong> Refresh this page multiple times. If the
-          random number <strong>STAYS THE SAME</strong>, cookie session storage
-          is working!
-        </p>
-      </div>
-    </div>
-  );
+  return <BillingPage />;
 }
