@@ -2,12 +2,8 @@ import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
 import BillingPage from "../components/billing/BillingPage";
-import {
-  loginToFishook,
-  getBillingData,
-  jwtSessionStorage,
-  topUpWallet,
-} from "../session.server";
+import { apiClient } from "../services/api";
+import { jwtSessionStorage, setTokens } from "../session.server";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { session: shopifySession } = await authenticate.admin(request);
@@ -25,14 +21,16 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
 
     // Top up wallet
-    const { session } = await topUpWallet(request, Number(amount));
+    const { session } = await apiClient.topUpWallet(request, Number(amount));
 
     return json(
       { success: true },
       {
-        headers: {
-          "Set-Cookie": await jwtSessionStorage.commitSession(session),
-        },
+        headers: session
+          ? {
+              "Set-Cookie": await jwtSessionStorage.commitSession(session),
+            }
+          : {},
       },
     );
   } catch (error) {
@@ -53,18 +51,25 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   try {
     // Step 1: Login to Fishook and store JWT tokens in cookie
-    const { session: cookieSession } = await loginToFishook(
-      request,
+    const loginResponse = await apiClient.login(
       shopifySession.shop,
       shopifySession.accessToken,
     );
 
+    const cookieSession = await setTokens(
+      request,
+      loginResponse.data.jwtDetails.jwt_token,
+      loginResponse.data.jwtDetails.refresh_jwt_token,
+    );
+
     // Step 2: Fetch billing data using the JWT token from cookie
-    const { data: billingData, session: updatedSession } =
-      await getBillingData(request);
+    const { data: billingResponse, session: updatedSession } =
+      await apiClient.getBillingData(request);
 
     // Use updated session if token was refreshed, otherwise use original
     const finalSession = updatedSession || cookieSession;
+
+    const billingData = billingResponse.data;
 
     // Step 3: Transform and return data
     return json(
