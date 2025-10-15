@@ -1,9 +1,55 @@
-import { getJWTToken, getRefreshToken, setTokens } from "../session.server";
-
 // API Base URL
 const API_BASE_URL = "https://dashboard-api.fishook.online";
 
-// API Client with automatic token refresh (server-side only)
+// Helper to get cookie value by name (client-side)
+function getCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) {
+    const cookieValue = parts.pop()?.split(";").shift();
+    if (cookieValue) {
+      try {
+        // Decode the session cookie (it's URL encoded)
+        const decoded = decodeURIComponent(cookieValue);
+        // Parse the session data (format: "session:xxxx")
+        const sessionMatch = decoded.match(/"jwt_token":"([^"]+)"/);
+        if (sessionMatch) {
+          return sessionMatch[1];
+        }
+      } catch (e) {
+        console.error("Error parsing cookie:", e);
+      }
+    }
+  }
+  return null;
+}
+
+// Helper to get refresh token from cookie
+function getRefreshTokenFromCookie(): string | null {
+  if (typeof document === "undefined") return null;
+
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; __fishook_session=`);
+  if (parts.length === 2) {
+    const cookieValue = parts.pop()?.split(";").shift();
+    if (cookieValue) {
+      try {
+        const decoded = decodeURIComponent(cookieValue);
+        const sessionMatch = decoded.match(/"refresh_jwt_token":"([^"]+)"/);
+        if (sessionMatch) {
+          return sessionMatch[1];
+        }
+      } catch (e) {
+        console.error("Error parsing cookie:", e);
+      }
+    }
+  }
+  return null;
+}
+
+// API Client with automatic token refresh (client-side only)
 class ApiClient {
   private baseURL: string;
 
@@ -13,10 +59,9 @@ class ApiClient {
 
   private async request<T>(
     endpoint: string,
-    request: Request,
     options: RequestInit = {},
-  ): Promise<{ data: T; session?: any }> {
-    const token = await getJWTToken(request);
+  ): Promise<T> {
+    const token = getCookie("__fishook_session");
 
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -34,14 +79,9 @@ class ApiClient {
 
     // Handle token expiration
     if (response.status === 401) {
-      const refreshToken = await getRefreshToken(request);
+      const refreshToken = getRefreshTokenFromCookie();
       if (refreshToken) {
         const newTokens = await this.refreshToken(refreshToken);
-        const session = await setTokens(
-          request,
-          newTokens.jwt_token,
-          newTokens.refresh_jwt_token,
-        );
 
         // Retry the original request with new token
         headers["Authorization"] = `Bearer ${newTokens.jwt_token}`;
@@ -54,8 +94,7 @@ class ApiClient {
           throw new Error(`HTTP error! status: ${retryResponse.status}`);
         }
 
-        const retryData = await retryResponse.json();
-        return { data: retryData, session };
+        return retryResponse.json();
       }
     }
 
@@ -63,8 +102,7 @@ class ApiClient {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data = await response.json();
-    return { data, session: null };
+    return response.json();
   }
 
   // Authentication endpoints
@@ -112,8 +150,8 @@ class ApiClient {
   }
 
   // Billing endpoints
-  async getBillingData(request: Request) {
-    const result = await this.request<{
+  async getBillingData() {
+    return this.request<{
       status_code: number;
       message: string;
       data: {
@@ -134,24 +172,20 @@ class ApiClient {
         total_store_interaction_cost: number;
         total_store_interaction_token_balance: number;
       };
-    }>("/shopify/admin/billings/interactions", request, {
+    }>("/shopify/admin/billings/interactions", {
       method: "GET",
     });
-
-    return result;
   }
 
-  async topUpWallet(request: Request, amount: number) {
-    const result = await this.request<{
+  async topUpWallet(amount: number) {
+    return this.request<{
       status_code: number;
       message: string;
       data: any;
-    }>("/shopify/topup-wallet", request, {
+    }>("/shopify/topup-wallet", {
       method: "POST",
       body: JSON.stringify({ amount }),
     });
-
-    return result;
   }
 }
 
