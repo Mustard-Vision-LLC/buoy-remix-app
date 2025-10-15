@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLoaderData } from "@remix-run/react";
 import {
   BlockStack,
   Card,
@@ -18,14 +19,48 @@ import {
   useTopUp,
   useChangePlan,
 } from "../../hooks/useBilling";
+import { setApiTokens } from "../../services/api";
 
 export default function BillingPage() {
+  const loaderData = useLoaderData<{
+    shop: string;
+    jwtToken?: string;
+    refreshToken?: string;
+    error?: string;
+  }>();
+
+  // Set tokens from loader data
+  useEffect(() => {
+    if (loaderData.jwtToken && loaderData.refreshToken) {
+      setApiTokens(loaderData.jwtToken, loaderData.refreshToken);
+    }
+  }, [loaderData.jwtToken, loaderData.refreshToken]);
+
   const { data: billingData, loading, error, refetch } = useBillingData();
   const { topUp, loading: topUpLoading } = useTopUp();
   const { changePlan, loading: changePlanLoading } = useChangePlan();
 
   const [showTopUpModal, setShowTopUpModal] = useState(false);
   const [showChangePlanModal, setShowChangePlanModal] = useState(false);
+
+  // Show loader error
+  if (loaderData.error) {
+    return (
+      <Page title="Billing">
+        <Layout>
+          <Layout.Section>
+            <Card>
+              <div style={{ textAlign: "center", padding: "2rem" }}>
+                <Text variant="bodyMd" as="p" tone="critical">
+                  {loaderData.error}
+                </Text>
+              </div>
+            </Card>
+          </Layout.Section>
+        </Layout>
+      </Page>
+    );
+  }
 
   // Show loading state
   if (loading) {

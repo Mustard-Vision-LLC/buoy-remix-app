@@ -1,52 +1,19 @@
 // API Base URL
 const API_BASE_URL = "https://dashboard-api.fishook.online";
 
-// Helper to get cookie value by name (client-side)
-function getCookie(name: string): string | null {
-  if (typeof document === "undefined") return null;
+// Token storage (in-memory, will be set by loader data)
+let currentToken: string | null = null;
+let currentRefreshToken: string | null = null;
 
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) {
-    const cookieValue = parts.pop()?.split(";").shift();
-    if (cookieValue) {
-      try {
-        // Decode the session cookie (it's URL encoded)
-        const decoded = decodeURIComponent(cookieValue);
-        // Parse the session data (format: "session:xxxx")
-        const sessionMatch = decoded.match(/"jwt_token":"([^"]+)"/);
-        if (sessionMatch) {
-          return sessionMatch[1];
-        }
-      } catch (e) {
-        console.error("Error parsing cookie:", e);
-      }
-    }
-  }
-  return null;
+// Set tokens (called when component receives loader data)
+export function setApiTokens(jwtToken: string, refreshToken: string) {
+  currentToken = jwtToken;
+  currentRefreshToken = refreshToken;
 }
 
-// Helper to get refresh token from cookie
-function getRefreshTokenFromCookie(): string | null {
-  if (typeof document === "undefined") return null;
-
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; __fishook_session=`);
-  if (parts.length === 2) {
-    const cookieValue = parts.pop()?.split(";").shift();
-    if (cookieValue) {
-      try {
-        const decoded = decodeURIComponent(cookieValue);
-        const sessionMatch = decoded.match(/"refresh_jwt_token":"([^"]+)"/);
-        if (sessionMatch) {
-          return sessionMatch[1];
-        }
-      } catch (e) {
-        console.error("Error parsing cookie:", e);
-      }
-    }
-  }
-  return null;
+// Get current token
+export function getApiToken() {
+  return currentToken;
 }
 
 // API Client with automatic token refresh (client-side only)
@@ -61,7 +28,7 @@ class ApiClient {
     endpoint: string,
     options: RequestInit = {},
   ): Promise<T> {
-    const token = getCookie("__fishook_session");
+    const token = currentToken;
 
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -79,9 +46,12 @@ class ApiClient {
 
     // Handle token expiration
     if (response.status === 401) {
-      const refreshToken = getRefreshTokenFromCookie();
-      if (refreshToken) {
-        const newTokens = await this.refreshToken(refreshToken);
+      if (currentRefreshToken) {
+        const newTokens = await this.refreshToken(currentRefreshToken);
+
+        // Update tokens
+        currentToken = newTokens.jwt_token;
+        currentRefreshToken = newTokens.refresh_jwt_token;
 
         // Retry the original request with new token
         headers["Authorization"] = `Bearer ${newTokens.jwt_token}`;

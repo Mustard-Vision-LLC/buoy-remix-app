@@ -42,10 +42,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       data.data.jwtDetails.refresh_jwt_token,
     );
 
-    // Return shop info and set cookie
+    // Return shop info, JWT token for client-side API calls, and set cookie
     return json(
       {
         shop: shopifySession.shop,
+        jwtToken: data.data.jwtDetails.jwt_token,
+        refreshToken: data.data.jwtDetails.refresh_jwt_token,
       },
       {
         headers: {
