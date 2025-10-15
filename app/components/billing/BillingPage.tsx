@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   BlockStack,
   Card,
@@ -11,6 +11,7 @@ import {
   ProgressBar,
   Spinner,
 } from "@shopify/polaris";
+import CryptoJS from "crypto-js";
 import ChangePlanModal from "./ChangePlanModal";
 import TopUpModal from "./TopUpModal";
 import {
@@ -26,6 +27,44 @@ export default function BillingPage() {
 
   const [showTopUpModal, setShowTopUpModal] = useState(false);
   const [showChangePlanModal, setShowChangePlanModal] = useState(false);
+
+  // Crypto-js sample - runs once on mount
+  useEffect(() => {
+    // Secret key for encryption (should be stored securely in real app)
+    const secretKey = "my-secret-key-12345";
+
+    // Original text to encrypt
+    const originalText = "Hello, this is a secret message!";
+    console.log("📝 Original Text:", originalText);
+
+    // Encrypt the text
+    const encrypted = CryptoJS.AES.encrypt(originalText, secretKey).toString();
+    console.log("🔒 Encrypted:", encrypted);
+
+    // Decrypt the text
+    const decrypted = CryptoJS.AES.decrypt(encrypted, secretKey).toString(
+      CryptoJS.enc.Utf8,
+    );
+    console.log("🔓 Decrypted:", decrypted);
+
+    // Verify they match
+    console.log("✅ Match:", originalText === decrypted);
+
+    // Example with object
+    const userData = { email: "user@example.com", balance: 1000 };
+    const encryptedData = CryptoJS.AES.encrypt(
+      JSON.stringify(userData),
+      secretKey,
+    ).toString();
+    console.log("🔒 Encrypted Object:", encryptedData);
+
+    const decryptedData = JSON.parse(
+      CryptoJS.AES.decrypt(encryptedData, secretKey).toString(
+        CryptoJS.enc.Utf8,
+      ),
+    );
+    console.log("🔓 Decrypted Object:", decryptedData);
+  }, []);
 
   // Show loading state
   if (loading) {
