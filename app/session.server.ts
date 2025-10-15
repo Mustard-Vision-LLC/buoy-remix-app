@@ -1,50 +1,60 @@
-import { sessionStorage as shopifySessionStorage } from "./shopify.server";
+import { createCookieSessionStorage } from "@remix-run/node";
 
-// Store JWT tokens in Shopify session
+// Create our own cookie session storage for JWT tokens
+export const jwtSessionStorage = createCookieSessionStorage({
+  cookie: {
+    name: "__fishook_session",
+    httpOnly: true,
+    path: "/",
+    sameSite: "lax",
+    secrets: [process.env.SESSION_SECRET || "s3cr3t-change-this-in-production"],
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 60 * 60 * 24 * 7, // 7 days
+  },
+});
+
+// Helper to get session from request
+export async function getJWTSession(request: Request) {
+  return jwtSessionStorage.getSession(request.headers.get("Cookie"));
+}
+
+// Store JWT tokens in cookie session
 export async function storeJWTTokens(
-  sessionId: string,
+  request: Request,
   jwtToken: string,
   refreshToken: string,
 ) {
-  const session = await shopifySessionStorage.loadSession(sessionId);
-  if (!session) {
-    throw new Error("Session not found");
-  }
+  const session = await getJWTSession(request);
 
-  // Add JWT tokens to the session (cast to any to bypass TypeScript)
-  (session as any).jwtToken = jwtToken;
-  (session as any).refreshJwtToken = refreshToken;
+  session.set("jwtToken", jwtToken);
+  session.set("refreshJwtToken", refreshToken);
+  session.set("timestamp", new Date().toISOString());
 
-  // Save the updated session
-  await shopifySessionStorage.storeSession(session);
+  console.log("✅ JWT tokens stored in cookie session");
 
-  console.log("✅ JWT tokens stored in session");
   return session;
 }
 
-// Retrieve JWT tokens from Shopify session
-export async function getJWTTokens(sessionId: string) {
-  const session = await shopifySessionStorage.loadSession(sessionId);
-  if (!session) {
-    return null;
-  }
+// Retrieve JWT tokens from cookie session
+export async function getJWTTokens(request: Request) {
+  const session = await getJWTSession(request);
 
   return {
-    jwtToken: (session as any).jwtToken as string | undefined,
-    refreshJwtToken: (session as any).refreshJwtToken as string | undefined,
+    jwtToken: session.get("jwtToken") as string | undefined,
+    refreshJwtToken: session.get("refreshJwtToken") as string | undefined,
+    timestamp: session.get("timestamp") as string | undefined,
   };
 }
 
 // Clear JWT tokens from session
-export async function clearJWTTokens(sessionId: string) {
-  const session = await shopifySessionStorage.loadSession(sessionId);
-  if (!session) {
-    return;
-  }
+export async function clearJWTTokens(request: Request) {
+  const session = await getJWTSession(request);
 
-  delete (session as any).jwtToken;
-  delete (session as any).refreshJwtToken;
+  session.unset("jwtToken");
+  session.unset("refreshJwtToken");
+  session.unset("timestamp");
 
-  await shopifySessionStorage.storeSession(session);
-  console.log("🗑️ JWT tokens cleared from session");
+  console.log("🗑️ JWT tokens cleared from cookie session");
+
+  return session;
 }
