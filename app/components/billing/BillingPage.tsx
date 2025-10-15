@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useLoaderData, useRevalidator } from "@remix-run/react";
 import {
   BlockStack,
   Card,
@@ -10,35 +9,36 @@ import {
   InlineStack,
   Box,
   ProgressBar,
+  Spinner,
 } from "@shopify/polaris";
 import ChangePlanModal from "./ChangePlanModal";
 import TopUpModal from "./TopUpModal";
+import {
+  useBillingData,
+  useTopUp,
+  useChangePlan,
+} from "../../hooks/useBilling";
 
 export default function BillingPage() {
-  const loaderData = useLoaderData<{
-    shop: string;
-    billingData: any;
-    error?: string;
-  }>();
-  const { revalidate } = useRevalidator();
+  const { data: billingData, loading, error, refetch } = useBillingData();
+  const { topUp, loading: topUpLoading } = useTopUp();
+  const { changePlan, loading: changePlanLoading } = useChangePlan();
 
   const [showTopUpModal, setShowTopUpModal] = useState(false);
   const [showChangePlanModal, setShowChangePlanModal] = useState(false);
-  const [topUpLoading, setTopUpLoading] = useState(false);
-  const [changePlanLoading, setChangePlanLoading] = useState(false);
 
-  // Show error state
-  if (loaderData.error || !loaderData.billingData) {
+  // Show loading state
+  if (loading) {
     return (
       <Page title="Billing">
         <Layout>
           <Layout.Section>
             <Card>
               <div style={{ textAlign: "center", padding: "2rem" }}>
-                <Text variant="bodyMd" as="p" tone="critical">
-                  {loaderData.error || "Failed to load billing data"}
+                <Spinner size="large" />
+                <Text variant="bodyMd" as="p" tone="subdued">
+                  Loading billing data...
                 </Text>
-                <Button onClick={() => revalidate()}>Retry</Button>
               </div>
             </Card>
           </Layout.Section>
@@ -47,7 +47,27 @@ export default function BillingPage() {
     );
   }
 
-  const data = loaderData.billingData;
+  // Show error state
+  if (error || !billingData) {
+    return (
+      <Page title="Billing">
+        <Layout>
+          <Layout.Section>
+            <Card>
+              <div style={{ textAlign: "center", padding: "2rem" }}>
+                <Text variant="bodyMd" as="p" tone="critical">
+                  {error || "Failed to load billing data"}
+                </Text>
+                <Button onClick={refetch}>Retry</Button>
+              </div>
+            </Card>
+          </Layout.Section>
+        </Layout>
+      </Page>
+    );
+  }
+
+  const data = billingData;
 
   const interactionUsagePercentage = Math.min(
     (data.interactions.total / data.interactions.limit) * 100,
@@ -158,8 +178,8 @@ export default function BillingPage() {
                         Connected Stores
                       </Text>
                       <Text variant="bodyXs" as="p" tone="subdued">
-                        {data.connectedStores.active} active /{" "}
-                        {data.connectedStores.total} total
+                        {/* {data.connectedStores} / unlimited */}
+                        unlimited
                       </Text>
                     </BlockStack>
 
@@ -194,19 +214,11 @@ export default function BillingPage() {
         onClose={() => setShowTopUpModal(false)}
         onSubmit={async (amount) => {
           try {
-            setTopUpLoading(true);
-            const response = await fetch("/app/billing", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ amount }),
-            });
-            if (!response.ok) throw new Error("Top-up failed");
+            await topUp(amount);
             setShowTopUpModal(false);
-            revalidate(); // Refresh billing data
+            refetch(); // Refresh billing data
           } catch (error) {
             console.error("Top-up failed:", error);
-          } finally {
-            setTopUpLoading(false);
           }
         }}
         isLoading={topUpLoading}
@@ -218,15 +230,11 @@ export default function BillingPage() {
         onClose={() => setShowChangePlanModal(false)}
         onPlanSelect={async (planId, planName) => {
           try {
-            setChangePlanLoading(true);
-            // TODO: Implement when backend endpoint is available
-            console.log("Change plan:", planId, planName);
+            await changePlan(planId, planName);
             setShowChangePlanModal(false);
-            revalidate(); // Refresh billing data
+            refetch(); // Refresh billing data
           } catch (error) {
             console.error("Plan change failed:", error);
-          } finally {
-            setChangePlanLoading(false);
           }
         }}
         isLoading={changePlanLoading}
