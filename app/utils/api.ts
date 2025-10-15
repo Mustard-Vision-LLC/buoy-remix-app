@@ -13,6 +13,7 @@ let shopifyAccessToken: string | null = null;
 // Set access token (called when component receives loader data)
 export function setAccessToken(accessToken: string) {
   shopifyAccessToken = accessToken;
+  console.log(accessToken, "accessToken");
   console.log("✅ Access token set");
 }
 
@@ -25,7 +26,7 @@ function getEncryptedAccessToken(): string | null {
     shopifyAccessToken,
     SECRET_KEY,
   ).toString();
-
+  console.log(encrypted, "encrypted");
   return encrypted;
 }
 

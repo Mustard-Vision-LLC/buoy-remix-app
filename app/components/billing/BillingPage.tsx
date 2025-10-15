@@ -12,7 +12,6 @@ import {
   ProgressBar,
   Spinner,
 } from "@shopify/polaris";
-import CryptoJS from "crypto-js";
 import ChangePlanModal from "./ChangePlanModal";
 import TopUpModal from "./TopUpModal";
 import {
@@ -33,26 +32,10 @@ export default function BillingPage() {
   useEffect(() => {
     if (loaderData.accessToken) {
       setAccessToken(loaderData.accessToken);
+      console.log(loaderData.accessToken, "loaderData.accessToken");
       console.log("🔑 Access token received from loader");
     }
   }, [loaderData.accessToken]);
-
-  // Crypto-js sample - runs once on mount
-  useEffect(() => {
-    const secretKey =
-      "$2a$10$YqnDG0Fu5.MdXVBlm9gRI.D75C0$YqnDG0Fu5.$10$YqnDG0Fu5.MdXVBlm9gR-i8cbLojkjfyba-.D75CQQvBU0.pGyrfGdFXAEAHrcLq3Tsa";
-
-    const originalText = "Hello, this is a secret message!";
-    console.log("📝 Original Text:", originalText);
-
-    const encrypted = CryptoJS.AES.encrypt(originalText, secretKey).toString();
-    console.log("🔒 Encrypted:", encrypted);
-
-    const decrypted = CryptoJS.AES.decrypt(encrypted, secretKey).toString(
-      CryptoJS.enc.Utf8,
-    );
-    console.log("🔓 Decrypted:", decrypted);
-  }, []);
 
   const { data: billingData, loading, error, refetch } = useBillingData();
   const { topUp, loading: topUpLoading } = useTopUp();
