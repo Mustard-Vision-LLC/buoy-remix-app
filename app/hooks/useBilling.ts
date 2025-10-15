@@ -89,6 +89,11 @@ export function useTopUp() {
 
   const topUp = async (amount: number) => {
     try {
+      // Validate minimum amount
+      if (amount < 50) {
+        throw new Error("Minimum top-up amount is $50");
+      }
+
       setLoading(true);
       setError(null);
 
@@ -117,24 +122,60 @@ export function useTopUp() {
   };
 }
 
+// Hook for fetching plans
+export function usePlans() {
+  const [plans, setPlans] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchPlans = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await apiClient.getPlans();
+
+      if (response.status_code === 200) {
+        setPlans(response.data);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch plans");
+      console.error("Error fetching plans:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchPlans();
+  }, [fetchPlans]);
+
+  return {
+    plans,
+    loading,
+    error,
+    refetch: fetchPlans,
+  };
+}
+
 // Hook for changing plans
 export function useChangePlan() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const changePlan = async (planId: string, planName: string) => {
+  const changePlan = async (planId: string) => {
     try {
       setLoading(true);
       setError(null);
 
-      // TODO: Implement plan change API endpoint when available
-      console.log("Changing plan to:", planId, planName);
+      const response = await apiClient.upgradePlan(planId);
 
-      // Simulating API call for now
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      console.log(`Successfully changed to ${planName} plan`);
-      return { success: true };
+      if (response.status_code === 200) {
+        console.log("Successfully upgraded plan");
+        return response.data;
+      } else {
+        throw new Error(response.message || "Plan upgrade failed");
+      }
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Plan change failed";

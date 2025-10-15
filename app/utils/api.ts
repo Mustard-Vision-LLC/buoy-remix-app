@@ -112,6 +112,44 @@ class ApiClient {
       body: JSON.stringify({ amount }),
     });
   }
+
+  async getPlans() {
+    return this.request<{
+      status_code: number;
+      message: string;
+      data: Array<{
+        uuid: string;
+        is_current_plan: boolean;
+        price: string;
+        description: string;
+        name: string;
+        credit_limit: number;
+        features: Array<{
+          uuid: string;
+          feature_is_enabled: boolean;
+          feature: {
+            uuid: string;
+            code: string;
+            description: string;
+            name: string;
+          };
+          limit_value: number | null;
+        }>;
+      }>;
+    }>("/shopify/plans", {
+      method: "GET",
+    });
+  }
+
+  async upgradePlan(planId: string) {
+    return this.request<{
+      status_code: number;
+      message: string;
+      data: any;
+    }>(`/shopify/plans/${planId}`, {
+      method: "PUT",
+    });
+  }
 }
 
 export const apiClient = new ApiClient(API_BASE_URL);

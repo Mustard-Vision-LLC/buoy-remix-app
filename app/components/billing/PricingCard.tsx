@@ -17,6 +17,7 @@ interface PricingCardProps {
   current?: boolean;
   onSelect?: () => void;
   isLoading?: boolean;
+  currentPlanType?: string;
 }
 
 export default function PricingCard({
@@ -28,7 +29,27 @@ export default function PricingCard({
   current = false,
   onSelect,
   isLoading = false,
+  currentPlanType = "",
 }: PricingCardProps) {
+  // Define plan hierarchy
+  const planHierarchy: Record<string, number> = {
+    starter: 1,
+    business: 2,
+    enterprise: 3,
+  };
+
+  // Function to determine if this is an upgrade or downgrade
+  const getActionType = () => {
+    if (current) return "current";
+
+    const currentPlanLevel = planHierarchy[currentPlanType.toLowerCase()] || 1;
+    const thisPlanLevel = planHierarchy[type.toLowerCase()] || 1;
+
+    return thisPlanLevel > currentPlanLevel ? "upgrade" : "downgrade";
+  };
+
+  const actionType = getActionType();
+
   return (
     <Card>
       <BlockStack gap="400">
@@ -78,7 +99,11 @@ export default function PricingCard({
             fullWidth
             variant="primary"
           >
-            {isLoading ? "Updating..." : "Select Plan"}
+            {isLoading
+              ? "Updating..."
+              : actionType === "upgrade"
+                ? "Upgrade"
+                : "Downgrade"}
           </Button>
         )}
       </BlockStack>
