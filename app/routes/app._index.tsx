@@ -3,10 +3,8 @@ import { useLoaderData } from "@remix-run/react";
 import { TitleBar } from "@shopify/app-bridge-react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { BlockStack, Layout, Page } from "@shopify/polaris";
-import React from "react";
 
 const dashboardUrl = "https://sandbox-dashboard.fishook.online/?source=shopify";
-const API_BASE_URL = "https://dashboard-api.fishook.online";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
@@ -15,68 +13,37 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     throw new Error("Missing session data");
   }
 
-  // Login to Fishook API to get JWT tokens
-  try {
-    const response = await fetch(`${API_BASE_URL}/shopify/admin/init`, {
+  const payload = {
+    shop_url: session.shop,
+    access_token: session.accessToken,
+    shop_type: "SHOPIFY",
+  };
+
+  const response = await fetch(
+    `https://sandbox.fishook.online/oauth/shop/login`,
+    {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        shop_url: session.shop,
-        access_token: session.accessToken,
-        shop_type: "SHOPIFY",
-      }),
-    });
+      body: JSON.stringify(payload),
+    },
+  );
 
-    const loginData = await response.json();
+  const jsonData = await response.json();
 
-    if (loginData.status_code === 200 && loginData.data?.jwtDetails) {
-      // Return JWT tokens to be stored on the client side
-      return {
-        session: {
-          shop: session.shop,
-        },
-        jwtTokens: {
-          jwt_token: loginData.data.jwtDetails.jwt_token,
-          refresh_jwt_token: loginData.data.jwtDetails.refresh_jwt_token,
-        },
-        shopData: loginData.data.shop,
-      };
-    }
-
-    throw new Error("Failed to authenticate with Fishook API");
-  } catch (error) {
-    console.error("Fishook API login error:", error);
-    throw new Error("Failed to initialize Fishook session");
-  }
+  return { session, jsonData };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {};
 
 export default function Home() {
-  const { session, jwtTokens, shopData } = useLoaderData<{
-    session: { shop: string };
-    jwtTokens: {
-      jwt_token: string;
-      refresh_jwt_token: string;
-    };
-    shopData: {
-      shop_url: string;
-      script_tag_id: string;
-      platform: string;
-    };
+  // const shopify = useAppBridge();
+  const { session, jsonData } = useLoaderData<{
+    session: string;
+    jsonData: any;
   }>();
 
-  // Store JWT tokens in localStorage on component mount
-  React.useEffect(() => {
-    if (jwtTokens?.jwt_token && jwtTokens?.refresh_jwt_token) {
-      localStorage.setItem("jwt_token", jwtTokens.jwt_token);
-      localStorage.setItem("refresh_jwt_token", jwtTokens.refresh_jwt_token);
-      console.log("JWT tokens stored successfully");
-    }
-  }, [jwtTokens]);
-
-  console.log("Session shop:", session.shop);
-  console.log("Shop data:", shopData);
+  console.log(session, "session");
+  console.log(jsonData, "json data");
 
   // useEffect(() => {
   //   shopify.toast.show("Product created");

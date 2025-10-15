@@ -213,8 +213,7 @@ export default function BillingPage() {
                         Connected Stores
                       </Text>
                       <Text variant="bodyXs" as="p" tone="subdued">
-                        {/* {data.connectedStores} / unlimited */}
-                        unlimited
+                        {data.connectedStores} / unlimited
                       </Text>
                     </BlockStack>
 

@@ -1,110 +1,148 @@
-import { useState, useEffect, useCallback } from "react";
-import { apiClient } from "../services/api";
+import { useState, useEffect } from "react";
 
 // Types for billing data
 export interface BillingData {
-  balance: string;
+  balance: number;
   currentPlan: {
     name: string;
-    costPerToken: string;
+    costPerToken: number;
   };
   interactions: {
     total: number;
     limit: number;
-    cost: number;
-    tokenBalance: number;
   };
-  connectedStores: {
-    active: number;
-    inactive: number;
-    total: number;
-  };
+  connectedStores: number;
   customers: number;
-  extraBundle: boolean;
-  extraBundleCost: string;
+  cards: Array<{
+    id: string;
+    brand: string;
+    last4: string;
+    expiry: string;
+    name: string;
+    isDefault: boolean;
+  }>;
+  billingHistory: Array<{
+    id: string;
+    transactionRef: string;
+    type: string;
+    date: string;
+    status: string;
+    amount: string;
+  }>;
 }
+
+// Mock data - replace with actual API calls
+const mockBillingData: BillingData = {
+  balance: 25.5,
+  currentPlan: {
+    name: "Starter",
+    costPerToken: 0.009,
+  },
+  interactions: {
+    total: 150,
+    limit: 300,
+  },
+  connectedStores: 1,
+  customers: 45,
+  cards: [
+    {
+      id: "1",
+      brand: "visa",
+      last4: "4242",
+      expiry: "12/25",
+      name: "John Doe",
+      isDefault: true,
+    },
+  ],
+  billingHistory: [
+    {
+      id: "1",
+      transactionRef: "TXN-001",
+      type: "top_up",
+      date: "2024-10-01",
+      status: "successful",
+      amount: "$25.00",
+    },
+    {
+      id: "2",
+      transactionRef: "TXN-002",
+      type: "plan_upgrade",
+      date: "2024-09-15",
+      status: "successful",
+      amount: "$19.99",
+    },
+  ],
+};
 
 export function useBillingData() {
   const [data, setData] = useState<BillingData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  useEffect(() => {
+    // Simulate API call
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        // Simulate network delay
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const response = await apiClient.getBillingData();
+        // In a real implementation, this would be:
+        // const response = await fetch('/api/billing');
+        // const data = await response.json();
 
-      if (response.status_code === 200) {
-        // Transform API response to match component structure
-        setData({
-          balance: response.data.balance,
-          currentPlan: {
-            name: response.data.current_plan.name,
-            costPerToken: response.data.current_plan.cost_per_token,
-          },
-          interactions: {
-            total: response.data.total_store_interactions,
-            limit: 300, // You may want to get this from the API
-            cost: response.data.total_store_interaction_cost,
-            tokenBalance: response.data.total_store_interaction_token_balance,
-          },
-          connectedStores: {
-            active: response.data.connected_stores.active,
-            inactive: response.data.connected_stores.inactive,
-            total: response.data.connected_stores.total_stores,
-          },
-          customers: response.data.customers,
-          extraBundle: response.data.extra_bundle,
-          extraBundleCost: response.data.extra_bundle_cost,
-        });
+        setData(mockBillingData);
+        setError(null);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to fetch billing data",
+        );
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to fetch billing data",
-      );
-      console.error("Error fetching billing data:", err);
-    } finally {
-      setLoading(false);
-    }
+    };
+
+    fetchData();
   }, []);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const refetch = () => {
+    // Trigger data refetch
+    setLoading(true);
+    setTimeout(() => {
+      setData({ ...mockBillingData });
+      setLoading(false);
+    }, 500);
+  };
 
   return {
     data,
     loading,
     error,
-    refetch: fetchData,
+    refetch,
   };
 }
 
 // Hook for top-up functionality
 export function useTopUp() {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const topUp = async (amount: number) => {
+    setLoading(true);
     try {
-      setLoading(true);
-      setError(null);
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      const response = await apiClient.topUpWallet(amount);
+      // In a real implementation:
+      // await fetch('/api/billing/top-up', {
+      //   method: 'POST',
+      //   body: JSON.stringify({ amount }),
+      // });
 
-      if (response.status_code === 200) {
-        console.log(`Successfully topped up $${amount}`);
-        return response.data;
-      } else {
-        throw new Error(response.message || "Top-up failed");
-      }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Top-up failed";
-      setError(errorMessage);
-      console.error("Top-up failed:", err);
-      throw new Error(errorMessage);
+      console.log(`Successfully topped up $${amount}`);
+      return { success: true };
+    } catch (error) {
+      console.error("Top-up failed:", error);
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -113,7 +151,6 @@ export function useTopUp() {
   return {
     topUp,
     loading,
-    error,
   };
 }
 
@@ -124,8 +161,15 @@ export function useAddCard() {
   const addCard = async (cardData: any) => {
     setLoading(true);
     try {
-      // TODO: Implement API endpoint when available
+      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      // In a real implementation:
+      // await fetch('/api/billing/cards', {
+      //   method: 'POST',
+      //   body: JSON.stringify(cardData),
+      // });
+
       console.log("Successfully added card:", cardData);
       return { success: true };
     } catch (error) {
@@ -145,27 +189,24 @@ export function useAddCard() {
 // Hook for changing plans
 export function useChangePlan() {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const changePlan = async (planId: string, planName: string) => {
+    setLoading(true);
     try {
-      setLoading(true);
-      setError(null);
-
-      // TODO: Implement plan change API endpoint when available
-      console.log("Changing plan to:", planId, planName);
-
-      // Simulating API call for now
+      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      // In a real implementation:
+      // await fetch('/api/billing/change-plan', {
+      //   method: 'POST',
+      //   body: JSON.stringify({ planId }),
+      // });
 
       console.log(`Successfully changed to ${planName} plan`);
       return { success: true };
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Plan change failed";
-      setError(errorMessage);
-      console.error("Plan change failed:", err);
-      throw new Error(errorMessage);
+    } catch (error) {
+      console.error("Plan change failed:", error);
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -174,44 +215,5 @@ export function useChangePlan() {
   return {
     changePlan,
     loading,
-    error,
   };
-}
-
-// Hook for Shopify authentication
-export function useShopifyAuth() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const login = async (shopUrl: string, accessToken: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await apiClient.login(shopUrl, accessToken);
-
-      if (response.status_code === 200 && response.data.jwtDetails) {
-        const { jwt_token, refresh_jwt_token } = response.data.jwtDetails;
-
-        // Store tokens
-        if (typeof window !== "undefined") {
-          localStorage.setItem("jwt_token", jwt_token);
-          localStorage.setItem("refresh_jwt_token", refresh_jwt_token);
-          localStorage.setItem("shop_url", shopUrl);
-        }
-
-        return response.data;
-      } else {
-        throw new Error(response.message || "Login failed");
-      }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Login failed";
-      setError(errorMessage);
-      throw new Error(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return { login, loading, error };
 }
