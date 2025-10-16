@@ -83,7 +83,7 @@ export function useBillingData() {
 }
 
 // Hook for top-up functionality
-export function useTopUp() {
+export function useTopUp(onSuccess?: () => void) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -100,7 +100,14 @@ export function useTopUp() {
       const response = await apiClient.topUpWallet(amount);
 
       if (response.status_code === 200) {
-        console.log(`Successfully topped up $${amount}`);
+        console.log(`✅ Successfully topped up $${amount}`);
+
+        // Call onSuccess callback to refetch billing data
+        if (onSuccess) {
+          console.log("🔄 Refetching billing data after top-up...");
+          onSuccess();
+        }
+
         return response.data;
       } else {
         throw new Error(response.message || "Top-up failed");
@@ -159,7 +166,7 @@ export function usePlans() {
 }
 
 // Hook for changing plans
-export function useChangePlan() {
+export function useChangePlan(onSuccess?: () => void) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -171,7 +178,14 @@ export function useChangePlan() {
       const response = await apiClient.upgradePlan(planId);
 
       if (response.status_code === 200) {
-        console.log("Successfully upgraded plan");
+        console.log("✅ Successfully upgraded plan");
+
+        // Call onSuccess callback to refetch billing data
+        if (onSuccess) {
+          console.log("🔄 Refetching billing data after plan change...");
+          onSuccess();
+        }
+
         return response.data;
       } else {
         throw new Error(response.message || "Plan upgrade failed");

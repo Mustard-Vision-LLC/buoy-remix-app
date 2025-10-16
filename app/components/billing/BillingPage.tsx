@@ -41,8 +41,8 @@ export default function BillingPage() {
   }, [loaderData.accessToken]);
 
   const { data: billingData, loading, error, refetch } = useBillingData();
-  const { topUp, loading: topUpLoading } = useTopUp();
-  const { changePlan, loading: changePlanLoading } = useChangePlan();
+  const { topUp, loading: topUpLoading } = useTopUp(refetch); // Pass refetch callback
+  const { changePlan, loading: changePlanLoading } = useChangePlan(refetch); // Pass refetch callback
   const { plans, loading: plansLoading } = usePlans();
 
   const [showTopUpModal, setShowTopUpModal] = useState(false);
@@ -63,6 +63,11 @@ export default function BillingPage() {
     () => setToastActive((active) => !active),
     [],
   );
+
+  const reload = () => {
+    window.location.reload();
+    refetch();
+  };
 
   const toastMarkup = toastActive ? (
     <Toast
@@ -123,7 +128,7 @@ export default function BillingPage() {
                 <Text variant="bodyMd" as="p" tone="critical">
                   {error || "Failed to load billing data"}
                 </Text>
-                <Button onClick={refetch}>Retry</Button>
+                <Button onClick={reload}>Retry</Button>
               </div>
             </Card>
           </Layout.Section>
@@ -289,7 +294,7 @@ export default function BillingPage() {
               await topUp(amount);
               showToast(`Successfully topped up $${amount}!`);
               setShowTopUpModal(false);
-              refetch(); // Refresh billing data
+              // Billing data automatically refreshed by useTopUp hook
             } catch (error) {
               const message =
                 error instanceof Error ? error.message : "Top-up failed";
@@ -309,7 +314,7 @@ export default function BillingPage() {
               await changePlan(planId);
               showToast(`Successfully upgraded to ${planName} plan!`);
               setShowChangePlanModal(false);
-              refetch(); // Refresh billing data
+              // Billing data automatically refreshed by useChangePlan hook
             } catch (error) {
               const message =
                 error instanceof Error ? error.message : "Plan change failed";
