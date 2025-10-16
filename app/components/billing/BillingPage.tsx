@@ -35,8 +35,8 @@ export default function BillingPage() {
   useEffect(() => {
     if (loaderData.accessToken) {
       setAccessToken(loaderData.accessToken);
-      console.log(loaderData.accessToken, "loaderData.accessToken");
-      console.log("🔑 Access token received from loader");
+      // console.log(loaderData.accessToken, "loaderData.accessToken");
+      // console.log("🔑 Access token received from loader");
     }
   }, [loaderData.accessToken]);
 
@@ -293,13 +293,10 @@ export default function BillingPage() {
             try {
               const result = await topUp(amount);
 
-              // If there's a redirect_url, the hook will handle redirection
-              // Otherwise, show success toast
               if (!result?.redirect_url) {
                 showToast(`Successfully topped up $${amount}!`);
                 setShowTopUpModal(false);
               }
-              // Note: Modal will stay open during redirect to show loading state
             } catch (error) {
               const message =
                 error instanceof Error ? error.message : "Top-up failed";

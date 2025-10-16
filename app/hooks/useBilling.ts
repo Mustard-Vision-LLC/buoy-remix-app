@@ -100,22 +100,12 @@ export function useTopUp(onSuccess?: () => void) {
       const response = await apiClient.topUpWallet(amount);
 
       if (response.status_code === 200) {
-        console.log(`✅ Successfully initiated top-up for $${amount}`);
-
-        // Check if there's a redirect URL for Shopify confirmation
         if (response.data?.redirect_url) {
-          console.log(
-            "🔗 Redirecting to Shopify confirmation:",
-            response.data.redirect_url,
-          );
-          // Redirect to Shopify confirmation page
           window.top!.location.href = response.data.redirect_url;
           return response.data;
         }
 
-        // If no redirect, call onSuccess callback to refetch billing data
         if (onSuccess) {
-          console.log("🔄 Refetching billing data after top-up...");
           onSuccess();
         }
 
@@ -126,7 +116,6 @@ export function useTopUp(onSuccess?: () => void) {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Top-up failed";
       setError(errorMessage);
-      console.error("Top-up failed:", err);
       throw new Error(errorMessage);
     } finally {
       setLoading(false);
@@ -189,22 +178,13 @@ export function useChangePlan(onSuccess?: () => void) {
       const response = await apiClient.upgradePlan(planId);
 
       if (response.status_code === 200) {
-        console.log("✅ Successfully initiated plan upgrade");
-
-        // Check if there's a redirect URL for Shopify confirmation
         if (response.data?.redirect_url) {
-          console.log(
-            "🔗 Redirecting to Shopify confirmation:",
-            response.data.redirect_url,
-          );
-          // Redirect to Shopify confirmation page
           window.top!.location.href = response.data.redirect_url;
           return response.data;
         }
 
         // If no redirect, call onSuccess callback to refetch billing data
         if (onSuccess) {
-          console.log("🔄 Refetching billing data after plan change...");
           onSuccess();
         }
 
