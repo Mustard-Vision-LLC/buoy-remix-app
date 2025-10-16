@@ -291,10 +291,15 @@ export default function BillingPage() {
           onClose={() => setShowTopUpModal(false)}
           onSubmit={async (amount) => {
             try {
-              await topUp(amount);
-              showToast(`Successfully topped up $${amount}!`);
-              setShowTopUpModal(false);
-              // Billing data automatically refreshed by useTopUp hook
+              const result = await topUp(amount);
+
+              // If there's a redirect_url, the hook will handle redirection
+              // Otherwise, show success toast
+              if (!result?.redirect_url) {
+                showToast(`Successfully topped up $${amount}!`);
+                setShowTopUpModal(false);
+              }
+              // Note: Modal will stay open during redirect to show loading state
             } catch (error) {
               const message =
                 error instanceof Error ? error.message : "Top-up failed";
@@ -311,10 +316,15 @@ export default function BillingPage() {
           onClose={() => setShowChangePlanModal(false)}
           onPlanSelect={async (planId, planName) => {
             try {
-              await changePlan(planId);
-              showToast(`Successfully upgraded to ${planName} plan!`);
-              setShowChangePlanModal(false);
-              // Billing data automatically refreshed by useChangePlan hook
+              const result = await changePlan(planId);
+
+              // If there's a redirect_url, the hook will handle redirection
+              // Otherwise, show success toast
+              if (!result?.redirect_url) {
+                showToast(`Successfully upgraded to ${planName} plan!`);
+                setShowChangePlanModal(false);
+              }
+              // Note: Modal will stay open during redirect to show loading state
             } catch (error) {
               const message =
                 error instanceof Error ? error.message : "Plan change failed";
