@@ -4,7 +4,8 @@ import { TitleBar } from "@shopify/app-bridge-react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { BlockStack, Layout, Page } from "@shopify/polaris";
 
-const dashboardUrl = "https://sandbox-dashboard.fishook.online/?source=shopify";
+const dashboardUrl =
+  "https://dashboard.fishook.online/merchant/auth/signup?source=shopify";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
