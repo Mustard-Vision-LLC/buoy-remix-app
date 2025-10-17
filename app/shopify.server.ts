@@ -20,6 +20,13 @@ const shopify = shopifyApp({
     unstable_newEmbeddedAuthStrategy: true,
     removeRest: true,
   },
+  hooks: {
+    afterAuth: async ({ session }) => {
+      console.log("✅ Shop installed:", session.shop);
+      console.log("🗝️ Access token:", session.accessToken);
+      // Redirect happens in auth.$.tsx route
+    },
+  },
 
   ...(process.env.SHOP_CUSTOM_DOMAIN
     ? { customShopDomains: [process.env.SHOP_CUSTOM_DOMAIN] }
