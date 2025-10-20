@@ -54,6 +54,10 @@ class ApiClient {
       ...(options.headers as Record<string, string>),
     };
 
+    if (shopifyAccessToken) {
+      headers["x-shopify-shop-domain"] = shopifyAccessToken;
+    }
+
     console.log(`🔐 Making request to ${endpoint} with encrypted token`);
 
     const response = await fetch(`${this.baseURL}${endpoint}`, {
