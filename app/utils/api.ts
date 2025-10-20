@@ -13,8 +13,12 @@ let shopifyAccessToken: string | null = null;
 // Set access token (called when component receives loader data)
 export function setAccessToken(accessToken: string) {
   shopifyAccessToken = accessToken;
-  console.log(accessToken, "accessToken");
-  console.log("✅ Access token set");
+}
+
+let shopUrl: string | null = null;
+
+export function setShopUrl(shop: string) {
+  shopUrl = shop;
 }
 
 // Get encrypted access token
@@ -54,8 +58,8 @@ class ApiClient {
       ...(options.headers as Record<string, string>),
     };
 
-    if (shopifyAccessToken) {
-      headers["x-shopify-shop-domain"] = shopifyAccessToken;
+    if (shopUrl) {
+      headers["x-shopify-shop-domain"] = shopUrl;
     }
 
     console.log(`🔐 Making request to ${endpoint} with encrypted token`);

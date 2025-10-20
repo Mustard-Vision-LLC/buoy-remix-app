@@ -22,7 +22,7 @@ import {
   useChangePlan,
   usePlans,
 } from "../../hooks/useBilling";
-import { setAccessToken } from "../../utils/api";
+import { setAccessToken, setShopUrl } from "../../utils/api";
 
 export default function BillingPage() {
   const loaderData = useLoaderData<{
@@ -35,10 +35,11 @@ export default function BillingPage() {
   useEffect(() => {
     if (loaderData.accessToken) {
       setAccessToken(loaderData.accessToken);
+      setShopUrl(loaderData.shop);
       // console.log(loaderData.accessToken, "loaderData.accessToken");
       // console.log("🔑 Access token received from loader");
     }
-  }, [loaderData.accessToken]);
+  }, [loaderData.accessToken, loaderData.shop]);
 
   const { data: billingData, loading, error, refetch } = useBillingData();
   const { topUp, loading: topUpLoading } = useTopUp(refetch); // Pass refetch callback
