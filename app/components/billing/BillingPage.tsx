@@ -118,23 +118,59 @@ export default function BillingPage() {
     );
   }
 
-  // Show error state
+  // Show error state - likely store not connected
   if (error || !billingData) {
+    const isInvalidShopError =
+      error?.includes("Invalid shop") || error?.includes("token");
+
     return (
-      <Page title="Billing">
-        <Layout>
-          <Layout.Section>
-            <Card>
-              <div style={{ textAlign: "center", padding: "2rem" }}>
-                <Text variant="bodyMd" as="p" tone="critical">
-                  {error || "Failed to load billing data"}
-                </Text>
-                <Button onClick={reload}>Retry</Button>
-              </div>
-            </Card>
-          </Layout.Section>
-        </Layout>
-      </Page>
+      <Frame>
+        {toastMarkup}
+        <Page title="Billing">
+          <Layout>
+            <Layout.Section>
+              <Card>
+                <div style={{ textAlign: "center", padding: "3rem" }}>
+                  <BlockStack gap="400">
+                    <Text variant="headingLg" as="h2">
+                      {isInvalidShopError
+                        ? "Connect Your Store"
+                        : "Unable to Load Billing"}
+                    </Text>
+
+                    <Text variant="bodyLg" as="p" tone="subdued">
+                      {isInvalidShopError
+                        ? "Please connect your Shopify store to Fishook to access billing information."
+                        : "There was a problem loading your billing data."}
+                    </Text>
+
+                    {isInvalidShopError && (
+                      <Text variant="bodySm" as="p" tone="subdued">
+                        You'll need to sign up or log in to the Fishook
+                        dashboard to link your store.
+                      </Text>
+                    )}
+
+                    <InlineStack gap="300" align="center">
+                      {isInvalidShopError ? (
+                        <Button
+                          variant="primary"
+                          url="https://dashboard.fishook.online/merchant/auth/signup?source=shopify"
+                          target="_blank"
+                        >
+                          Connect to Fishook
+                        </Button>
+                      ) : (
+                        <Button onClick={reload}>Retry</Button>
+                      )}
+                    </InlineStack>
+                  </BlockStack>
+                </div>
+              </Card>
+            </Layout.Section>
+          </Layout>
+        </Page>
+      </Frame>
     );
   }
 
