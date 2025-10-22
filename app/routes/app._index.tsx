@@ -3,6 +3,8 @@ import { useLoaderData } from "@remix-run/react";
 import { TitleBar } from "@shopify/app-bridge-react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { BlockStack, Layout, Page } from "@shopify/polaris";
+import { useEffect } from "react";
+import { apiClient, setAccessToken } from "~/utils/api";
 
 const dashboardUrl =
   "https://dashboard.fishook.online/merchant/auth/signup?source=shopify";
@@ -31,20 +33,49 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const jsonData = await response.json();
 
-  return { session, jsonData };
+  return {
+    session,
+    jsonData,
+    shop: session.shop,
+    accessToken: session.accessToken,
+  };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {};
 
 export default function Home() {
   // const shopify = useAppBridge();
-  const { session, jsonData } = useLoaderData<{
+  const { session, jsonData, accessToken } = useLoaderData<{
     session: string;
     jsonData: any;
+    accessToken: string;
   }>();
 
   console.log(session, "session");
   console.log(jsonData, "json data");
+
+  // Test API calls
+  useEffect(() => {
+    const testAPI = async () => {
+      try {
+        if (accessToken) {
+          setAccessToken(accessToken);
+
+          // Test getBillingData endpoint
+          const billingData = await apiClient.getBillingData();
+          console.log("Billing Data home page:", billingData);
+
+          // Test getPlans endpoint
+          const plans = await apiClient.getPlans();
+          console.log("Plans:", plans);
+        }
+      } catch (error) {
+        console.error(" API Test Error home page:", error);
+      }
+    };
+
+    testAPI();
+  }, [accessToken]);
 
   // useEffect(() => {
   //   shopify.toast.show("Product created");
