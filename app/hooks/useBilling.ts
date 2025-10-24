@@ -28,11 +28,13 @@ export function useBillingData() {
   const [data, setData] = useState<BillingData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [errorStatusCode, setErrorStatusCode] = useState<number | null>(null);
 
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
+      setErrorStatusCode(null);
 
       const response = await apiClient.getBillingData();
 
@@ -61,9 +63,9 @@ export function useBillingData() {
         });
       }
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to fetch billing data",
-      );
+      const error = err as Error & { statusCode?: number };
+      setError(error.message || "Failed to fetch billing data");
+      setErrorStatusCode(error.statusCode || null);
       console.error("Error fetching billing data:", err);
     } finally {
       setLoading(false);
@@ -78,6 +80,7 @@ export function useBillingData() {
     data,
     loading,
     error,
+    errorStatusCode,
     refetch: fetchData,
   };
 }

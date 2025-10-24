@@ -39,7 +39,13 @@ export default function BillingPage() {
     }
   }, [loaderData.accessToken, loaderData.shop]);
 
-  const { data: billingData, loading, error, refetch } = useBillingData();
+  const {
+    data: billingData,
+    loading,
+    error,
+    errorStatusCode,
+    refetch,
+  } = useBillingData();
   const { topUp, loading: topUpLoading } = useTopUp(refetch); // Pass refetch callback
   const { changePlan, loading: changePlanLoading } = useChangePlan(refetch); // Pass refetch callback
   const { plans, loading: plansLoading } = usePlans();
@@ -118,12 +124,9 @@ export default function BillingPage() {
 
   // Show error state - likely store not connected
   if (error || !billingData) {
-    const isNotEnabledError =
-      error?.includes("not enabled Fishook") ||
-      error?.includes("given it permission");
-    const isInvalidShopError =
-      error?.includes("Invalid shop") || error?.includes("token");
-    const isConnectionError = isNotEnabledError || isInvalidShopError;
+    // 400-level errors indicate setup/permission issues
+    const isSetupError = errorStatusCode === 400;
+    const is5xxError = errorStatusCode && errorStatusCode >= 500;
 
     return (
       <Frame>
@@ -135,28 +138,32 @@ export default function BillingPage() {
                 <div style={{ textAlign: "center", padding: "3rem" }}>
                   <BlockStack gap="400">
                     <Text variant="headingLg" as="h2">
-                      {isConnectionError
-                        ? "Connect Your Store to Fishook"
-                        : "Unable to Load Billing"}
+                      {isSetupError
+                        ? "Setup Required"
+                        : is5xxError
+                          ? "Service Unavailable"
+                          : "Unable to Load Billing"}
                     </Text>
 
                     <Text variant="bodyLg" as="p" tone="subdued">
-                      {isNotEnabledError
-                        ? "It looks like you have not enabled Fishook or given it permission to connect to your store."
-                        : isInvalidShopError
-                          ? "Please connect your Shopify store to Fishook to access billing information."
-                          : "There was a problem loading your billing data."}
+                      {isSetupError
+                        ? error ||
+                          "Please complete the setup in your Fishook dashboard to access billing."
+                        : is5xxError
+                          ? "The Fishook service is temporarily unavailable. Please try again later."
+                          : error ||
+                            "There was a problem loading your billing data."}
                     </Text>
 
-                    {isConnectionError && (
+                    {isSetupError && (
                       <Text variant="bodySm" as="p" tone="subdued">
-                        You'll need to sign up or log in to the Fishook
-                        dashboard and enable the integration for your store.
+                        Sign in to the Fishook dashboard to enable the
+                        integration and configure your store settings.
                       </Text>
                     )}
 
                     <InlineStack gap="300" align="center">
-                      {isConnectionError ? (
+                      {isSetupError ? (
                         <Button
                           variant="primary"
                           url="https://dashboard.fishook.online/merchant/auth/signup?source=shopify"
