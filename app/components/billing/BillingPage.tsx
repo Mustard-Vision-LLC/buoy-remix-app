@@ -36,8 +36,6 @@ export default function BillingPage() {
     if (loaderData.accessToken) {
       setAccessToken(loaderData.accessToken);
       setShopUrl(loaderData.shop);
-      // console.log(loaderData.accessToken, "loaderData.accessToken");
-      // console.log("🔑 Access token received from loader");
     }
   }, [loaderData.accessToken, loaderData.shop]);
 

@@ -3,8 +3,6 @@ import { useLoaderData } from "@remix-run/react";
 import { TitleBar } from "@shopify/app-bridge-react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { BlockStack, Layout, Page } from "@shopify/polaris";
-import { useEffect } from "react";
-import { apiClient, setAccessToken, setShopUrl } from "~/utils/api";
 
 const dashboardUrl =
   "https://dashboard.fishook.online/merchant/auth/signup?source=shopify";
@@ -45,39 +43,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {};
 
 export default function Home() {
   // const shopify = useAppBridge();
-  const { session, jsonData, accessToken, shop } = useLoaderData<{
+  const {} = useLoaderData<{
     session: string;
     jsonData: any;
     accessToken: string;
     shop: string;
   }>();
 
-  console.log(session, "session");
-  console.log(jsonData, "json data");
-
   // Test API calls
-  useEffect(() => {
-    const testAPI = async () => {
-      try {
-        if (accessToken && shop) {
-          setAccessToken(accessToken);
-          setShopUrl(shop);
-
-          // Test getBillingData endpoint
-          const billingData = await apiClient.getBillingData();
-          console.log("✅ Billing Data:", billingData);
-
-          // Test getPlans endpoint
-          const plans = await apiClient.getPlans();
-          console.log("✅ Plans:", plans);
-        }
-      } catch (error) {
-        console.error("❌ API Test Error:", error);
-      }
-    };
-
-    testAPI();
-  }, [accessToken, shop]);
 
   // useEffect(() => {
   //   shopify.toast.show("Product created");
@@ -86,29 +59,6 @@ export default function Home() {
   const goToLogin = () => {
     window.open(dashboardUrl, "_blank", "noopener,noreferrer");
   };
-
-  // const widgetInstall = async () => {
-  //   try {
-  //     const body = {
-  //       shop_id: "89d0c014-ab1a-4a14-ad4a-5cfb0417158b",
-  //       merchant_id: "6e5f9023-e711-4a79-bf8b-0d22cd79dc88",
-  //       widget_name: "demo_name",
-  //     };
-
-  //     const response = await fetch(
-  //       `${process.env.VITE_API_BASE_URL}/shopify/widgets`,
-  //       {
-  //         method: "POST",
-  //         body: JSON.stringify(body),
-  //       },
-  //     );
-
-  //     const json = await response.json();
-  //     console.log(json);
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  // };
 
   return (
     <Page>

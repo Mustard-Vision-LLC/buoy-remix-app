@@ -30,7 +30,7 @@ function getEncryptedAccessToken(): string | null {
     shopifyAccessToken,
     SECRET_KEY,
   ).toString();
-  console.log(encrypted, "encrypted");
+
   return encrypted;
 }
 
@@ -62,8 +62,6 @@ class ApiClient {
       headers["x-shopify-shop-domain"] = shopUrl;
     }
 
-    console.log(`🔐 Making request to ${endpoint} with encrypted token`);
-
     const response = await fetch(`${this.baseURL}${endpoint}`, {
       ...options,
       headers,
@@ -78,7 +76,7 @@ class ApiClient {
     }
 
     const data = await response.json();
-    console.log(`✅ Response from ${endpoint}:`, data);
+
     return data;
   }
 
