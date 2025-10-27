@@ -147,12 +147,10 @@ export default function BillingPage() {
 
                     <Text variant="bodyLg" as="p" tone="subdued">
                       {isSetupError
-                        ? error ||
-                          "Please complete the setup in your Fishook dashboard to access billing."
+                        ? "Please complete the setup in your Fishook dashboard to access billing."
                         : is5xxError
                           ? "The Fishook service is temporarily unavailable. Please try again later."
-                          : error ||
-                            "There was a problem loading your billing data."}
+                          : "There was a problem loading your billing data."}
                     </Text>
 
                     {isSetupError && (
