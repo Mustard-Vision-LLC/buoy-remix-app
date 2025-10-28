@@ -12,39 +12,40 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
   const { shop } = session;
 
-  // const dbRecord = await prisma.session.findFirst({
-  //   where: {
-  //     shop: shop
-  //   }
-  // });
+  const dbRecord = await prisma.session.findFirst({
+    where: {
+      shop: shop
+    }
+  });
 
-  // if (!dbRecord?.shop || !dbRecord?.accessToken) {
-  //   throw new Error("Missing session data");
-  // }
+  if (!dbRecord?.shop || !dbRecord?.accessToken) {
+    throw new Error("Missing session data");
+  }
 
-  // const payload = {
-  //   shop_url: dbRecord.shop,
-  //   access_token: dbRecord.accessToken,
-  //   shop_type: "SHOPIFY",
-  // };
+  const payload = {
+    shop_url: dbRecord.shop,
+    access_token: dbRecord.accessToken
+  };
 
-  // const response = await fetch(
-  //   `https://sandbox.fishook.online/oauth/shop/login`, {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify(payload),
-  //   }
-  // );
+  const response = await fetch(
+    `https://dashboard-api.fishook.online/shopify/update/token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    }
+  );
 
-  // const jsonData = await response.json();
+  const jsonData = await response.json();
 
-  // console.log('Checking what happens here when this API call goes out');
-  // console.log('sending payload ', JSON.stringify(payload));
-  // console.log('data here from API', JSON.stringify(jsonData));
+  console.log('Checking what happens here when this API call goes out');
+  console.log('sending payload ', JSON.stringify(payload);)
+  console.log('data here from API', JSON.stringify(jsonData));
 
   return {
     session,
-    shop: shop
+    jsonData,
+    shop: shop,
+    accessToken: dbRecord.accessToken,
   };
 };
 
@@ -54,8 +55,8 @@ export default function Home() {
   // const shopify = useAppBridge();
   const {} = useLoaderData<{
     session: string;
-    //jsonData: any;
-    //accessToken: string;
+    jsonData: any;
+    accessToken: string;
     shop: string;
   }>();
 
