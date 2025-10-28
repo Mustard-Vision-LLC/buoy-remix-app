@@ -10,27 +10,26 @@ const dashboardUrl =
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
+  const { shop } = session;
 
-  try {
-    const allStores = await prisma.session.findMany();
-    console.log('allStores', allStores);
-  } catch (error: any) {
-    console.log(error.message);
-  }
-  
-  if (!session?.shop || !session?.accessToken) {
+  const dbRecord = await prisma.session.findFirst({
+    where: {
+      shop: shop
+    }
+  });
+
+  if (!dbRecord?.shop || !dbRecord?.accessToken) {
     throw new Error("Missing session data");
   }
 
   const payload = {
-    shop_url: session.shop,
-    access_token: session.accessToken,
+    shop_url: dbRecord.shop,
+    access_token: dbRecord.accessToken,
     shop_type: "SHOPIFY",
   };
 
   const response = await fetch(
-    `https://sandbox.fishook.online/oauth/shop/login`,
-    {
+    `https://sandbox.fishook.online/oauth/shop/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -42,8 +41,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   return {
     session,
     jsonData,
-    shop: session.shop,
-    accessToken: session.accessToken,
+    shop: shop,
+    accessToken: dbRecord.accessToken,
   };
 };
 
