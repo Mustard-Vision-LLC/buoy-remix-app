@@ -14,8 +14,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const dbRecord = await prisma.session.findFirst({
     where: {
-      shop: shop
-    }
+      shop: shop,
+    },
   });
 
   if (!dbRecord?.shop || !dbRecord?.accessToken) {
@@ -24,22 +24,23 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const payload = {
     shop_url: dbRecord.shop,
-    access_token: dbRecord.accessToken
+    access_token: dbRecord.accessToken,
   };
 
   const response = await fetch(
-    `https://dashboard-api.fishook.online/shopify/update/token`, {
+    `https://dashboard-api.fishook.online/shopify/update/token`,
+    {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    }
+      body: JSON.stringify(payload),
+    },
   );
 
   const jsonData = await response.json();
 
-  console.log('Checking what happens here when this API call goes out');
-  console.log('sending payload ', JSON.stringify(payload);)
-  console.log('data here from API', JSON.stringify(jsonData));
+  console.log("Checking what happens here when this API call goes out");
+  console.log("sending payload ", JSON.stringify(payload));
+  console.log("data here from API", JSON.stringify(jsonData));
 
   return {
     session,
