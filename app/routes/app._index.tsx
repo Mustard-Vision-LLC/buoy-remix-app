@@ -3,6 +3,7 @@ import { useLoaderData } from "@remix-run/react";
 import { TitleBar } from "@shopify/app-bridge-react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { BlockStack, Layout, Page } from "@shopify/polaris";
+import prisma from "~/db.server";
 
 const dashboardUrl =
   "https://dashboard.fishook.online/merchant/auth/signup?source=shopify";
@@ -10,6 +11,13 @@ const dashboardUrl =
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
 
+  try {
+    const allStores = await prisma.session.findMany();
+    console.log('allStores', allStores);
+  } catch (error: any) {
+    console.log(error.message);
+  }
+  
   if (!session?.shop || !session?.accessToken) {
     throw new Error("Missing session data");
   }
