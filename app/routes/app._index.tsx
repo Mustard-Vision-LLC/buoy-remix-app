@@ -39,6 +39,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const jsonData = await response.json();
 
   console.log('Checking what happens here when this API call goes out');
+  console.log('sending payload ', JSON.stringify(payload));
   console.log('data here from API', JSON.stringify(jsonData));
 
   return {
