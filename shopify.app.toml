@@ -31,7 +31,9 @@ scopes = "read_price_rules,write_price_rules,read_discounts,write_discounts,read
 
 [auth]
 redirect_urls = [
-  "https://sandbox.fishook.online/oauth/shopify/callback"
+  "https://buoy-remix-app-rough-glitter-2019.fly.dev/auth/callback",
+  "https://buoy-remix-app-rough-glitter-2019.fly.dev/auth/shopify/callback",
+  "https://buoy-remix-app-rough-glitter-2019.fly.dev/api/auth/callback"
 ]
 
 [pos]
