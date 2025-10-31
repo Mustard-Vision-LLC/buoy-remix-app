@@ -4,7 +4,7 @@
   <img src="{{ 'chat-icon.svg' | asset_url }}" width="32" height="32" alt="chat" />
 </div>
 
-<iframe class="buoy-chat-frame" src="{{ block.settings.source }}?id={{ shop.id }}&url={{ shop.secure_url }}&customer={{ customer.id }}"></iframe>
+<iframe class="buoy-chat-frame" src="https://embed.fishook.online?id={{ shop.id }}&url={{ shop.secure_url }}&customer={{ customer.id }}"></iframe>
 
 <script>
   const btn = document.querySelector('.buoy-btn');
@@ -54,7 +54,6 @@
   "settings": [
     { "type": "product", "id": "product", "label": "product", "autofill": true, },
     { "type": "text", "id": "source", "label": "source", "default": "https://embed.fishook.online" },
-    { "type": "text", "id": "icon", "label": "icon", "default": "chat-icon.svg" },
   ],
 }
 {% endschema %}
