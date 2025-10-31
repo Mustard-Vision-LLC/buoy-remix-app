@@ -4,8 +4,8 @@ import { Page, Tabs, Card, BlockStack, Frame } from "@shopify/polaris";
 import ClientOnly from "../dashboard/ClientOnly";
 import AnalyticsTab from "./AnalyticsTab";
 import ChatsTab from "./ChatsTab";
-import WidgetSettingsTab from "./WidgetSettingsTab";
-import WidgetAppearanceTab from "./WidgetAppearanceTab";
+// import WidgetSettingsTab from "./WidgetSettingsTab";
+// import WidgetAppearanceTab from "./WidgetAppearanceTab";
 
 export default function StoreDetailsPage() {
   const loaderData = useLoaderData<{ shop: string }>();
@@ -55,7 +55,7 @@ export default function StoreDetailsPage() {
                   <ChatsTab />
                 </div>
               )}
-              {selected === 2 && (
+              {/* {selected === 2 && (
                 <div style={{ padding: "16px 0" }}>
                   <WidgetSettingsTab />
                 </div>
@@ -64,7 +64,7 @@ export default function StoreDetailsPage() {
                 <div style={{ padding: "16px 0" }}>
                   <WidgetAppearanceTab />
                 </div>
-              )}
+              )} */}
             </Tabs>
           </Card>
         </BlockStack>
