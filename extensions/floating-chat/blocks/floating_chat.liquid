@@ -1,8 +1,6 @@
 {{ 'output.css' | asset_url | stylesheet_tag }}
 
-<div class="buoy-btn">
-  <img src="{{ 'chat-icon.svg' | asset_url }}" width="32" height="32" alt="chat" />
-</div>
+
 
 <iframe class="buoy-chat-frame" src="https://embed.fishook.online?id={{ shop.id }}&url={{ shop.secure_url }}&customer={{ customer.id }}"></iframe>
 
