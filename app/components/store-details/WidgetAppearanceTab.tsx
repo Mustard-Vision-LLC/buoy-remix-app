@@ -5,123 +5,183 @@ import {
   InlineStack,
   Text,
   Button,
-  TextField,
   Select,
-  ColorPicker,
-  hsbToRgb,
+  Checkbox,
+  DropZone,
+  Thumbnail,
 } from "@shopify/polaris";
 
+const THEME_COLORS = [
+  { name: "Red", value: "red", hex: "#D32F2F", bubbleColor: "#FFEBEE" },
+  { name: "Pink", value: "pink", hex: "#C2185B", bubbleColor: "#FCE4EC" },
+  { name: "Purple", value: "purple", hex: "#7B1FA2", bubbleColor: "#F3E5F5" },
+  {
+    name: "Deep Purple",
+    value: "deep-purple",
+    hex: "#512DA8",
+    bubbleColor: "#EDE7F6",
+  },
+  { name: "Blue", value: "blue", hex: "#1976D2", bubbleColor: "#E3F2FD" },
+  { name: "Cyan", value: "cyan", hex: "#0097A7", bubbleColor: "#E0F7FA" },
+  { name: "Teal", value: "teal", hex: "#00695C", bubbleColor: "#E0F2F1" },
+  { name: "Green", value: "green", hex: "#388E3C", bubbleColor: "#E8F5E9" },
+  { name: "Lime", value: "lime", hex: "#AFB42B", bubbleColor: "#F9FBE7" },
+  { name: "Yellow", value: "yellow", hex: "#FBC02D", bubbleColor: "#FFFDE7" },
+  { name: "Orange", value: "orange", hex: "#F57C00", bubbleColor: "#FFF3E0" },
+  {
+    name: "Deep Orange",
+    value: "deep-orange",
+    hex: "#E64A19",
+    bubbleColor: "#FBE9E7",
+  },
+  { name: "Brown", value: "brown", hex: "#5D4037", bubbleColor: "#EFEBE9" },
+  { name: "Gray", value: "gray", hex: "#616161", bubbleColor: "#FAFAFA" },
+];
+
 export default function WidgetAppearanceTab() {
-  const [widgetTitle, setWidgetTitle] = useState("Chat with us");
-  const [position, setPosition] = useState("bottom-right");
-  const [primaryColor, setPrimaryColor] = useState({
-    hue: 210,
-    saturation: 1,
-    brightness: 0.87,
-  });
-  const [size, setSize] = useState("medium");
+  const [customize, setCustomize] = useState(false);
+  const [theme, setTheme] = useState("");
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
   const handleSave = () => {
     // Save functionality will be added when API is available
     console.log("Saving widget appearance:", {
-      widgetTitle,
-      position,
-      primaryColor,
-      size,
+      customize,
+      theme,
+      logoFile,
     });
   };
 
-  const positionOptions = [
-    { label: "Bottom Right", value: "bottom-right" },
-    { label: "Bottom Left", value: "bottom-left" },
-    { label: "Top Right", value: "top-right" },
-    { label: "Top Left", value: "top-left" },
-  ];
+  const handleDropZoneDrop = (files: File[]) => {
+    const file = files[0];
+    if (file) {
+      if (logoPreview && logoPreview.startsWith("blob:")) {
+        URL.revokeObjectURL(logoPreview);
+      }
+      setLogoFile(file);
+      const previewUrl = URL.createObjectURL(file);
+      setLogoPreview(previewUrl);
+    }
+  };
 
-  const sizeOptions = [
-    { label: "Small", value: "small" },
-    { label: "Medium", value: "medium" },
-    { label: "Large", value: "large" },
-  ];
+  const handleRemoveLogo = () => {
+    if (logoPreview && logoPreview.startsWith("blob:")) {
+      URL.revokeObjectURL(logoPreview);
+    }
+    setLogoFile(null);
+    setLogoPreview(null);
+  };
 
-  const rgb = hsbToRgb(primaryColor);
-  const colorHex = `#${rgb.red.toString(16).padStart(2, "0")}${rgb.green
-    .toString(16)
-    .padStart(2, "0")}${rgb.blue.toString(16).padStart(2, "0")}`;
+  const themeOptions = THEME_COLORS.map((color) => ({
+    label: `${color.name} (${color.hex})`,
+    value: color.value,
+  }));
+
+  const selectedThemeColor = THEME_COLORS.find(
+    (color) => color.value === theme,
+  );
 
   return (
     <BlockStack gap="500">
       <Card>
         <BlockStack gap="400">
-          <Text variant="headingSm" as="h3">
-            Widget Customization
-          </Text>
-
-          <TextField
-            label="Widget Title"
-            value={widgetTitle}
-            onChange={setWidgetTitle}
-            autoComplete="off"
-            helpText="This will appear at the top of the chat widget"
-          />
-
-          <Select
-            label="Widget Position"
-            options={positionOptions}
-            value={position}
-            onChange={setPosition}
-            helpText="Choose where the widget appears on your store"
-          />
-
-          <Select
-            label="Widget Size"
-            options={sizeOptions}
-            value={size}
-            onChange={setSize}
-            helpText="Select the size of the chat widget button"
-          />
-
-          <BlockStack gap="200">
-            <Text variant="bodyMd" as="p">
-              Primary Color
-            </Text>
-            <Text variant="bodySm" as="p" tone="subdued">
-              Current color: {colorHex}
-            </Text>
-            <div style={{ marginTop: "8px" }}>
-              <ColorPicker color={primaryColor} onChange={setPrimaryColor} />
+          <InlineStack align="start" gap="400" blockAlign="start">
+            <div style={{ paddingTop: "2px" }}>
+              <Checkbox
+                label=""
+                checked={customize}
+                onChange={(value) => setCustomize(value)}
+              />
             </div>
-          </BlockStack>
-        </BlockStack>
-      </Card>
+            <BlockStack gap="100">
+              <Text variant="headingMd" as="h3" fontWeight="semibold">
+                Customize
+              </Text>
+              <Text variant="bodySm" as="p" tone="subdued">
+                Customize your store widget to reflect your brand's unique look
+                and feel.
+              </Text>
+            </BlockStack>
+          </InlineStack>
 
-      <Card>
-        <BlockStack gap="300">
-          <Text variant="headingSm" as="h3">
-            Preview
-          </Text>
-          <div
-            style={{
-              border: "1px dashed #c9cccf",
-              borderRadius: "8px",
-              padding: "40px",
-              textAlign: "center",
-              minHeight: "200px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Text variant="bodyMd" as="p" tone="subdued">
-              Widget preview will appear here
-            </Text>
-          </div>
+          {customize && (
+            <div style={{ paddingLeft: "48px" }}>
+              <BlockStack gap="500">
+                {/* Logo Upload Section */}
+                <BlockStack gap="300">
+                  <Text variant="headingSm" as="h4" fontWeight="medium">
+                    Logo
+                  </Text>
+                  <Text variant="bodySm" as="p" tone="subdued">
+                    We recommend using a white background image of your brand
+                    logo with dimension of 200px x 200px
+                  </Text>
+
+                  {logoPreview ? (
+                    <InlineStack gap="400" blockAlign="center">
+                      <Thumbnail
+                        source={logoPreview}
+                        size="large"
+                        alt="Logo preview"
+                      />
+                      <Button onClick={handleRemoveLogo} tone="critical">
+                        Remove
+                      </Button>
+                    </InlineStack>
+                  ) : (
+                    <DropZone
+                      onDrop={handleDropZoneDrop}
+                      accept="image/*"
+                      type="image"
+                    >
+                      <DropZone.FileUpload actionTitle="Click here to add image" />
+                    </DropZone>
+                  )}
+                </BlockStack>
+
+                {/* Theme Color Selection */}
+                <BlockStack gap="300">
+                  <Text variant="bodyMd" as="p" fontWeight="medium">
+                    Select theme color
+                  </Text>
+                  <Select
+                    label=""
+                    labelHidden
+                    options={[
+                      { label: "Set theme color", value: "" },
+                      ...themeOptions,
+                    ]}
+                    value={theme}
+                    onChange={setTheme}
+                    placeholder="Set theme color"
+                  />
+                  {selectedThemeColor && (
+                    <InlineStack gap="200" blockAlign="center">
+                      <div
+                        style={{
+                          width: "20px",
+                          height: "20px",
+                          borderRadius: "50%",
+                          backgroundColor: selectedThemeColor.hex,
+                          border: "1px solid #c9cccf",
+                        }}
+                      />
+                      <Text variant="bodySm" as="p" tone="subdued">
+                        {selectedThemeColor.name} - {selectedThemeColor.hex}
+                      </Text>
+                    </InlineStack>
+                  )}
+                </BlockStack>
+              </BlockStack>
+            </div>
+          )}
         </BlockStack>
       </Card>
 
       <InlineStack align="end">
         <Button variant="primary" onClick={handleSave}>
-          Save Appearance
+          Save
         </Button>
       </InlineStack>
     </BlockStack>
