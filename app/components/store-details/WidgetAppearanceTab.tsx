@@ -210,6 +210,21 @@ export default function WidgetAppearanceTab() {
                     logo with dimension of 200px x 200px
                   </Text>
 
+                  {/* Logo preview icons */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "16px",
+                      marginBottom: "16px",
+                    }}
+                  >
+                    <img
+                      src="/assets/images/icon-set.png"
+                      alt="Logo preview examples"
+                    />
+                  </div>
+
                   {logoPreview ? (
                     <InlineStack gap="400" blockAlign="center">
                       <Thumbnail
