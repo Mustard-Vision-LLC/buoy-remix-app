@@ -1,15 +1,24 @@
 import { useLoaderData } from "@remix-run/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Page, Tabs, Card, BlockStack, Frame } from "@shopify/polaris";
 import ClientOnly from "../dashboard/ClientOnly";
 import AnalyticsTab from "./AnalyticsTab";
 import ChatsTab from "./ChatsTab";
 import WidgetSettingsTab from "./WidgetSettingsTab";
 import WidgetAppearanceTab from "./WidgetAppearanceTab";
+import { setAccessToken, setShopUrl } from "~/utils/api";
 
 export default function StoreDetailsPage() {
-  const loaderData = useLoaderData<{ shop: string }>();
+  const loaderData = useLoaderData<{ shop: string; accessToken?: string }>();
   const [selected, setSelected] = useState(0);
+
+  // Set access token when loader data is received
+  useEffect(() => {
+    if (loaderData.accessToken) {
+      setAccessToken(loaderData.accessToken);
+      setShopUrl(loaderData.shop);
+    }
+  }, [loaderData.accessToken, loaderData.shop]);
 
   const tabs = [
     {

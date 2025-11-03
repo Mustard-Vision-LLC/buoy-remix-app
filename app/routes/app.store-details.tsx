@@ -2,12 +2,24 @@ import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
 import StoreDetailsPage from "~/components/store-details/StoreDetailsPage";
+import prisma from "~/db.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
+  const { session: shopifySession } = await authenticate.admin(request);
+  const { shop } = shopifySession;
 
+  const dbRecord = await prisma.session.findFirst({
+    where: { shop: shop },
+  });
+
+  if (!dbRecord?.shop || !dbRecord?.accessToken) {
+    throw new Error("Missing Shopify session data");
+  }
+
+  // Return shop and access token for client-side API calls
   return json({
-    shop: session.shop,
+    shop: dbRecord.shop,
+    accessToken: dbRecord.accessToken,
   });
 };
 
