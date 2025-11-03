@@ -333,7 +333,7 @@ export default function ChatsTab() {
                             maxWidth: "80%",
                             padding: "12px",
                             borderRadius: "8px",
-                            backgroundColor: isBot ? "#0570DE" : "#e5e7eb",
+                            backgroundColor: isBot ? "#ff5b00" : "#e5e7eb",
                             color: isBot ? "white" : "black",
                           }}
                         >
