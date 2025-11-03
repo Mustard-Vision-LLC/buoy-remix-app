@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   BlockStack,
@@ -6,13 +6,17 @@ import {
   Text,
   Button,
   Checkbox,
+  Spinner,
+  Banner,
 } from "@shopify/polaris";
+import { apiClient } from "~/utils/api";
 
 interface WidgetFeature {
   id: string;
-  title: string;
+  code: string;
+  name: string;
   description: string;
-  enabled: boolean;
+  feature_is_enabled: boolean;
 }
 
 function WidgetSettingItem({
@@ -44,68 +48,127 @@ function WidgetSettingItem({
 }
 
 export default function WidgetSettingsTab() {
-  const [features, setFeatures] = useState<WidgetFeature[]>([
-    {
-      id: "1",
-      title: "Assisted Shopping",
-      description:
-        "Help customers find products through AI-powered conversations and recommendations.",
-      enabled: false,
-    },
-    {
-      id: "2",
-      title: "Abandoned Cart Recovery",
-      description:
-        "Automatically engage with customers who have items in their cart but haven't completed checkout.",
-      enabled: false,
-    },
-    {
-      id: "3",
-      title: "Window Shopper",
-      description:
-        "Engage browsers and turn them into buyers with personalized product suggestions.",
-      enabled: false,
-    },
-    {
-      id: "4",
-      title: "Coupon Interventions",
-      description:
-        "Offer strategic discounts at the right moment to encourage purchases and increase conversions.",
-      enabled: false,
-    },
-  ]);
+  const [features, setFeatures] = useState<WidgetFeature[]>([]);
+  const [enabledFeatures, setEnabledFeatures] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
-  const handleToggle = (id: string) => {
-    setFeatures(
-      features.map((feature) =>
-        feature.id === id ? { ...feature, enabled: !feature.enabled } : feature,
-      ),
+  useEffect(() => {
+    const fetchWidgetConfig = async () => {
+      try {
+        const response = await apiClient.getWidgetConfig();
+        setFeatures(response.data);
+        const enabled = response.data
+          .filter((feature: WidgetFeature) => feature.feature_is_enabled)
+          .map((feature: WidgetFeature) => feature.id);
+        setEnabledFeatures(enabled);
+      } catch (error) {
+        console.error("Error fetching widget config:", error);
+        setMessage({ type: "error", text: "Failed to load widget settings" });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWidgetConfig();
+  }, []);
+
+  const handleToggle = (featureId: string) => {
+    setEnabledFeatures((prev) => {
+      if (prev.includes(featureId)) {
+        return prev.filter((id) => id !== featureId);
+      } else {
+        return [...prev, featureId];
+      }
+    });
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    setMessage(null);
+
+    try {
+      const featureUpdates = features.map((feature) => ({
+        uuid: feature.id,
+        is_enabled: enabledFeatures.includes(feature.id),
+      }));
+
+      await apiClient.updateWidgetConfig(featureUpdates);
+      setMessage({
+        type: "success",
+        text: "Widget settings updated successfully!",
+      });
+
+      // Refresh the data
+      const response = await apiClient.getWidgetConfig();
+      setFeatures(response.data);
+      const enabled = response.data
+        .filter((feature: WidgetFeature) => feature.feature_is_enabled)
+        .map((feature: WidgetFeature) => feature.id);
+      setEnabledFeatures(enabled);
+    } catch (error: any) {
+      console.error("Error updating widget config:", error);
+      setMessage({
+        type: "error",
+        text: error.message || "Failed to update widget settings",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Card>
+        <div style={{ textAlign: "center", padding: "40px" }}>
+          <Spinner size="large" />
+        </div>
+      </Card>
     );
-  };
-
-  const handleSave = () => {
-    // Save functionality will be added when API is available
-    console.log("Saving widget settings:", features);
-  };
+  }
 
   return (
     <BlockStack gap="400">
+      {message && (
+        <Banner
+          tone={message.type === "success" ? "success" : "critical"}
+          onDismiss={() => setMessage(null)}
+        >
+          {message.text}
+        </Banner>
+      )}
+
       <Card>
         <BlockStack gap="400">
-          {features.map((feature) => (
-            <WidgetSettingItem
-              key={feature.id}
-              title={feature.title}
-              description={feature.description}
-              checked={feature.enabled}
-              onToggle={() => handleToggle(feature.id)}
-            />
-          ))}
+          {features.length > 0 ? (
+            features.map((feature) => (
+              <WidgetSettingItem
+                key={feature.id}
+                title={feature.name}
+                description={feature.description}
+                checked={enabledFeatures.includes(feature.id)}
+                onToggle={() => handleToggle(feature.id)}
+              />
+            ))
+          ) : (
+            <Text variant="bodyMd" as="p" tone="subdued">
+              No widget features available
+            </Text>
+          )}
         </BlockStack>
       </Card>
 
       <InlineStack align="end">
-        <Button variant="primary" onClick={handleSave}>
+        <Button
+          variant="primary"
+          onClick={handleSave}
+          loading={saving}
+          disabled={saving}
+        >
           Save Settings
         </Button>
       </InlineStack>

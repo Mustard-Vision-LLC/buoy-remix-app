@@ -1,5 +1,6 @@
-import { lazy, Suspense } from "react";
-import { Layout, Card, BlockStack, Text } from "@shopify/polaris";
+import { lazy, Suspense, useState, useEffect } from "react";
+import { Layout, Card, BlockStack, Text, Spinner } from "@shopify/polaris";
+import { apiClient } from "~/utils/api";
 
 const PerformanceTrendChart = lazy(() => import("./PerformanceTrendChart"));
 const ChatRevenueChart = lazy(() => import("./ChatRevenueChart"));
@@ -37,25 +38,50 @@ function StatCard({ title, value }: { title: string; value: string | number }) {
 }
 
 export default function AnalyticsTab() {
-  // Empty state statistics
+  const [analytics, setAnalytics] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        const response = await apiClient.getAnalytics();
+        setAnalytics(response.data);
+      } catch (error) {
+        console.error("Error fetching analytics:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAnalytics();
+  }, []);
+
   const statistics = [
     {
       title: "Total Sessions",
-      value: 0,
+      value: analytics?.total_sessions || 0,
     },
     {
       title: "Successful Intervention",
-      value: 0,
+      value: analytics?.successful_intervention || 0,
     },
     {
       title: "Conversion Rate",
-      value: "0%",
+      value: `${analytics?.conversion_rate || 0}%`,
     },
     {
       title: "Revenue from chat",
-      value: "$0",
+      value: `$${analytics?.revenue_from_chat || 0}`,
     },
   ];
+
+  if (loading) {
+    return (
+      <div style={{ textAlign: "center", padding: "40px" }}>
+        <Spinner size="large" />
+      </div>
+    );
+  }
 
   return (
     <BlockStack gap="500">

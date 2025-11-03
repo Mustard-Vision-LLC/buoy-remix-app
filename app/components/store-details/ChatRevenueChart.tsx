@@ -1,83 +1,132 @@
-import { useState, useMemo } from "react";
-import { Card, BlockStack, InlineStack, Text, Select } from "@shopify/polaris";
+import { useState, useMemo, useEffect } from "react";
+import {
+  Card,
+  BlockStack,
+  InlineStack,
+  Text,
+  Select,
+  Spinner,
+} from "@shopify/polaris";
 import Chart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
+import { apiClient } from "~/utils/api";
 
 export default function ChatRevenueChart() {
-  const [filter, setFilter] = useState("weekly");
+  const [filter, setFilter] = useState("year");
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRevenue = async () => {
+      setLoading(true);
+      try {
+        const response = await apiClient.getRevenue(filter);
+        setData(response);
+      } catch (error) {
+        console.error("Error fetching revenue:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRevenue();
+  }, [filter]);
 
   const chartData = useMemo(() => {
-    // Empty data for now - replace with real data from API based on filter
+    const conversionsData = data?.data?.datasets?.[0]?.data ?? [];
+    const categories = data?.data?.labels ?? [];
+
     const series = [
       {
-        name: "Revenue",
-        data: [], // e.g., [100, 200, 150, 300, 250, 400, 350]
+        name: "Total Conversions",
+        data: conversionsData,
       },
     ];
 
     const options: ApexOptions = {
       chart: {
-        type: "bar",
+        type: "line",
         height: 350,
+        zoom: {
+          enabled: false,
+        },
         toolbar: {
           show: false,
         },
       },
-      colors: ["#228403"],
-      plotOptions: {
-        bar: {
-          horizontal: false,
-          borderRadius: 4,
-        },
+      stroke: {
+        curve: "smooth",
+        width: 3,
       },
+      colors: ["#3B82F6"],
       xaxis: {
-        categories: [], // e.g., ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        categories: categories,
       },
       yaxis: {
         title: {
-          text: "Revenue ($)",
+          text: "Conversions",
         },
       },
-      grid: {
-        borderColor: "#f1f1f1",
+      markers: {
+        size: 5,
+        colors: ["#3B82F6"],
+        strokeColors: "#fff",
+        strokeWidth: 2,
       },
-      dataLabels: {
-        enabled: false,
+      tooltip: {
+        enabled: true,
+      },
+      legend: {
+        position: "top",
+      },
+      grid: {
+        borderColor: "#e5e7eb",
       },
     };
 
     return { series, options };
-  }, []);
+  }, [data]);
 
   const hasData =
-    chartData.series.length > 0 &&
-    chartData.series.some((s) => s.data.length > 0);
+    chartData.series[0].data.length > 0 &&
+    chartData.options.xaxis?.categories?.length > 0;
 
   return (
     <Card>
       <BlockStack gap="400">
         <InlineStack align="space-between">
           <Text variant="headingMd" as="h2">
-            Chat Revenue
+            Total Conversions
           </Text>
           <Select
             label=""
             labelHidden
             options={[
-              { label: "Weekly", value: "weekly" },
-              { label: "Monthly", value: "monthly" },
-              { label: "Yearly", value: "yearly" },
+              { label: "Weekly", value: "week" },
+              { label: "Monthly", value: "month" },
+              { label: "Yearly", value: "year" },
             ]}
             value={filter}
             onChange={(value) => setFilter(value)}
           />
         </InlineStack>
 
-        {hasData ? (
+        {loading ? (
+          <div
+            style={{
+              height: "350px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Spinner size="large" />
+          </div>
+        ) : hasData ? (
           <Chart
             options={chartData.options}
             series={chartData.series}
-            type="bar"
+            type="line"
             height={350}
           />
         ) : (

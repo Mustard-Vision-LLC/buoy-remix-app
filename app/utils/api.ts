@@ -162,6 +162,179 @@ class ApiClient {
       method: "PUT",
     });
   }
+
+  // Analytics endpoints
+  async getAnalytics(params?: { filter_param?: string; period?: string }) {
+    const queryParams = new URLSearchParams();
+    if (params?.filter_param)
+      queryParams.append("filter_param", params.filter_param);
+    if (params?.period) queryParams.append("period", params.period);
+
+    const query = queryParams.toString();
+    return this.request<{
+      status_code: number;
+      message: string;
+      data: any;
+    }>(`/shopify/analytics${query ? `?${query}` : ""}`, {
+      method: "GET",
+    });
+  }
+
+  async getPerformance(period: string) {
+    return this.request<{
+      status_code: number;
+      message: string;
+      conversions: { datasets: any[]; labels: string[] };
+      engagements: { datasets: any[]; labels: string[] };
+    }>(`/shopify/analytics?filter_param=STORE_PERFORMANCE&period=${period}`, {
+      method: "GET",
+    });
+  }
+
+  async getRevenue(period: string) {
+    return this.request<{
+      status_code: number;
+      message: string;
+      data: { datasets: any[]; labels: string[] };
+    }>(`/shopify/analytics?filter_param=REVENUE_FROM_CHAT&period=${period}`, {
+      method: "GET",
+    });
+  }
+
+  // Chat/Customer endpoints
+  async getCustomers(pageNumber: number = 1) {
+    return this.request<{
+      status_code: number;
+      message: string;
+      data: {
+        customerSessions: {
+          data: any[];
+          current_page: number;
+          last_page: number;
+        };
+      };
+    }>(`/shopify/customers?page_number=${pageNumber}`, {
+      method: "GET",
+    });
+  }
+
+  async getCustomerSessions(customerId: string, pageNumber: number = 1) {
+    return this.request<{
+      status_code: number;
+      message: string;
+      data: {
+        customers: {
+          data: any[];
+          current_page: number;
+          last_page: number;
+        };
+      };
+    }>(`/shopify/customers/${customerId}?page_number=${pageNumber}`, {
+      method: "GET",
+    });
+  }
+
+  async getChatHistory(sessionId: string, pageNumber: number = 1) {
+    return this.request<{
+      status_code: number;
+      message: string;
+      data: {
+        chatMessages: {
+          data: any[];
+          current_page: number;
+          last_page: number;
+        };
+      };
+    }>(`/shopify/chats/${sessionId}?page_number=${pageNumber}`, {
+      method: "GET",
+    });
+  }
+
+  // Widget endpoints
+  async getWidgetConfig() {
+    return this.request<{
+      status_code: number;
+      message: string;
+      data: Array<{
+        id: string;
+        code: string;
+        name: string;
+        description: string;
+        feature_is_enabled: boolean;
+      }>;
+    }>("/shopify/widget-settings", {
+      method: "GET",
+    });
+  }
+
+  async updateWidgetConfig(
+    features: Array<{ uuid: string; is_enabled: boolean }>,
+  ) {
+    return this.request<{
+      status_code: number;
+      message: string;
+      data: any;
+    }>("/shopify/widget-settings", {
+      method: "PUT",
+      body: JSON.stringify({ feature: features }),
+    });
+  }
+
+  async getWidgetAppearance() {
+    return this.request<{
+      status_code: number;
+      message: string;
+      data: {
+        is_customized: boolean;
+        theme: string;
+        logo_image_file?: string;
+        hex_code?: string;
+        bubble_color?: string;
+      };
+    }>("/shopify/widget-settings/config", {
+      method: "GET",
+    });
+  }
+
+  async updateWidgetAppearance(formData: FormData) {
+    const encryptedToken = getEncryptedAccessToken();
+
+    if (!encryptedToken) {
+      throw new Error("Access token not available");
+    }
+
+    const headers: Record<string, string> = {
+      Authorization: `Bearer ${encryptedToken}`,
+    };
+
+    if (shopUrl) {
+      headers["x-shopify-shop-domain"] = shopUrl;
+    }
+
+    const response = await fetch(
+      `${this.baseURL}/shopify/widget-settings/config`,
+      {
+        method: "PUT",
+        headers,
+        body: formData,
+      },
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error(`❌ API Error (${response.status}):`, errorData);
+
+      const error = new Error(
+        errorData.message || `HTTP error! status: ${response.status}`,
+      ) as Error & { statusCode?: number; errorData?: any };
+      error.statusCode = response.status;
+      error.errorData = errorData;
+
+      throw error;
+    }
+
+    return response.json();
+  }
 }
 
 export const apiClient = new ApiClient(API_BASE_URL);

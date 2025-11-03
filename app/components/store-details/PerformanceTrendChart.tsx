@@ -1,28 +1,76 @@
-import { useState, useMemo } from "react";
-import { Card, BlockStack, InlineStack, Text, Select } from "@shopify/polaris";
+import { useState, useMemo, useEffect } from "react";
+import {
+  Card,
+  BlockStack,
+  InlineStack,
+  Text,
+  Select,
+  Spinner,
+} from "@shopify/polaris";
 import Chart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
+import { apiClient } from "~/utils/api";
 
 export default function PerformanceTrendChart() {
-  const [filter, setFilter] = useState("weekly");
+  const [filter, setFilter] = useState("year");
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPerformance = async () => {
+      setLoading(true);
+      try {
+        const response = await apiClient.getPerformance(filter);
+        setData(response);
+      } catch (error) {
+        console.error("Error fetching performance:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPerformance();
+  }, [filter]);
 
   const chartData = useMemo(() => {
-    // Empty data for now - replace with real data from API based on filter
-    const series = [
-      {
-        name: "Sessions",
-        data: [], // e.g., [30, 40, 35, 50, 49, 60, 70]
-      },
-      {
-        name: "Conversions",
-        data: [], // e.g., [15, 20, 18, 25, 24, 30, 35]
-      },
+    const conversions = data?.conversions ?? { datasets: [], labels: [] };
+    const engagements = data?.engagements ?? { datasets: [], labels: [] };
+    const conversionsDatasets = Array.isArray(conversions.datasets)
+      ? conversions.datasets
+      : [];
+    const engagementsDatasets = Array.isArray(engagements.datasets)
+      ? engagements.datasets
+      : [];
+    const conversionsLabels = Array.isArray(conversions.labels)
+      ? conversions.labels
+      : [];
+    const engagementsLabels = Array.isArray(engagements.labels)
+      ? engagements.labels
+      : [];
+
+    const allSeries = [
+      ...conversionsDatasets.map(
+        (dataset: { data: number[]; label: string }) => ({
+          name: `Conversions`,
+          data: Array.isArray(dataset.data) ? dataset.data : [],
+        }),
+      ),
+      ...engagementsDatasets.map(
+        (dataset: { data: number[]; label: string }) => ({
+          name: `Engagements`,
+          data: Array.isArray(dataset.data) ? dataset.data : [],
+        }),
+      ),
     ];
+
+    const categories =
+      conversionsLabels.length > 0 ? conversionsLabels : engagementsLabels;
 
     const options: ApexOptions = {
       chart: {
-        type: "line",
+        type: "bar",
         height: 350,
+        stacked: true,
         toolbar: {
           show: false,
         },
@@ -30,64 +78,84 @@ export default function PerformanceTrendChart() {
           enabled: false,
         },
       },
-      colors: ["#0570DE", "#228403"],
-      stroke: {
-        curve: "smooth",
-        width: 3,
-      },
-      markers: {
-        size: 4,
-        hover: {
-          size: 6,
+      colors: ["#FF5B00", "#0570DE"],
+      plotOptions: {
+        bar: {
+          horizontal: false,
+          dataLabels: {
+            total: {
+              enabled: true,
+              style: {
+                fontSize: "13px",
+                fontWeight: 900,
+              },
+            },
+          },
         },
       },
       xaxis: {
-        categories: [], // e.g., ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        type:
+          categories.length > 0 && categories[0]?.includes("GMT")
+            ? "datetime"
+            : "category",
+        categories,
       },
       legend: {
         position: "top",
-        horizontalAlign: "left",
+        offsetY: 1,
       },
-      grid: {
-        borderColor: "#f1f1f1",
+      fill: {
+        opacity: 1,
       },
       dataLabels: {
         enabled: false,
       },
     };
 
-    return { series, options };
-  }, []);
+    return { series: allSeries, options };
+  }, [data]);
 
   const hasData =
     chartData.series.length > 0 &&
-    chartData.series.some((s) => s.data.length > 0);
+    chartData.series.some((s) => s.data.length > 0) &&
+    chartData.options.xaxis?.categories?.length > 0;
 
   return (
     <Card>
       <BlockStack gap="400">
         <InlineStack align="space-between">
           <Text variant="headingMd" as="h2">
-            Performance Trend
+            Store Performance
           </Text>
           <Select
             label=""
             labelHidden
             options={[
-              { label: "Weekly", value: "weekly" },
-              { label: "Monthly", value: "monthly" },
-              { label: "Yearly", value: "yearly" },
+              { label: "Weekly", value: "week" },
+              { label: "Monthly", value: "month" },
+              { label: "Yearly", value: "year" },
             ]}
             value={filter}
             onChange={(value) => setFilter(value)}
           />
         </InlineStack>
 
-        {hasData ? (
+        {loading ? (
+          <div
+            style={{
+              height: "350px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Spinner size="large" />
+          </div>
+        ) : hasData ? (
           <Chart
             options={chartData.options}
             series={chartData.series}
-            type="line"
+            type="bar"
             height={350}
           />
         ) : (
