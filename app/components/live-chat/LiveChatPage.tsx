@@ -90,7 +90,7 @@ export default function LiveChatPage() {
     >
       <Card>
         <div style={{ padding: "16px" }}>
-          {/* Empty State - No API Integration Yet */}
+          {/* Empty State - No Data */}
           <div
             style={{
               display: "flex",
@@ -100,12 +100,12 @@ export default function LiveChatPage() {
             }}
           >
             <EmptyState
-              heading="Live Chat Coming Soon"
+              heading="No conversations yet"
               image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
             >
               <p>
-                Live chat functionality will be available once the API
-                integration is complete.
+                When customers start chatting, their conversations will appear
+                here.
               </p>
             </EmptyState>
           </div>
