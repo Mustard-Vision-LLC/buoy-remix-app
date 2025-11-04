@@ -31,6 +31,8 @@ export default function App() {
         <Link to="/app/dashboard">Dashboard</Link>
         <Link to="/app/billing">Billing</Link>
         <Link to="/app/store-details">Store</Link>
+        <Link to="/app/live-chat">Live Chat</Link>
+        <Link to="/app/settings">Settings</Link>
       </NavMenu>
       <Outlet />
     </AppProvider>
