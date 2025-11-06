@@ -38,8 +38,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const jsonData = await response.json();
 
-  console.log(session, "check for code");
-
   return {
     session,
     jsonData,

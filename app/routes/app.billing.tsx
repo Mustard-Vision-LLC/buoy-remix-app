@@ -7,7 +7,7 @@ import prisma from "~/db.server";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session: shopifySession } = await authenticate.admin(request);
   const { shop } = shopifySession;
-  console.log(shopifySession, "shopifySession code check");
+
   const dbRecord = await prisma.session.findFirst({
     where: { shop: shop },
   });
