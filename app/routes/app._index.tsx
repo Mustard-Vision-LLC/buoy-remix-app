@@ -22,17 +22,17 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     throw new Error("Missing session data");
   }
 
-  const payload = {
-    shop_url: dbRecord.shop,
-    access_token: dbRecord.accessToken,
-  };
+  // const payload = {
+  //   shop_url: dbRecord.shop,
+  //   access_token: dbRecord.accessToken,
+  // };
 
   const response = await fetch(
     `https://dashboard-api.fishook.online/shopify/update/token`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(session),
     },
   );
 
