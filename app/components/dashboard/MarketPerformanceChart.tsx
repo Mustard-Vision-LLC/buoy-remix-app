@@ -3,23 +3,44 @@ import { Card, BlockStack, InlineStack, Text, Select } from "@shopify/polaris";
 import Chart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
 
-export default function MarketPerformanceChart() {
+interface MarketPerformanceData {
+  status_code: number;
+  message: string;
+  data: {
+    conversions: {
+      datasets: Array<{ data: number[]; label: string }>;
+      labels: string[];
+    };
+    engagements: {
+      datasets: Array<{ data: number[]; label: string }>;
+      labels: string[];
+    };
+  };
+}
+
+interface Props {
+  data: MarketPerformanceData | null;
+}
+
+export default function MarketPerformanceChart({ data }: Props) {
   const [filter, setFilter] = useState("weekly");
 
   const chartData = useMemo(() => {
-    // Empty data for now - replace with real data from API based on filter
+    const conversionsData = data?.data?.conversions?.datasets?.[0]?.data ?? [];
+    const engagementsData = data?.data?.engagements?.datasets?.[0]?.data ?? [];
+    const conversionsLabels = data?.data?.conversions?.labels ?? [];
+    const engagementsLabels = data?.data?.engagements?.labels ?? [];
+    const categories =
+      conversionsLabels.length > 0 ? conversionsLabels : engagementsLabels;
+
     const series = [
       {
         name: "Revenue",
-        data: [], // e.g., [30, 40, 35, 50, 49, 60, 70]
+        data: conversionsData,
       },
       {
-        name: "Orders",
-        data: [], // e.g., [15, 20, 18, 25, 24, 30, 35]
-      },
-      {
-        name: "Customers",
-        data: [], // e.g., [10, 15, 12, 18, 17, 20, 25]
+        name: "Intervention",
+        data: engagementsData,
       },
     ];
 
@@ -34,7 +55,7 @@ export default function MarketPerformanceChart() {
           enabled: false,
         },
       },
-      colors: ["#228403", "#FF5B00", "#0570DE"],
+      colors: ["#FF5B00", "#0570DE"],
       stroke: {
         curve: "smooth",
         width: 3,
@@ -46,8 +67,24 @@ export default function MarketPerformanceChart() {
         },
       },
       xaxis: {
-        categories: [], // e.g., ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        categories: categories,
       },
+      yaxis: [
+        {
+          title: {
+            text: "Revenue",
+          },
+          labels: {
+            formatter: (val) => `$${val.toLocaleString()}`,
+          },
+        },
+        {
+          opposite: true,
+          title: {
+            text: "Intervention",
+          },
+        },
+      ],
       legend: {
         position: "top",
         horizontalAlign: "left",
@@ -61,7 +98,7 @@ export default function MarketPerformanceChart() {
     };
 
     return { series, options };
-  }, []);
+  }, [data]);
 
   const hasData =
     chartData.series.length > 0 &&

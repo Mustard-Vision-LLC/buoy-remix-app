@@ -54,51 +54,106 @@ function StatCard({ title, value }: { title: string; value: string | number }) {
 export default function DashboardPage() {
   const loaderData = useLoaderData<{
     shop: string;
+    analytics: {
+      engagements: number;
+      total_conversion: number;
+      average_time_spent: number;
+      total_successful_sales: number;
+      total_generated_revenue: string;
+      abandoned_cart: number;
+      total_assisted_shopping: number;
+      total_coupon_intervention: number;
+      current_coupon_budget: string;
+      available_coupon_budget: string;
+      tables?: {
+        top_viewed_products: Array<{
+          product: { title: string };
+          view_count: number;
+        }>;
+        top_purchased_products: Array<{
+          serialNumber: number;
+          productName: string;
+          revenue: string;
+          quantitySold: number;
+        }>;
+      };
+    } | null;
+    storePerformance: {
+      status_code: number;
+      message: string;
+      conversions: { datasets: Array<{ data: number[]; label: string }>; labels: string[] };
+      engagements: { datasets: Array<{ data: number[]; label: string }>; labels: string[] };
+    } | null;
+    conversions: {
+      status_code: number;
+      message: string;
+      data: { datasets: Array<{ data: number[]; label: string }>; labels: string[] };
+    } | null;
+    marketPerformance: {
+      status_code: number;
+      message: string;
+      data: {
+        conversions: { datasets: Array<{ data: number[]; label: string }>; labels: string[] };
+        engagements: { datasets: Array<{ data: number[]; label: string }>; labels: string[] };
+      };
+    } | null;
   }>();
 
-  // Empty state statistics
+  const analytics = loaderData.analytics;
+
+  // Statistics using real analytics data
   const statistics = [
     {
       title: "Total Engagement",
-      value: 0,
+      value: analytics?.engagements || 0,
     },
     {
       title: "Total Conversion",
-      value: 0,
+      value: analytics?.total_conversion ?? 0,
     },
     {
       title: "Avg Time Spent on Chat",
-      value: "0 min",
+      value: analytics?.average_time_spent
+        ? `${Math.round(analytics.average_time_spent)} min`
+        : "0 min",
     },
     {
       title: "Total Successful Sales",
-      value: 0,
+      value: analytics?.total_successful_sales || 0,
     },
     {
       title: "Total Generated Revenue",
-      value: "$0",
+      value: `$${analytics?.total_generated_revenue || 0}`,
     },
     {
       title: "Total Abandoned Carts",
-      value: 0,
+      value: analytics?.abandoned_cart || 0,
     },
     {
       title: "Total Assisted Shopping",
-      value: 0,
+      value: analytics?.total_assisted_shopping || 0,
     },
     {
       title: "Total Coupon Intervention",
-      value: 0,
+      value: analytics?.total_coupon_intervention || 0,
     },
     {
       title: "Current Coupon Budget",
-      value: "$0",
+      value: `$${analytics?.current_coupon_budget || 0}`,
     },
     {
       title: "Available Coupon Budget",
-      value: "$0",
+      value: `$${analytics?.available_coupon_budget || 0}`,
     },
   ];
+
+  // Extract product data from analytics
+  const topViewedProducts = (
+    analytics?.tables?.top_viewed_products || []
+  ).slice(0, 5);
+  const topPurchasedProducts = (
+    analytics?.tables?.top_purchased_products || []
+  ).slice(0, 5);
 
   return (
     <Frame>
@@ -132,11 +187,11 @@ export default function DashboardPage() {
             <Suspense fallback={<ChartSkeleton />}>
               <Layout>
                 <Layout.Section variant="oneHalf">
-                  <StorePerformanceChart />
+                  <StorePerformanceChart data={loaderData.storePerformance} />
                 </Layout.Section>
 
                 <Layout.Section variant="oneHalf">
-                  <TotalConversionsChart />
+                  <TotalConversionsChart data={loaderData.conversions} />
                 </Layout.Section>
               </Layout>
 
@@ -146,7 +201,7 @@ export default function DashboardPage() {
                 </Layout.Section>
 
                 <Layout.Section variant="oneHalf">
-                  <MarketPerformanceChart />
+                  <MarketPerformanceChart data={loaderData.marketPerformance} />
                 </Layout.Section>
               </Layout>
             </Suspense>
@@ -160,7 +215,7 @@ export default function DashboardPage() {
                   <Text variant="headingMd" as="h2">
                     Top 5 Most Viewed Products
                   </Text>
-                  <ProductsTable type="viewed" />
+                  <ProductsTable type="viewed" data={topViewedProducts} />
                 </BlockStack>
               </Card>
             </Layout.Section>
@@ -171,7 +226,7 @@ export default function DashboardPage() {
                   <Text variant="headingMd" as="h2">
                     Top 5 Most Purchased Products
                   </Text>
-                  <ProductsTable type="purchased" />
+                  <ProductsTable type="purchased" data={topPurchasedProducts} />
                 </BlockStack>
               </Card>
             </Layout.Section>

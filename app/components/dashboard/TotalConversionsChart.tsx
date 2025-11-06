@@ -3,15 +3,31 @@ import { Card, BlockStack, InlineStack, Text, Select } from "@shopify/polaris";
 import Chart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
 
-export default function TotalConversionsChart() {
+interface ConversionsData {
+  status_code: number;
+  message: string;
+  data: {
+    datasets: Array<{ data: number[]; label: string }>;
+    labels: string[];
+  };
+}
+
+interface Props {
+  data: ConversionsData | null;
+}
+
+export default function TotalConversionsChart({ data }: Props) {
   const [filter, setFilter] = useState("weekly");
 
   const chartData = useMemo(() => {
-    // Empty data for now - replace with real data from API based on filter
+    // Transform API data to chart format
+    const conversionsData = data?.data?.datasets?.[0]?.data ?? [];
+    const categories = data?.data?.labels ?? [];
+
     const series = [
       {
-        name: "Conversions",
-        data: [], // e.g., [44, 55, 57, 56, 61, 58, 63]
+        name: "Total Conversions",
+        data: conversionsData,
       },
     ];
 
@@ -41,7 +57,7 @@ export default function TotalConversionsChart() {
         },
       },
       xaxis: {
-        categories: [], // e.g., ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        categories: categories,
       },
       yaxis: {
         title: {
@@ -57,7 +73,7 @@ export default function TotalConversionsChart() {
     };
 
     return { series, options };
-  }, []);
+  }, [data]);
 
   const hasData =
     chartData.series.length > 0 &&

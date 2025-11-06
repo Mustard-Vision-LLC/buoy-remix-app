@@ -3,21 +3,55 @@ import { Card, BlockStack, InlineStack, Text, Select } from "@shopify/polaris";
 import Chart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
 
-export default function StorePerformanceChart() {
+interface StorePerformanceData {
+  status_code: number;
+  message: string;
+  conversions: {
+    datasets: Array<{ data: number[]; label: string }>;
+    labels: string[];
+  };
+  engagements: {
+    datasets: Array<{ data: number[]; label: string }>;
+    labels: string[];
+  };
+}
+
+interface Props {
+  data: StorePerformanceData | null;
+}
+
+export default function StorePerformanceChart({ data }: Props) {
   const [filter, setFilter] = useState("weekly");
 
   const chartData = useMemo(() => {
-    // Empty data for now - replace with real data from API based on filter
-    const series = [
-      {
+    const conversions = data?.conversions ?? { datasets: [], labels: [] };
+    const engagements = data?.engagements ?? { datasets: [], labels: [] };
+    const conversionsDatasets = Array.isArray(conversions.datasets)
+      ? conversions.datasets
+      : [];
+    const engagementsDatasets = Array.isArray(engagements.datasets)
+      ? engagements.datasets
+      : [];
+    const conversionsLabels = Array.isArray(conversions.labels)
+      ? conversions.labels
+      : [];
+    const engagementsLabels = Array.isArray(engagements.labels)
+      ? engagements.labels
+      : [];
+
+    const allSeries = [
+      ...conversionsDatasets.map((dataset) => ({
         name: "Conversions",
-        data: [], // e.g., [10, 20, 15, 25, 30]
-      },
-      {
+        data: Array.isArray(dataset.data) ? dataset.data : [],
+      })),
+      ...engagementsDatasets.map((dataset) => ({
         name: "Engagements",
-        data: [], // e.g., [15, 25, 20, 30, 35]
-      },
+        data: Array.isArray(dataset.data) ? dataset.data : [],
+      })),
     ];
+
+    const categories =
+      conversionsLabels.length > 0 ? conversionsLabels : engagementsLabels;
 
     const options: ApexOptions = {
       chart: {
@@ -36,7 +70,7 @@ export default function StorePerformanceChart() {
         },
       },
       xaxis: {
-        categories: [], // e.g., ["Mon", "Tue", "Wed", "Thu", "Fri"]
+        categories: categories,
       },
       legend: {
         position: "top",
@@ -50,8 +84,8 @@ export default function StorePerformanceChart() {
       },
     };
 
-    return { series, options };
-  }, []);
+    return { series: allSeries, options };
+  }, [data]);
 
   const hasData =
     chartData.series.length > 0 &&
