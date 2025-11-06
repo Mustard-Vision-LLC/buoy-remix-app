@@ -5,8 +5,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { BlockStack, Layout, Page } from "@shopify/polaris";
 import prisma from "~/db.server";
 
-const dashboardUrl =
-  "https://dashboard.fishook.online/merchant/auth/signup?source=shopify";
+const dashboardUrl = "https://dashboard.fishook.online/merchant/auth/login";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
