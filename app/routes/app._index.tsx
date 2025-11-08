@@ -23,8 +23,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const payload = {
     shop_url: dbRecord.shop,
-    access_token: dbRecord.accessToken,
-    session: session,
+    access_token: dbRecord.accessToken
   };
 
   const response = await fetch(
