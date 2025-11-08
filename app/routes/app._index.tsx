@@ -61,8 +61,8 @@ export default function Home() {
     allDbRecords: any;
   }>();
 
-  console.log('response data', jsonData);
-  console.log('all db records', allDbRecords);
+  console.log('response data', JSON.stringify(jsonData));
+  console.log('all db records', JSON.stringify(allDbRecords));
 
   // Test API calls
 
