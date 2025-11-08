@@ -24,16 +24,15 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     access_token: dbRecord.accessToken
   };
 
-  const response = await fetch(
-    `https://dashboard-api.fishook.online/shopify/update/token`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    },
-  );
+  const response = await fetch(`https://dashboard-api.fishook.online/shopify/update/token`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
 
   const jsonData = await response.json();
+
+  console.log('loader json data', jsonData);
 
   return {
     session,
@@ -53,6 +52,8 @@ export default function Home() {
     accessToken: string;
     shop: string;
   }>();
+
+  console.log('response data', jsonData);
 
   // Test API calls
 
