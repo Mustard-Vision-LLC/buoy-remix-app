@@ -11,8 +11,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const dbRecord = await prisma.session.findFirst({
     where: {
-      shop: shop,
+      shop: shop
     },
+  });
+
+  const allDbRecords = await prisma.session.findMany({
+    where: {
+      shop: shop
+    }
   });
 
   if (!dbRecord?.shop || !dbRecord?.accessToken) {
@@ -39,6 +45,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     jsonData,
     shop: shop,
     accessToken: dbRecord.accessToken,
+    allDbRecords: allDbRecords
   };
 };
 
@@ -46,14 +53,16 @@ export const action = async ({ request }: ActionFunctionArgs) => {};
 
 export default function Home() {
   // const shopify = useAppBridge();
-  const {jsonData} = useLoaderData<{
+  const {jsonData, allDbRecords} = useLoaderData<{
     session: string;
     jsonData: any;
     accessToken: string;
     shop: string;
+    allDbRecords: any;
   }>();
 
   console.log('response data', jsonData);
+  console.log('all db records', allDbRecords);
 
   // Test API calls
 
