@@ -81,17 +81,6 @@ export default function Home() {
 
   return (
     <Page>
-      <TitleBar title="Login with your Fishook account">
-        <a
-          variant="primary"
-          href={dashboardUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Go to Fishook Dashboard
-        </a>
-      </TitleBar>
-
       <BlockStack gap="500">
         <Layout>
           {/* {jsonData?.data ? (
