@@ -5,8 +5,6 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { BlockStack, Layout, Page } from "@shopify/polaris";
 import prisma from "~/db.server";
 
-const dashboardUrl = "https://dashboard.fishook.online/merchant/auth/login";
-
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
   const { shop } = session;
@@ -49,7 +47,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {};
 
 export default function Home() {
   // const shopify = useAppBridge();
-  const {} = useLoaderData<{
+  const {jsonData} = useLoaderData<{
     session: string;
     jsonData: any;
     accessToken: string;
@@ -61,6 +59,11 @@ export default function Home() {
   // useEffect(() => {
   //   shopify.toast.show("Product created");
   // }, [shopify]);
+
+  var dashboardUrl = "https://dashboard.fishook.online/merchant/auth/login";
+  if(jsonData.hasOwnProperty('data') && jsonData.data.hasOwnProperty('jwt_token')) {
+    dashboardUrl = `${dashboardUrl}?jwt_token=${jsonData.data.jwt_token}`;
+  }
 
   const goToLogin = () => {
     window.open(dashboardUrl, "_blank", "noopener,noreferrer");
