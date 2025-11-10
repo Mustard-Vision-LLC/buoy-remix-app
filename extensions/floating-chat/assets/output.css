@@ -177,20 +177,17 @@
 }
 
 .buoy-chat-frame {
-  width: 400px;
-  height: min(704px, 100% - 104px);
+  width: 320px;
+  height:600px;
   border: none;
-  opacity: 0;
+  opacity: 1;
   position: fixed;
   right: 20px;
-  bottom: 80px;
+  bottom: 20px;
   border-radius: 0.75rem;
   z-index: 2147483647;
   font-size: 16px;
-  box-shadow:
-    rgba(0, 0, 0, 0.02) 0px 6px 6px 0px,
-    rgba(0, 0, 0, 0.12) 0px 8px 24px 0px;
-  transform: scale(0);
+  transform: scale(1);
   transform-origin: right bottom;
   transition:
     transform 0.3s cubic-bezier(0, 1.2, 1, 1),
@@ -202,4 +199,3 @@
   height: 90px;
   right: 0px;
 }
-
