@@ -45,18 +45,6 @@
     iframe.id = 'buoy-chat-frame';
     iframe.allow = "microphone; clipboard-write";
     iframe.src = `https://embed.fishook.online?script_tag_id=${script_tag_id}&shop_url=${shop}&shop_type=${shop_type}&jwt=${JWT}&customer_id=${CUSTOMER_ID}`;
-    iframe.style.cssText = `
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 350px;
-      height: 600px;
-      border: none;
-      border-radius: 12px;
-      box-shadow: none !important;
-      z-index: 999999;
-      display: none; /* start hidden */
-    `;
     document.body.appendChild(iframe);
 
     iframe.style.opacity = '1';
