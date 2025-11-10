@@ -1,10 +1,67 @@
 {{ 'output.css' | asset_url | stylesheet_tag }}
 
-<iframe class="buoy-chat-frame" src="https://embed.fishook.online?id={{ shop.id }}&url={{ shop.secure_url }}&customer={{ customer.id }}"></iframe>
+<script src="https://sandbox-embed.fishook.online/js/widget.js" defer></script>
+<script src="{{ 'widget.js' | asset_url }}" defer></script>
 
 <script>
   const btn = document.querySelector('.buoy-btn');
   const iframe = document.querySelector('iframe');
+
+  const shop = "{{ shop.domain }}";
+  const customerId = "{{ customer.id }}";
+  const script_tag_id = 'null'; //No longer need to pass it
+  const shop_type = 'SHOPIFY';
+  const widgetInitUrl = `https://sandbox.fishook.online/oauth/widget/init`;
+
+  async function fishookWidgetInit(){
+    try{
+      const response = await fetch(widgetInitUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          shop_url: shop,
+          shop_type: shop_type,
+          guest_id: "{{ customer.id }}"
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Request failed');
+      }
+      
+      var returnVal = await response.json();
+      console.log('returnVal', returnVal);
+      return returnVal;
+    } catch(err){
+      throw Error("Widget initialization failed with error:"+ err)
+    }
+  }
+
+  function createChatIframe(script_tag_id, shop, shop_type, JWT, CUSTOMER_ID){
+    //if(!script_tag_id || !shop || !shop_type || !JWT || !CUSTOMER_ID) return;
+
+    const iframe = document.createElement('iframe');
+    iframe.className = 'buoy-chat-frame';
+    iframe.id = 'buoy-chat-frame';
+    iframe.allow = "microphone; clipboard-write";
+    iframe.src = `https://embed.fishook.online?script_tag_id=${script_tag_id}&shop_url=${shop}&shop_type=${shop_type}&jwt=${JWT}&customer_id=${CUSTOMER_ID}`;
+    iframe.style.cssText = `
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 400px;
+      height: 600px;
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      z-index: 999999;
+      display: none; /* start hidden */
+    `;
+    document.body.appendChild(iframe);
+
+    iframe.style.opacity = '1';
+    iframe.style.transform = 'scale(1)';
+  }
 
   btn.addEventListener('click', () => {
     if (iframe.style.opacity === '1') {
@@ -18,8 +75,6 @@
 
   // Set the src of the iframe to the product URL
   const productUrl = '{{ product.url }}';
-
-  console.log('Product URL:', productUrl);
 
   const handleMessage = (event) => {
     if (event.origin !== 'https://reactchatwidget.com') return;
@@ -41,8 +96,7 @@
   "name": "Buoy AI Chat",
   "target": "body",
   "settings": [
-    { "type": "product", "id": "product", "label": "product", "autofill": true },
-    { "type": "text", "id": "source", "label": "source", "default": "https://embed.fishook.online" }
+    { "type": "product", "id": "product", "label": "product", "autofill": true }
   ]
 }
 {% endschema %}

@@ -1,4 +1,4 @@
-*, ::before, ::after {
+/* *, ::before, ::after {
   --tw-border-spacing-x: 0;
   --tw-border-spacing-y: 0;
   --tw-translate-x: 0;
@@ -155,7 +155,7 @@
 :root {
   --primary: #ff5b00;
   --btn-size: 50px;
-}
+} */
 
 .buoy-btn {
   position: fixed;
@@ -196,3 +196,10 @@
     transform 0.3s cubic-bezier(0, 1.2, 1, 1),
     opacity 0.2s ease-out;
 }
+
+.buoy-chat-frame.minimized {
+  width: 90px;
+  height: 90px;
+  right: 0px;
+}
+
