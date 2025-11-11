@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { io, type Socket } from "socket.io-client";
+import { encryptAccessToken } from "~/utils/api";
 
 export interface LiveChatMessage {
   id: number;
@@ -15,14 +16,19 @@ export interface LiveChatMessage {
 interface UseLiveChatSocketProps {
   chatRoomId: string | null;
   enabled?: boolean;
-  accessToken: string | null;
+}
+
+interface UseLiveChatSocketPropsExtended extends UseLiveChatSocketProps {
+  accessToken: string;
+  shopUrl?: string;
 }
 
 export const useLiveChatSocket = ({
   chatRoomId,
   enabled = true,
   accessToken,
-}: UseLiveChatSocketProps) => {
+  shopUrl,
+}: UseLiveChatSocketPropsExtended) => {
   const [messages, setMessages] = useState<LiveChatMessage[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
@@ -38,10 +44,15 @@ export const useLiveChatSocket = ({
       return;
     }
 
-    // Initialize socket connection
+    const encryptedToken = encryptAccessToken(accessToken);
+
+    // Initialize socket connection with headers
     const socket = io(`${socketUrl}/live-chat`, {
       auth: {
-        authorization_token: accessToken,
+        authorization_token: encryptedToken,
+      },
+      extraHeaders: {
+        ...(shopUrl && { "x-shopify-shop-domain": shopUrl }),
       },
       reconnection: true,
       reconnectionAttempts: 5,
@@ -130,7 +141,7 @@ export const useLiveChatSocket = ({
       }
       socket.disconnect();
     };
-  }, [enabled, chatRoomId, socketUrl, accessToken]);
+  }, [enabled, chatRoomId, accessToken, shopUrl]);
 
   // Join a specific chat room
   const joinChatRoom = useCallback(

@@ -21,17 +21,17 @@ export function setShopUrl(shop: string) {
   shopUrl = shop;
 }
 
+// Encrypt any access token (shared utility function)
+export function encryptAccessToken(token: string): string {
+  return CryptoJS.AES.encrypt(token, SECRET_KEY).toString();
+}
+
 // Get encrypted access token
-function getEncryptedAccessToken(): string | null {
+export function getEncryptedAccessToken(): string | null {
   if (!shopifyAccessToken) return null;
 
   // Encrypt the Shopify access token
-  const encrypted = CryptoJS.AES.encrypt(
-    shopifyAccessToken,
-    SECRET_KEY,
-  ).toString();
-
-  return encrypted;
+  return encryptAccessToken(shopifyAccessToken);
 }
 
 // API Client with encrypted access token as bearer
