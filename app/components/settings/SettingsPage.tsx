@@ -191,32 +191,74 @@ export default function SettingsPage() {
                   Update your profile information and contact details
                 </Text>
 
-                {profile.profile_image && (
+                <InlineStack gap="400" align="space-between" blockAlign="start">
                   <InlineStack gap="300" align="start">
                     <Avatar
                       customer
                       name={name}
                       size="xl"
-                      source={profile.profile_image}
+                      source={
+                        profileImage
+                          ? URL.createObjectURL(profileImage)
+                          : profile.profile_image
+                      }
                     />
                     <BlockStack gap="200">
                       <Text as="p" variant="bodyMd" fontWeight="semibold">
                         {name || "User"}
                       </Text>
-                      <Text as="p" variant="bodySm" tone="subdued">
-                        Joined{" "}
-                        {new Date(profile.registered).toLocaleDateString(
-                          "en-US",
-                          {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                          },
-                        )}
-                      </Text>
+                      <Button
+                        onClick={() => {
+                          const input = document.createElement("input");
+                          input.type = "file";
+                          input.accept = "image/*";
+                          input.onchange = (e) => {
+                            const file = (e.target as HTMLInputElement)
+                              .files?.[0];
+                            if (file) {
+                              if (!file.type.startsWith("image/")) {
+                                setBannerMessage("Please select an image file");
+                                setBannerStatus("critical");
+                                setShowBanner(true);
+                                setTimeout(() => setShowBanner(false), 3000);
+                                return;
+                              }
+                              if (file.size > 5 * 1024 * 1024) {
+                                setBannerMessage(
+                                  "File size must be less than 5MB",
+                                );
+                                setBannerStatus("critical");
+                                setShowBanner(true);
+                                setTimeout(() => setShowBanner(false), 3000);
+                                return;
+                              }
+                              setProfileImage(file);
+                            }
+                          };
+                          input.click();
+                        }}
+                      >
+                        Change Photo
+                      </Button>
                     </BlockStack>
                   </InlineStack>
-                )}
+
+                  <BlockStack gap="200">
+                    <Text as="p" variant="bodySm" tone="subdued">
+                      Joined
+                    </Text>
+                    <Text as="p" variant="bodyMd">
+                      {new Date(profile.registered).toLocaleDateString(
+                        "en-US",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        },
+                      )}
+                    </Text>
+                  </BlockStack>
+                </InlineStack>
 
                 <TextField
                   label="Full Name"
