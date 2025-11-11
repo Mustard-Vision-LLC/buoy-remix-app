@@ -16,7 +16,7 @@ export const checkIfAppEmbedIsActivated = async (admin: AdminApiContext, session
   var returnVal = { 
     status: false,
     activeStatus: false,
-    liveThemeId: null,
+    liveThemeId: liveTheme.id,
     deeplink: deeplink
   }
   const assets = await getConfigSettingsJSONFile(admin, session, liveTheme.id);
