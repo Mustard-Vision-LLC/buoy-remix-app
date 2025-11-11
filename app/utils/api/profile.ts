@@ -19,7 +19,7 @@ class ProfileApi extends BaseApiClient {
         user_status: string;
         referrer: string | null;
       };
-    }>("/shopify/admin/profile", { method: "GET" });
+    }>("/shopify/profile", { method: "GET" });
   }
 
   async updateProfile(formData: FormData) {
@@ -27,7 +27,7 @@ class ProfileApi extends BaseApiClient {
       status_code: number;
       message: string;
       data: any;
-    }>("/shopify/admin/profile", formData, "PUT");
+    }>("/shopify/profile", formData, "PUT");
   }
 
   async changePassword(payload: {
@@ -38,7 +38,7 @@ class ProfileApi extends BaseApiClient {
       status_code: number;
       message: string;
       data?: unknown;
-    }>("/shopify/admin/profile/change-password", {
+    }>("/shopify/change-password", {
       method: "PUT",
       body: JSON.stringify(payload),
     });

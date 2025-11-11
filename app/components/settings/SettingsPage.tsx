@@ -13,7 +13,9 @@ import {
   Modal,
   FormLayout,
   Avatar,
+  Icon,
 } from "@shopify/polaris";
+import { ViewIcon, HideIcon } from "@shopify/polaris-icons";
 
 interface ProfileData {
   first_name: string;
@@ -55,6 +57,9 @@ export default function SettingsPage() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Initialize form with profile data
   useEffect(() => {
@@ -366,24 +371,49 @@ export default function SettingsPage() {
           <FormLayout>
             <TextField
               label="Current Password"
-              type="password"
+              type={showCurrentPassword ? "text" : "password"}
               value={currentPassword}
               onChange={setCurrentPassword}
               autoComplete="current-password"
+              suffix={
+                <Button
+                  variant="plain"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  icon={
+                    <Icon source={showCurrentPassword ? HideIcon : ViewIcon} />
+                  }
+                />
+              }
             />
             <TextField
               label="New Password"
-              type="password"
+              type={showNewPassword ? "text" : "password"}
               value={newPassword}
               onChange={setNewPassword}
               autoComplete="new-password"
+              suffix={
+                <Button
+                  variant="plain"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  icon={<Icon source={showNewPassword ? HideIcon : ViewIcon} />}
+                />
+              }
             />
             <TextField
               label="Confirm New Password"
-              type="password"
+              type={showConfirmPassword ? "text" : "password"}
               value={confirmPassword}
               onChange={setConfirmPassword}
               autoComplete="new-password"
+              suffix={
+                <Button
+                  variant="plain"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  icon={
+                    <Icon source={showConfirmPassword ? HideIcon : ViewIcon} />
+                  }
+                />
+              }
             />
           </FormLayout>
         </Modal.Section>
