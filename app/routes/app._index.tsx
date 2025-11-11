@@ -121,7 +121,7 @@ export default function Home() {
     if (isWidgetActive) {
       window.open(dashboardUrl, "_blank", "noopener,noreferrer");
     } else {
-      window.location.href = deeplink;
+      window.open(deeplink, "_blank", "noopener,noreferrer");
     }
   };
 
