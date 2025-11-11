@@ -1,6 +1,6 @@
 import { AdminApiContext } from "@shopify/shopify-app-remix/server";
 const APP_EMBED_ID = `0c0b42fd-fe88-462c-a051-6aec880415dc`;
-const APP_EMBED_TYPE = `shopify://apps/fishook-test/blocks/floating_chat/${APP_EMBED_ID}`;
+const APP_EMBED_TYPE = `shopify://apps/fishook/blocks/floating_chat/${APP_EMBED_ID}`;
 const DEEP_LINK_ID = `${APP_EMBED_ID}/floating_chat`;
 
 export const appEmbedDeepLink = (shop: string, liveThemeId: string): string|null => {
