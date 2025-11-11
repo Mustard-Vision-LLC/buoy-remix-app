@@ -11,8 +11,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session, admin } = await authenticate.admin(request);
   const { shop } = session;
 
-  const checkActiveEmbed = false;
-
+  
   const dbRecord = await prisma.session.findFirst({
     where: {
       shop: shop,
@@ -22,6 +21,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   if (!dbRecord?.shop || !dbRecord?.accessToken) {
     throw new Error("Missing session data");
   }
+
+  const checkActiveEmbed = await checkIfAppEmbedIsActivated(admin, dbRecord);
+  console.log('check active emmbed here', checkActiveEmbed);
 
   const payload = {
     shop_url: dbRecord.shop,
@@ -95,15 +97,17 @@ export default function Home() {
     jsonData: any;
     accessToken: string;
     shop: string;
-    checkActiveEmbed: boolean
+    checkActiveEmbed: any
   }>();
 
   var dashboardUrl = "https://dashboard.fishook.online/merchant/auth/login";
-  if (jsonData.hasOwnProperty("data") && jsonData.data.hasOwnProperty("jwt_token")) {
-    dashboardUrl = `${dashboardUrl}?jwt_token=${jsonData.data.jwt_token}`;
+  try {
+    if (jsonData.hasOwnProperty("data") && jsonData.data.hasOwnProperty("jwt_token")) {
+      dashboardUrl = `${dashboardUrl}?jwt_token=${jsonData.data.jwt_token}`;
+    }  
+  } catch (error) {
+    
   }
-
-  console.log('check active embed?', checkActiveEmbed);
 
   const goToLogin = () => {
     window.open(dashboardUrl, "_blank", "noopener,noreferrer");

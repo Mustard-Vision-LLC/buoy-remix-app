@@ -1,64 +1,63 @@
 import { AdminApiContext } from "@shopify/shopify-app-remix/server";
+const APP_EMBED_ID = `019a7285-9775-7633-8677-dac719f70b0f`;
+const APP_EMBED_TYPE = `shopify://apps/sid-fishook/blocks/floating_chat/${APP_EMBED_ID}`;
+const DEEP_LINK_ID = `${APP_EMBED_ID}/floating_chat`;
 
-export const checkIfAppEmbedIsActivated = async (admin: any): Promise<boolean> => {
-   
-    const themesOfThisStore = await getThemesForStore(admin);
-    const liveTheme = await getLiveTheme(themesOfThisStore);
-
-    console.log('liveTheme', JSON.stringify(liveTheme));    
-
-    const assets = await getConfigSettingsJSONFile(admin, liveTheme.id);
-    
-    var parsed = JSON.parse(JSON.stringify(assets));
-    var assetContents = JSON.parse(parsed.content);
-    if(assetContents.current) {
-        if(assetContents.current['blocks']) {
-            var blocks = assetContents.current['blocks'];
-            for(var i in blocks) {
-                if(blocks[i].type == 'shopify://apps/fishook/blocks/floating_chat/0c0b42fd-fe88-462c-a051-6aec880415dc') {
-                    return !blocks[i].disabled;
-                }    
-            }
-        } 
-    }
-
-    return false;
+export const appEmbedDeepLink = (shop: string, liveThemeId: string): string|null => {
+  liveThemeId = liveThemeId.startsWith('gid:') ? liveThemeId.replace('gid://shopify/OnlineStoreTheme/', ''): liveThemeId;
+  return `https://${shop}/admin/themes/${liveThemeId}/editor?context=apps&activateAppId=${DEEP_LINK_ID}`;
 }
 
-export const getSettingsJSONFromTheme = async (admin: any, themeId: string, assetKey: string): Promise<any> => {
-  const themeGid = themeId.startsWith("gid://") ? themeId : `gid://shopify/OnlineStoreTheme/${themeId}`;
-
-    const query = `
-        query getAsset($themeId: ID!, $assetKey: String!) {
-            theme(id: $themeId) {
-                id
-                name
-                asset(key: $assetKey) {
-                    key
-                    publicUrl
-                    content
-                    size
-                    createdAt
-                    updatedAt
-                }
+export const checkIfAppEmbedIsActivated = async (admin: AdminApiContext, session: any): Promise<any> => {
+  const { shop } = session;
+  const themesOfThisStore = await getThemesForStore(admin);
+  const liveTheme = await getLiveTheme(themesOfThisStore);
+  const deeplink = appEmbedDeepLink(shop, liveTheme.id);
+  var returnVal = { 
+    status: false,
+    activeStatus: false,
+    liveThemeId: null,
+    deeplink: deeplink
+  }
+  const assets = await getConfigSettingsJSONFile(admin, session, liveTheme.id);
+  
+  var parsed = JSON.parse(JSON.stringify(assets));
+  
+  var assetContents = JSON.parse(parsed.value);
+  if(assetContents.current) {
+    if(assetContents.current.blocks) {
+      var blocks = assetContents.current.blocks;
+      if(blocks != null) {
+        for (const [key, value] of Object.entries(blocks)) {
+          console.log('here key', key);
+          console.log('value', value);
+          if(value.type == APP_EMBED_TYPE) {
+            returnVal = {
+              status: true,
+              activeStatus: !value.disabled,
+              liveThemeId: liveTheme.id,
+              deeplink: deeplink 
             }
+          }
         }
-    `;
+      }
+    } 
+  }
 
-    const response = await admin.graphql(query, {
-        variables: {
-            themeId: themeGid,
-            assetKey: assetKey
-        }
-    });
-
-    const result = await response.json();
-    return result.data.theme.asset;
+  return returnVal;
 }
 
-export const getConfigSettingsJSONFile = async (admin: any, themeId: any): Promise<any> => {
-  const result = await getSettingsJSONFromTheme(admin, themeId, "config/settings_data.json");
+export const getConfigSettingsJSONFile = async (admin: AdminApiContext, session: any, themeId: any): Promise<any> => {
+  const result = await getSettingsJSONFromTheme(admin, session, themeId, "config/settings_data.json");
   return result.data[0];
+}
+
+export const getSettingsJSONFromTheme = async (admin: AdminApiContext, session: any, themeId: string, assetKey: string): Promise<any> => {
+  return await admin.rest.resources.Asset.all({
+    session: session,
+    theme_id: themeId.replace('gid://shopify/OnlineStoreTheme/', ''),
+    asset: {"key": assetKey}
+  });
 }
 
 export const getLiveTheme = (themes: any): any => {

@@ -36,6 +36,7 @@
     "@shopify/shopify-app-session-storage-prisma": "^6.0.0",
     "apexcharts": "^5.3.5",
     "autoprefixer": "^10.4.21",
+    "axios": "^1.13.2",
     "crypto-js": "^4.2.0",
     "isbot": "^5.1.0",
     "postcss": "^8.5.3",
