@@ -86,5 +86,6 @@ export const getThemesForStore = async (admin: AdminApiContext): Promise<any> =>
     }`
   );
   const result = await response.json();
+  console.log('result here', JSON.stringify(result.data));
   return result.data.themes.edges;
 };
