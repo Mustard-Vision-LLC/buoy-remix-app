@@ -150,7 +150,7 @@ export default function Home() {
                 className="h-12 bg-primary text-white font-medium rounded-xl px-8 py-3"
                 onClick={handleButtonClick}
               >
-                {isWidgetActive ? "View Dashboard" : "Activate Widget"}
+                {isWidgetActive ? "Log in" : "Activate Widget"}
               </button>
             </div>
           </div>
