@@ -9,7 +9,7 @@ class WidgetApi extends BaseApiClient {
       data: {
         widgetConfig: any;
       };
-    }>("/shopify/widget-configuration", { method: "GET" });
+    }>("/shopify/widget-settings", { method: "GET" });
   }
 
   async updateWidgetConfig(config: Record<string, any>) {
@@ -19,8 +19,8 @@ class WidgetApi extends BaseApiClient {
       data: {
         widgetConfig: any;
       };
-    }>("/shopify/widget-configuration", {
-      method: "POST",
+    }>("/shopify/widget-settings", {
+      method: "PUT",
       body: JSON.stringify(config),
     });
   }
@@ -32,7 +32,7 @@ class WidgetApi extends BaseApiClient {
       data: {
         widgetAppearance: any;
       };
-    }>("/shopify/widget-appearance", { method: "GET" });
+    }>("/shopify/widget-settings/config", { method: "GET" });
   }
 
   async updateWidgetAppearance(appearance: Record<string, any>) {
@@ -42,8 +42,8 @@ class WidgetApi extends BaseApiClient {
       data: {
         widgetAppearance: any;
       };
-    }>("/shopify/widget-appearance", {
-      method: "POST",
+    }>("/shopify/widget-settings/config", {
+      method: "PUT",
       body: JSON.stringify(appearance),
     });
   }
