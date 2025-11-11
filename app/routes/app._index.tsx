@@ -11,7 +11,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session, admin } = await authenticate.admin(request);
   const { shop } = session;
 
-  
   const dbRecord = await prisma.session.findFirst({
     where: {
       shop: shop,
@@ -23,7 +22,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   }
 
   const checkActiveEmbed = await checkIfAppEmbedIsActivated(admin, dbRecord);
-  console.log('check active emmbed here', checkActiveEmbed);
+  console.log("check active emmbed here", checkActiveEmbed);
 
   const payload = {
     shop_url: dbRecord.shop,
@@ -65,7 +64,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       storePerformance: storePerformanceResponse || null,
       conversions: conversionsResponse || null,
       marketPerformance: marketPerformanceResponse || null,
-      checkActiveEmbed: checkActiveEmbed
+      checkActiveEmbed: checkActiveEmbed,
     };
   } catch (error) {
     console.error("Error fetching dashboard analytics:", error);
@@ -79,7 +78,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       storePerformance: null,
       conversions: null,
       marketPerformance: null,
-      checkActiveEmbed: checkActiveEmbed
+      checkActiveEmbed: checkActiveEmbed,
     };
   }
 
@@ -99,23 +98,31 @@ export default function Home() {
     jsonData: any;
     accessToken: string;
     shop: string;
-    checkActiveEmbed: any
+    checkActiveEmbed: any;
   }>();
 
-  console.log('checkActiveEmbed', checkActiveEmbed);
-  console.log('jsonData', JSON.stringify(jsonData));
+  console.log("checkActiveEmbed", checkActiveEmbed);
+  console.log("jsonData", JSON.stringify(jsonData));
+
+  const isWidgetActive = checkActiveEmbed?.activeStatus === true;
+  const deeplink = checkActiveEmbed?.deeplink || "";
 
   var dashboardUrl = "https://dashboard.fishook.online/merchant/auth/login";
   try {
-    if (jsonData.hasOwnProperty("data") && jsonData.data.hasOwnProperty("jwt_token")) {
+    if (
+      jsonData.hasOwnProperty("data") &&
+      jsonData.data.hasOwnProperty("jwt_token")
+    ) {
       dashboardUrl = `${dashboardUrl}?jwt_token=${jsonData.data.jwt_token}`;
-    }  
-  } catch (error) {
-    
-  }
+    }
+  } catch (error) {}
 
-  const goToLogin = () => {
-    window.open(dashboardUrl, "_blank", "noopener,noreferrer");
+  const handleButtonClick = () => {
+    if (isWidgetActive) {
+      window.open(dashboardUrl, "_blank", "noopener,noreferrer");
+    } else {
+      window.location.href = deeplink;
+    }
   };
 
   return (
@@ -134,14 +141,16 @@ export default function Home() {
 
             <div className="flex items-center flex-nowrap gap-4">
               <p className="text-lg font-medium">
-                Please login here to activate Fishook Widget!
+                {isWidgetActive
+                  ? "View Dashboard"
+                  : "Please click here to activate Fishook Widget!"}
               </p>
 
               <button
                 className="h-12 bg-primary text-white font-medium rounded-xl px-8 py-3"
-                onClick={goToLogin}
+                onClick={handleButtonClick}
               >
-                Log in
+                {isWidgetActive ? "View Dashboard" : "Activate Widget"}
               </button>
             </div>
           </div>
