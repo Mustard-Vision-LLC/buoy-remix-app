@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { useLoaderData, useFetcher } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import {
   Page,
   Card,
@@ -16,6 +16,7 @@ import {
   Icon,
 } from "@shopify/polaris";
 import { ViewIcon, HideIcon } from "@shopify/polaris-icons";
+import { apiClient, setAccessToken, setShopUrl } from "~/utils/api";
 
 interface ProfileData {
   first_name: string;
@@ -29,14 +30,11 @@ interface ProfileData {
 }
 
 export default function SettingsPage() {
-  const { profile } = useLoaderData<{
+  const { profile, shop, accessToken } = useLoaderData<{
     shop: string;
     accessToken: string;
     profile: ProfileData;
   }>();
-
-  const profileFetcher = useFetcher();
-  const passwordFetcher = useFetcher();
 
   const [selected, setSelected] = useState(0);
   const [showBanner, setShowBanner] = useState(false);
@@ -44,6 +42,10 @@ export default function SettingsPage() {
   const [bannerStatus, setBannerStatus] = useState<"success" | "critical">(
     "success",
   );
+
+  // Loading states
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   // Profile state
   const [name, setName] = useState("");
@@ -61,6 +63,14 @@ export default function SettingsPage() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // Set access token for API calls
+  useEffect(() => {
+    if (accessToken && shop) {
+      setAccessToken(accessToken);
+      setShopUrl(shop);
+    }
+  }, [accessToken, shop]);
+
   // Initialize form with profile data
   useEffect(() => {
     if (profile) {
@@ -71,69 +81,39 @@ export default function SettingsPage() {
     }
   }, [profile]);
 
-  // Handle profile fetcher response
-  useEffect(() => {
-    if (profileFetcher.data) {
-      const data = profileFetcher.data as { success: boolean; error?: string };
-      if (data.success) {
-        setBannerMessage("Profile updated successfully!");
-        setBannerStatus("success");
-        setShowBanner(true);
-        setTimeout(() => setShowBanner(false), 3000);
-        setProfileImage(null);
-      } else {
-        setBannerMessage(data.error || "Failed to update profile");
-        setBannerStatus("critical");
-        setShowBanner(true);
-        setTimeout(() => setShowBanner(false), 3000);
-      }
-    }
-  }, [profileFetcher.data]);
-
-  // Handle password fetcher response
-  useEffect(() => {
-    if (passwordFetcher.data) {
-      const data = passwordFetcher.data as { success: boolean; error?: string };
-      if (data.success) {
-        setBannerMessage("Password changed successfully!");
-        setBannerStatus("success");
-        setShowBanner(true);
-        setTimeout(() => setShowBanner(false), 3000);
-        setShowPasswordModal(false);
-        setCurrentPassword("");
-        setNewPassword("");
-        setConfirmPassword("");
-      } else {
-        setBannerMessage(data.error || "Failed to change password");
-        setBannerStatus("critical");
-        setShowBanner(true);
-        setTimeout(() => setShowBanner(false), 3000);
-      }
-    }
-  }, [passwordFetcher.data]);
-
   const handleTabChange = useCallback((selectedTabIndex: number) => {
     setSelected(selectedTabIndex);
   }, []);
 
-  const handleSaveProfile = useCallback(() => {
-    const formData = new FormData();
-    formData.append("intent", "updateProfile");
-    formData.append("fullname", name);
-    formData.append("company_name", company);
-    formData.append("phone", phone);
+  const handleSaveProfile = useCallback(async () => {
+    setIsUpdatingProfile(true);
+    try {
+      const formData = new FormData();
+      formData.append("fullname", name);
+      formData.append("company_name", company);
+      formData.append("phone", phone);
 
-    if (profileImage) {
-      formData.append("profile_picture", profileImage);
+      if (profileImage) {
+        formData.append("profile_picture", profileImage);
+      }
+
+      await apiClient.updateProfile(formData);
+      setBannerMessage("Profile updated successfully!");
+      setBannerStatus("success");
+      setShowBanner(true);
+      setTimeout(() => setShowBanner(false), 3000);
+      setProfileImage(null);
+    } catch (error: any) {
+      setBannerMessage(error.message || "Failed to update profile");
+      setBannerStatus("critical");
+      setShowBanner(true);
+      setTimeout(() => setShowBanner(false), 3000);
+    } finally {
+      setIsUpdatingProfile(false);
     }
+  }, [name, company, phone, profileImage]);
 
-    profileFetcher.submit(formData, {
-      method: "post",
-      encType: "multipart/form-data",
-    });
-  }, [name, company, phone, profileImage, profileFetcher]);
-
-  const handleChangePassword = useCallback(() => {
+  const handleChangePassword = useCallback(async () => {
     if (newPassword !== confirmPassword) {
       setBannerMessage("Passwords do not match!");
       setBannerStatus("critical");
@@ -142,13 +122,29 @@ export default function SettingsPage() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("intent", "changePassword");
-    formData.append("old_password", currentPassword);
-    formData.append("new_password", newPassword);
-
-    passwordFetcher.submit(formData, { method: "post" });
-  }, [currentPassword, newPassword, confirmPassword, passwordFetcher]);
+    setIsChangingPassword(true);
+    try {
+      await apiClient.changePassword({
+        old_password: currentPassword,
+        new_password: newPassword,
+      });
+      setBannerMessage("Password changed successfully!");
+      setBannerStatus("success");
+      setShowBanner(true);
+      setTimeout(() => setShowBanner(false), 3000);
+      setShowPasswordModal(false);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (error: any) {
+      setBannerMessage(error.message || "Failed to change password");
+      setBannerStatus("critical");
+      setShowBanner(true);
+      setTimeout(() => setShowBanner(false), 3000);
+    } finally {
+      setIsChangingPassword(false);
+    }
+  }, [currentPassword, newPassword, confirmPassword]);
 
   const hasUnsavedChanges =
     name !== `${profile.first_name || ""} ${profile.last_name || ""}`.trim() ||
@@ -304,11 +300,8 @@ export default function SettingsPage() {
                   <Button
                     variant="primary"
                     onClick={handleSaveProfile}
-                    disabled={
-                      !hasUnsavedChanges ||
-                      profileFetcher.state === "submitting"
-                    }
-                    loading={profileFetcher.state === "submitting"}
+                    disabled={!hasUnsavedChanges || isUpdatingProfile}
+                    loading={isUpdatingProfile}
                   >
                     Save Changes
                   </Button>
@@ -351,19 +344,16 @@ export default function SettingsPage() {
         onClose={() => setShowPasswordModal(false)}
         title="Change Password"
         primaryAction={{
-          content:
-            passwordFetcher.state === "submitting"
-              ? "Updating..."
-              : "Update Password",
+          content: isChangingPassword ? "Updating..." : "Update Password",
           onAction: handleChangePassword,
-          loading: passwordFetcher.state === "submitting",
+          loading: isChangingPassword,
           disabled: !currentPassword || !newPassword || !confirmPassword,
         }}
         secondaryActions={[
           {
             content: "Cancel",
             onAction: () => setShowPasswordModal(false),
-            disabled: passwordFetcher.state === "submitting",
+            disabled: isChangingPassword,
           },
         ]}
       >

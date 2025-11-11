@@ -14,7 +14,7 @@ import {
   EmptyState,
   Divider,
 } from "@shopify/polaris";
-import { apiClient } from "~/utils/api";
+import { apiClient, setAccessToken, setShopUrl } from "~/utils/api";
 import { useLiveChatSocket } from "~/hooks/useLiveChatSocket";
 
 interface ChatMessage {
@@ -531,7 +531,6 @@ export default function LiveChatPage() {
   // Set access token and shop URL for API client in the browser
   useEffect(() => {
     if (accessToken && shop) {
-      const { setAccessToken, setShopUrl } = require("~/utils/api");
       setAccessToken(accessToken);
       setShopUrl(shop);
     }
