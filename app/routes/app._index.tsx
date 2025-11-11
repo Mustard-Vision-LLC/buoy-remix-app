@@ -100,6 +100,8 @@ export default function Home() {
     checkActiveEmbed: any
   }>();
 
+  console.log('checkActiveEmbed', checkActiveEmbed);
+
   var dashboardUrl = "https://dashboard.fishook.online/merchant/auth/login";
   try {
     if (jsonData.hasOwnProperty("data") && jsonData.data.hasOwnProperty("jwt_token")) {
