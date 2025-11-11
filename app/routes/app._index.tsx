@@ -3,6 +3,8 @@ import { useLoaderData } from "@remix-run/react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { BlockStack, Layout, Page } from "@shopify/polaris";
 import prisma from "~/db.server";
+import { apiClient, setAccessToken, setShopUrl } from "~/utils/api";
+import DashboardPage from "~/components/dashboard/DashboardPage";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
@@ -23,6 +25,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     access_token: dbRecord.accessToken,
   };
 
+  setAccessToken(dbRecord.accessToken);
+  setShopUrl(dbRecord.shop);
+
   const response = await fetch(
     `https://dashboard-api.fishook.online/shopify/update/token`,
     {
@@ -34,12 +39,48 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const jsonData = await response.json();
 
-  return {
-    session,
-    jsonData,
-    shop: shop,
-    accessToken: dbRecord.accessToken,
-  };
+  try {
+    // Fetch dashboard analytics and chart data
+    const [
+      analyticsResponse,
+      storePerformanceResponse,
+      conversionsResponse,
+      marketPerformanceResponse,
+    ] = await Promise.all([
+      apiClient.getDashboardAnalytics(),
+      apiClient.getDashboardStorePerformance({ period: "year" }),
+      apiClient.getDashboardConversions({ period: "year" }),
+      apiClient.getDashboardMarketPerformance({ period: "year" }),
+    ]);
+
+    return {
+      shop: session.shop,
+      analytics: analyticsResponse.data?.analytics || null,
+      storePerformance: storePerformanceResponse || null,
+      conversions: conversionsResponse || null,
+      marketPerformance: marketPerformanceResponse || null,
+    };
+  } catch (error) {
+    console.error("Error fetching dashboard analytics:", error);
+    // Return with null analytics if the API call fails
+    return {
+      session,
+      jsonData,
+      shop: shop,
+      accessToken: dbRecord.accessToken,
+      analytics: null,
+      storePerformance: null,
+      conversions: null,
+      marketPerformance: null,
+    };
+  }
+
+  // return {
+  //   session,
+  //   jsonData,
+  //   shop: shop,
+  //   accessToken: dbRecord.accessToken,
+  // };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {};
@@ -92,6 +133,11 @@ export default function Home() {
             </div>
           </div>
           {/* )} */}
+        </Layout>
+        <Layout>
+          <div className="mt-20">
+            <DashboardPage />
+          </div>
         </Layout>
       </BlockStack>
     </Page>
