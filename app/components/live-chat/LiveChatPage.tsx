@@ -438,13 +438,13 @@ const ChatSessionView: React.FC<ChatSessionViewProps> = ({
                     color:
                       message.sender_type === "MERCHANT"
                         ? "#ffffff"
-                        : "#000000",
+                        : "#ffffff",
                   }}
                 >
                   <Text as="p" variant="bodyMd">
                     {message.message}
                   </Text>
-                  <p className="text-black">
+                  <p className="text-white">
                     {new Date(message.created_at).toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
