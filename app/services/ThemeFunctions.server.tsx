@@ -10,7 +10,7 @@ export const checkIfAppEmbedIsActivated = async (admin: any): Promise<boolean> =
     const assets = await getConfigSettingsJSONFile(admin, liveTheme.id);
     
     var parsed = JSON.parse(JSON.stringify(assets));
-    var assetContents = JSON.parse(parsed.value);
+    var assetContents = JSON.parse(parsed.content);
     if(assetContents.current) {
         if(assetContents.current['blocks']) {
             var blocks = assetContents.current['blocks'];
