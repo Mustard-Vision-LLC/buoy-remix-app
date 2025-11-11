@@ -10,9 +10,10 @@ import {
 } from "@shopify/polaris";
 import ClientOnly from "./ClientOnly";
 import ProductsTable from "./ProductsTable";
+import { setAccessToken, setShopUrl } from "~/utils/api";
 
 // Lazy load chart components to avoid SSR issues with ApexCharts
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 
 const StorePerformanceChart = lazy(() => import("./StorePerformanceChart"));
 const TotalConversionsChart = lazy(() => import("./TotalConversionsChart"));
@@ -54,6 +55,7 @@ function StatCard({ title, value }: { title: string; value: string | number }) {
 export default function DashboardPage() {
   const loaderData = useLoaderData<{
     shop: string;
+    accessToken: string;
     analytics: {
       engagements: number;
       total_conversion: number;
@@ -81,25 +83,48 @@ export default function DashboardPage() {
     storePerformance: {
       status_code: number;
       message: string;
-      conversions: { datasets: Array<{ data: number[]; label: string }>; labels: string[] };
-      engagements: { datasets: Array<{ data: number[]; label: string }>; labels: string[] };
+      conversions: {
+        datasets: Array<{ data: number[]; label: string }>;
+        labels: string[];
+      };
+      engagements: {
+        datasets: Array<{ data: number[]; label: string }>;
+        labels: string[];
+      };
     } | null;
     conversions: {
       status_code: number;
       message: string;
-      data: { datasets: Array<{ data: number[]; label: string }>; labels: string[] };
+      data: {
+        datasets: Array<{ data: number[]; label: string }>;
+        labels: string[];
+      };
     } | null;
     marketPerformance: {
       status_code: number;
       message: string;
       data: {
-        conversions: { datasets: Array<{ data: number[]; label: string }>; labels: string[] };
-        engagements: { datasets: Array<{ data: number[]; label: string }>; labels: string[] };
+        conversions: {
+          datasets: Array<{ data: number[]; label: string }>;
+          labels: string[];
+        };
+        engagements: {
+          datasets: Array<{ data: number[]; label: string }>;
+          labels: string[];
+        };
       };
     } | null;
   }>();
 
   const analytics = loaderData.analytics;
+
+  // Set access token and shop URL for client-side API calls (e.g., charts with filters)
+  useEffect(() => {
+    if (loaderData.accessToken && loaderData.shop) {
+      setAccessToken(loaderData.accessToken);
+      setShopUrl(loaderData.shop);
+    }
+  }, [loaderData.accessToken, loaderData.shop]);
 
   // Statistics using real analytics data
   const statistics = [

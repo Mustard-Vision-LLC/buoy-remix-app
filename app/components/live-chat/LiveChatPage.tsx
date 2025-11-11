@@ -481,25 +481,34 @@ const ChatSessionView: React.FC<ChatSessionViewProps> = ({
           borderTop: "1px solid #e1e3e5",
         }}
       >
-        <InlineStack gap="200">
-          <div style={{ flex: 1 }}>
-            <TextField
-              label=""
-              value={inputMessage}
-              onChange={handleInputChange}
-              placeholder="Type your message..."
-              autoComplete="off"
-              disabled={!isConnected}
-            />
-          </div>
-          <Button
-            variant="primary"
-            onClick={handleSendMessage}
-            disabled={!isConnected || !inputMessage.trim()}
-          >
-            Send
-          </Button>
-        </InlineStack>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (isConnected && inputMessage.trim()) {
+              handleSendMessage();
+            }
+          }}
+        >
+          <InlineStack gap="200">
+            <div style={{ flex: 1 }}>
+              <TextField
+                label=""
+                value={inputMessage}
+                onChange={handleInputChange}
+                placeholder="Type your message..."
+                autoComplete="off"
+                disabled={!isConnected}
+              />
+            </div>
+            <Button
+              variant="primary"
+              submit
+              disabled={!isConnected || !inputMessage.trim()}
+            >
+              Send
+            </Button>
+          </InlineStack>
+        </form>
       </div>
     </BlockStack>
   );
@@ -518,6 +527,15 @@ export default function LiveChatPage() {
 
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [chatRooms, setChatRooms] = useState<ChatRoom[]>(initialChatRooms);
+
+  // Set access token and shop URL for API client in the browser
+  useEffect(() => {
+    if (accessToken && shop) {
+      const { setAccessToken, setShopUrl } = require("~/utils/api");
+      setAccessToken(accessToken);
+      setShopUrl(shop);
+    }
+  }, [accessToken, shop]);
 
   // Auto-refresh chat rooms every 10 seconds
   useEffect(() => {

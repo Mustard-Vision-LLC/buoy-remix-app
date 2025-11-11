@@ -43,6 +43,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     return json({
       shop: shopifySession.shop,
+      accessToken: dbRecord.accessToken,
       analytics: analyticsResponse.data?.analytics || null,
       storePerformance: storePerformanceResponse || null,
       conversions: conversionsResponse || null,
@@ -53,6 +54,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     // Return with null analytics if the API call fails
     return json({
       shop: shopifySession.shop,
+      accessToken: dbRecord.accessToken,
       analytics: null,
       storePerformance: null,
       conversions: null,
