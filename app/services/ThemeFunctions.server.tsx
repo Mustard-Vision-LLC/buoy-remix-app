@@ -1,11 +1,13 @@
 import { AdminApiContext } from "@shopify/shopify-app-remix/server";
 
-export const checkIfAppEmbedIsActivated = async (admin: any, session: any): Promise<boolean> => {
+export const checkIfAppEmbedIsActivated = async (admin: any): Promise<boolean> => {
    
     const themesOfThisStore = await getThemesForStore(admin);
     const liveTheme = await getLiveTheme(themesOfThisStore);
 
-    const assets = await getConfigSettingsJSONFile(admin, session, liveTheme.id);
+    console.log('liveTheme', JSON.stringify(liveTheme));    
+
+    const assets = await getConfigSettingsJSONFile(admin, liveTheme.id);
     
     var parsed = JSON.parse(JSON.stringify(assets));
     var assetContents = JSON.parse(parsed.value);
@@ -23,16 +25,39 @@ export const checkIfAppEmbedIsActivated = async (admin: any, session: any): Prom
     return false;
 }
 
-export const getSettingsJSONFromTheme = async (admin: any, session: any, themeId: string, assetKey: string): Promise<any> => {
-  return await admin.rest.resources.Asset.all({
-    session: session,
-    theme_id: themeId.replace('gid://shopify/OnlineStoreTheme/', ''),
-    asset: {"key": assetKey}
-  });
+export const getSettingsJSONFromTheme = async (admin: any, themeId: string, assetKey: string): Promise<any> => {
+  const themeGid = themeId.startsWith("gid://") ? themeId : `gid://shopify/OnlineStoreTheme/${themeId}`;
+
+    const query = `
+        query getAsset($themeId: ID!, $assetKey: String!) {
+            theme(id: $themeId) {
+                id
+                name
+                asset(key: $assetKey) {
+                    key
+                    publicUrl
+                    content
+                    size
+                    createdAt
+                    updatedAt
+                }
+            }
+        }
+    `;
+
+    const response = await admin.graphql(query, {
+        variables: {
+            themeId: themeGid,
+            assetKey: assetKey
+        }
+    });
+
+    const result = await response.json();
+    return result.data.theme.asset;
 }
 
-export const getConfigSettingsJSONFile = async (admin: any, session: any, themeId: any): Promise<any> => {
-  const result = await getSettingsJSONFromTheme(admin, session, themeId, "config/settings_data.json");
+export const getConfigSettingsJSONFile = async (admin: any, themeId: any): Promise<any> => {
+  const result = await getSettingsJSONFromTheme(admin, themeId, "config/settings_data.json");
   return result.data[0];
 }
 
