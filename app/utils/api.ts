@@ -515,6 +515,80 @@ class ApiClient {
       method: "POST",
     });
   }
+
+  // Profile endpoints
+  async getProfile() {
+    return this.request<{
+      status_code: number;
+      message: string;
+      data: {
+        first_name: string;
+        last_name: string;
+        email: string;
+        phone: string;
+        company_name: string;
+        profile_image: string;
+        id: string;
+        registered: string;
+        referral_code: string | null;
+        user_status: string;
+        referrer: string | null;
+      };
+    }>("/shopify/admin/profile", {
+      method: "GET",
+    });
+  }
+
+  async updateProfile(formData: FormData) {
+    const encryptedToken = getEncryptedAccessToken();
+
+    if (!encryptedToken) {
+      throw new Error("Access token not available");
+    }
+
+    const headers: Record<string, string> = {
+      Authorization: `Bearer ${encryptedToken}`,
+    };
+
+    if (shopUrl) {
+      headers["x-shopify-shop-domain"] = shopUrl;
+    }
+
+    const response = await fetch(`${this.baseURL}/shopify/admin/profile`, {
+      method: "PUT",
+      headers,
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error(`❌ API Error (${response.status}):`, errorData);
+
+      const error = new Error(
+        errorData.message || `HTTP error! status: ${response.status}`,
+      ) as Error & { statusCode?: number; errorData?: any };
+      error.statusCode = response.status;
+      error.errorData = errorData;
+
+      throw error;
+    }
+
+    return response.json();
+  }
+
+  async changePassword(payload: {
+    old_password: string;
+    new_password: string;
+  }) {
+    return this.request<{
+      status_code: number;
+      message: string;
+      data?: unknown;
+    }>("/shopify/admin/profile/change-password", {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+  }
 }
 
 export const apiClient = new ApiClient(API_BASE_URL);

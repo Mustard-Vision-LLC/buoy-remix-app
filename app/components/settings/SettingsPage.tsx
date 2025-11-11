@@ -1,4 +1,5 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { useLoaderData, useFetcher } from "@remix-run/react";
 import {
   Page,
   Card,
@@ -11,9 +12,30 @@ import {
   Banner,
   Modal,
   FormLayout,
+  Avatar,
 } from "@shopify/polaris";
 
+interface ProfileData {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  company_name: string;
+  profile_image: string;
+  id: string;
+  registered: string;
+}
+
 export default function SettingsPage() {
+  const { profile } = useLoaderData<{
+    shop: string;
+    accessToken: string;
+    profile: ProfileData;
+  }>();
+
+  const profileFetcher = useFetcher();
+  const passwordFetcher = useFetcher();
+
   const [selected, setSelected] = useState(0);
   const [showBanner, setShowBanner] = useState(false);
   const [bannerMessage, setBannerMessage] = useState("");
@@ -26,6 +48,7 @@ export default function SettingsPage() {
   const [email, setEmail] = useState("");
   const [company, setCompany] = useState("");
   const [phone, setPhone] = useState("");
+  const [profileImage, setProfileImage] = useState<File | null>(null);
 
   // Security state
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -33,17 +56,77 @@ export default function SettingsPage() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  // Initialize form with profile data
+  useEffect(() => {
+    if (profile) {
+      setName(`${profile.first_name || ""} ${profile.last_name || ""}`.trim());
+      setEmail(profile.email || "");
+      setCompany(profile.company_name || "");
+      setPhone(profile.phone || "");
+    }
+  }, [profile]);
+
+  // Handle profile fetcher response
+  useEffect(() => {
+    if (profileFetcher.data) {
+      const data = profileFetcher.data as { success: boolean; error?: string };
+      if (data.success) {
+        setBannerMessage("Profile updated successfully!");
+        setBannerStatus("success");
+        setShowBanner(true);
+        setTimeout(() => setShowBanner(false), 3000);
+        setProfileImage(null);
+      } else {
+        setBannerMessage(data.error || "Failed to update profile");
+        setBannerStatus("critical");
+        setShowBanner(true);
+        setTimeout(() => setShowBanner(false), 3000);
+      }
+    }
+  }, [profileFetcher.data]);
+
+  // Handle password fetcher response
+  useEffect(() => {
+    if (passwordFetcher.data) {
+      const data = passwordFetcher.data as { success: boolean; error?: string };
+      if (data.success) {
+        setBannerMessage("Password changed successfully!");
+        setBannerStatus("success");
+        setShowBanner(true);
+        setTimeout(() => setShowBanner(false), 3000);
+        setShowPasswordModal(false);
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      } else {
+        setBannerMessage(data.error || "Failed to change password");
+        setBannerStatus("critical");
+        setShowBanner(true);
+        setTimeout(() => setShowBanner(false), 3000);
+      }
+    }
+  }, [passwordFetcher.data]);
+
   const handleTabChange = useCallback((selectedTabIndex: number) => {
     setSelected(selectedTabIndex);
   }, []);
 
   const handleSaveProfile = useCallback(() => {
-    // TODO: API integration when backend is ready
-    setBannerMessage("Profile settings saved successfully!");
-    setBannerStatus("success");
-    setShowBanner(true);
-    setTimeout(() => setShowBanner(false), 3000);
-  }, []);
+    const formData = new FormData();
+    formData.append("intent", "updateProfile");
+    formData.append("fullname", name);
+    formData.append("company_name", company);
+    formData.append("phone", phone);
+
+    if (profileImage) {
+      formData.append("profile_picture", profileImage);
+    }
+
+    profileFetcher.submit(formData, {
+      method: "post",
+      encType: "multipart/form-data",
+    });
+  }, [name, company, phone, profileImage, profileFetcher]);
 
   const handleChangePassword = useCallback(() => {
     if (newPassword !== confirmPassword) {
@@ -54,16 +137,19 @@ export default function SettingsPage() {
       return;
     }
 
-    // TODO: API integration when backend is ready
-    setShowPasswordModal(false);
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
-    setBannerMessage("Password changed successfully!");
-    setBannerStatus("success");
-    setShowBanner(true);
-    setTimeout(() => setShowBanner(false), 3000);
-  }, [newPassword, confirmPassword]);
+    const formData = new FormData();
+    formData.append("intent", "changePassword");
+    formData.append("old_password", currentPassword);
+    formData.append("new_password", newPassword);
+
+    passwordFetcher.submit(formData, { method: "post" });
+  }, [currentPassword, newPassword, confirmPassword, passwordFetcher]);
+
+  const hasUnsavedChanges =
+    name !== `${profile.first_name || ""} ${profile.last_name || ""}`.trim() ||
+    company !== (profile.company_name || "") ||
+    phone !== (profile.phone || "") ||
+    profileImage !== null;
 
   const tabs = [
     {
@@ -105,6 +191,33 @@ export default function SettingsPage() {
                   Update your profile information and contact details
                 </Text>
 
+                {profile.profile_image && (
+                  <InlineStack gap="300" align="start">
+                    <Avatar
+                      customer
+                      name={name}
+                      size="xl"
+                      source={profile.profile_image}
+                    />
+                    <BlockStack gap="200">
+                      <Text as="p" variant="bodyMd" fontWeight="semibold">
+                        {name || "User"}
+                      </Text>
+                      <Text as="p" variant="bodySm" tone="subdued">
+                        Joined{" "}
+                        {new Date(profile.registered).toLocaleDateString(
+                          "en-US",
+                          {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          },
+                        )}
+                      </Text>
+                    </BlockStack>
+                  </InlineStack>
+                )}
+
                 <TextField
                   label="Full Name"
                   value={name}
@@ -120,6 +233,7 @@ export default function SettingsPage() {
                   onChange={setEmail}
                   placeholder="Enter your email"
                   autoComplete="email"
+                  disabled
                 />
 
                 <TextField
@@ -140,7 +254,15 @@ export default function SettingsPage() {
                 />
 
                 <InlineStack align="end">
-                  <Button variant="primary" onClick={handleSaveProfile}>
+                  <Button
+                    variant="primary"
+                    onClick={handleSaveProfile}
+                    disabled={
+                      !hasUnsavedChanges ||
+                      profileFetcher.state === "submitting"
+                    }
+                    loading={profileFetcher.state === "submitting"}
+                  >
                     Save Changes
                   </Button>
                 </InlineStack>
@@ -182,13 +304,19 @@ export default function SettingsPage() {
         onClose={() => setShowPasswordModal(false)}
         title="Change Password"
         primaryAction={{
-          content: "Update Password",
+          content:
+            passwordFetcher.state === "submitting"
+              ? "Updating..."
+              : "Update Password",
           onAction: handleChangePassword,
+          loading: passwordFetcher.state === "submitting",
+          disabled: !currentPassword || !newPassword || !confirmPassword,
         }}
         secondaryActions={[
           {
             content: "Cancel",
             onAction: () => setShowPasswordModal(false),
+            disabled: passwordFetcher.state === "submitting",
           },
         ]}
       >

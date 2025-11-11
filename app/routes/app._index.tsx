@@ -135,9 +135,7 @@ export default function Home() {
           {/* )} */}
         </Layout>
         <Layout>
-          <div className="mt-20">
-            <DashboardPage />
-          </div>
+          <DashboardPage />
         </Layout>
       </BlockStack>
     </Page>
