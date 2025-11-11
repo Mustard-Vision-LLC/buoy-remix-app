@@ -60,6 +60,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     return {
       shop: session.shop,
+      jsonData: jsonData,
       analytics: analyticsResponse.data?.analytics || null,
       storePerformance: storePerformanceResponse || null,
       conversions: conversionsResponse || null,
