@@ -102,6 +102,7 @@ export default function Home() {
   }>();
 
   console.log('checkActiveEmbed', checkActiveEmbed);
+  console.log('jsonData', JSON.stringify(jsonData));
 
   var dashboardUrl = "https://dashboard.fishook.online/merchant/auth/login";
   try {
