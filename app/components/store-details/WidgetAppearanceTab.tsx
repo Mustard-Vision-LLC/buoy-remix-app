@@ -57,10 +57,15 @@ export default function WidgetAppearanceTab() {
     const fetchWidgetAppearance = async () => {
       try {
         const response = await apiClient.getWidgetAppearance();
-        setCustomize(response.data.is_customized || false);
-        setTheme(response.data.theme || "");
-        if (response.data.logo_image_file) {
-          setLogoPreview(response.data.logo_image_file);
+        if (response.data) {
+          setCustomize(response.data.is_customized || false);
+          setTheme(response.data.theme || "");
+          if (response.data.logo_image_file) {
+            setLogoPreview(response.data.logo_image_file);
+          }
+        } else {
+          // No data returned, use defaults
+          console.log("No widget appearance data found, using defaults");
         }
       } catch (error) {
         console.error("Error fetching widget appearance:", error);
@@ -109,11 +114,21 @@ export default function WidgetAppearanceTab() {
       setLogoFile(null);
 
       // Refresh the data
-      const response = await apiClient.getWidgetAppearance();
-      setCustomize(response.data.is_customized || false);
-      setTheme(response.data.theme || "");
-      if (response.data.logo_image_file) {
-        setLogoPreview(response.data.logo_image_file);
+      try {
+        const response = await apiClient.getWidgetAppearance();
+        if (response.data) {
+          setCustomize(response.data.is_customized || false);
+          setTheme(response.data.theme || "");
+          if (response.data.logo_image_file) {
+            setLogoPreview(response.data.logo_image_file);
+          }
+        }
+      } catch (refreshError) {
+        // If refresh fails, keep the current state - the save was still successful
+        console.warn(
+          "Could not refresh widget appearance after save:",
+          refreshError,
+        );
       }
     } catch (error: any) {
       console.error("Error updating widget appearance:", error);

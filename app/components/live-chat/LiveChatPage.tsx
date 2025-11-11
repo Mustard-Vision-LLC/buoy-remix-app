@@ -208,11 +208,13 @@ const ChatsList: React.FC<ChatListProps> = ({
 interface ChatSessionViewProps {
   selectedChatId: string | null;
   accessToken: string;
+  shopUrl: string;
 }
 
 const ChatSessionView: React.FC<ChatSessionViewProps> = ({
   selectedChatId,
   accessToken,
+  shopUrl,
 }) => {
   const [inputMessage, setInputMessage] = useState("");
   const [initialMessages, setInitialMessages] = useState<ChatMessage[]>([]);
@@ -232,6 +234,7 @@ const ChatSessionView: React.FC<ChatSessionViewProps> = ({
     chatRoomId: selectedChatId,
     enabled: !!selectedChatId,
     accessToken,
+    shopUrl,
   });
 
   // Fetch initial messages
@@ -503,7 +506,11 @@ const ChatSessionView: React.FC<ChatSessionViewProps> = ({
 };
 
 export default function LiveChatPage() {
-  const { accessToken, chatRooms: initialChatRooms } = useLoaderData<{
+  const {
+    shop,
+    accessToken,
+    chatRooms: initialChatRooms,
+  } = useLoaderData<{
     shop: string;
     accessToken: string;
     chatRooms: ChatRoom[];
@@ -605,6 +612,7 @@ export default function LiveChatPage() {
               <ChatSessionView
                 selectedChatId={selectedChatId}
                 accessToken={accessToken}
+                shopUrl={shop}
               />
             </Card>
           </div>
