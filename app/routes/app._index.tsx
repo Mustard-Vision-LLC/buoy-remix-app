@@ -3,12 +3,15 @@ import { useLoaderData } from "@remix-run/react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { BlockStack, Layout, Page } from "@shopify/polaris";
 import prisma from "~/db.server";
+import { checkIfAppEmbedIsActivated } from "~/services/ThemeFunctions.server";
 import { apiClient, setAccessToken, setShopUrl } from "~/utils/api";
 import DashboardPage from "~/components/dashboard/DashboardPage";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
+  const { session, admin } = await authenticate.admin(request);
   const { shop } = session;
+
+  const checkActiveEmbed = await checkIfAppEmbedIsActivated(admin, session);
 
   const dbRecord = await prisma.session.findFirst({
     where: {
@@ -72,6 +75,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       storePerformance: null,
       conversions: null,
       marketPerformance: null,
+      checkActiveEmbed: checkActiveEmbed
     };
   }
 
@@ -86,20 +90,20 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export const action = async ({ request }: ActionFunctionArgs) => {};
 
 export default function Home() {
-  const { jsonData } = useLoaderData<{
+  const { jsonData, checkActiveEmbed } = useLoaderData<{
     session: string;
     jsonData: any;
     accessToken: string;
     shop: string;
+    checkActiveEmbed: boolean
   }>();
 
   var dashboardUrl = "https://dashboard.fishook.online/merchant/auth/login";
-  if (
-    jsonData.hasOwnProperty("data") &&
-    jsonData.data.hasOwnProperty("jwt_token")
-  ) {
+  if (jsonData.hasOwnProperty("data") && jsonData.data.hasOwnProperty("jwt_token")) {
     dashboardUrl = `${dashboardUrl}?jwt_token=${jsonData.data.jwt_token}`;
   }
+
+  console.log('check active embed?', checkActiveEmbed);
 
   const goToLogin = () => {
     window.open(dashboardUrl, "_blank", "noopener,noreferrer");
