@@ -158,11 +158,11 @@ export default function SettingsPage() {
       content: "Profile",
       panelID: "profile-content",
     },
-    {
-      id: "security",
-      content: "Security",
-      panelID: "security-content",
-    },
+    // {
+    //   id: "security",
+    //   content: "Security",
+    //   panelID: "security-content",
+    // },
   ];
 
   return (
