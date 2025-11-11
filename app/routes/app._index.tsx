@@ -64,6 +64,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       storePerformance: storePerformanceResponse || null,
       conversions: conversionsResponse || null,
       marketPerformance: marketPerformanceResponse || null,
+      checkActiveEmbed: checkActiveEmbed
     };
   } catch (error) {
     console.error("Error fetching dashboard analytics:", error);

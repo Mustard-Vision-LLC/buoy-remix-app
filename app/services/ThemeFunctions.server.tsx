@@ -29,8 +29,6 @@ export const checkIfAppEmbedIsActivated = async (admin: AdminApiContext, session
       var blocks = assetContents.current.blocks;
       if(blocks != null) {
         for (const [key, value] of Object.entries(blocks)) {
-          console.log('here key', key);
-          console.log('value', value);
           if(value.type == APP_EMBED_TYPE) {
             returnVal = {
               status: true,
