@@ -11,7 +11,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session, admin } = await authenticate.admin(request);
   const { shop } = session;
 
-  const checkActiveEmbed = await checkIfAppEmbedIsActivated(admin);
+  const checkActiveEmbed = false;
 
   const dbRecord = await prisma.session.findFirst({
     where: {
