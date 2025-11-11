@@ -433,23 +433,23 @@ const ChatSessionView: React.FC<ChatSessionViewProps> = ({
                     borderRadius: "12px",
                     backgroundColor:
                       message.sender_type === "MERCHANT"
-                        ? "#005bd3"
-                        : "#ffffff",
+                        ? "#ff5b00"
+                        : "#a3acba",
                     color:
                       message.sender_type === "MERCHANT"
                         ? "#ffffff"
-                        : "#202223",
+                        : "#000000",
                   }}
                 >
                   <Text as="p" variant="bodyMd">
                     {message.message}
                   </Text>
-                  <Text as="p" variant="bodySm" tone="subdued">
+                  <p className="text-black">
                     {new Date(message.created_at).toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
                     })}
-                  </Text>
+                  </p>
                 </div>
               </div>
             ))}
