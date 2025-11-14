@@ -190,7 +190,7 @@ export default function Home() {
                 color: "white",
                 border: "none",
                 borderRadius: "8px",
-                fontSize: "10px",
+                fontSize: "12px",
                 fontWeight: 600,
                 cursor: "pointer",
                 whiteSpace: "nowrap",
