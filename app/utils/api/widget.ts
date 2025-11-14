@@ -30,7 +30,12 @@ class WidgetApi extends BaseApiClient {
       status_code: number;
       message: string;
       data: {
-        widgetAppearance: any;
+        is_customized: boolean;
+        theme: string;
+        logo_template: string | null;
+        hex_code: string;
+        bubble_color: string;
+        logo_image_file: string | null;
       };
     }>("/shopify/widget-settings/config", { method: "GET" });
   }
@@ -42,7 +47,12 @@ class WidgetApi extends BaseApiClient {
         status_code: number;
         message: string;
         data: {
-          widgetAppearance: any;
+          is_customized: boolean;
+          theme: string;
+          logo_template: string | null;
+          hex_code: string;
+          bubble_color: string;
+          logo_image_file: string | null;
         };
       }>("/shopify/widget-settings/config", appearance, "PUT");
     }
@@ -52,7 +62,12 @@ class WidgetApi extends BaseApiClient {
       status_code: number;
       message: string;
       data: {
-        widgetAppearance: any;
+        is_customized: boolean;
+        theme: string;
+        logo_template: string | null;
+        hex_code: string;
+        bubble_color: string;
+        logo_image_file: string | null;
       };
     }>("/shopify/widget-settings/config", {
       method: "PUT",
