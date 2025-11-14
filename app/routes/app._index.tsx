@@ -147,43 +147,30 @@ export default function Home() {
           <div
             style={{
               width: "100%",
-              maxWidth: "900px",
               backgroundColor: isWidgetActive ? "#F0FDF4" : "#FEF2F2",
               border: `1px solid ${isWidgetActive ? "#00A63E" : "#FB2C36"}`,
               borderRadius: "8px",
-              padding: "16px 24px",
+              padding: "8px 14px",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              gap: "16px",
+              gap: "8px",
               marginTop: "20px",
               marginLeft: "auto",
               marginRight: "auto",
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-              <div
-                style={{
-                  width: "20px",
-                  height: "20px",
-                  borderRadius: "50%",
-                  border: `2px solid ${isWidgetActive ? "#00A651" : "#D32F2F"}`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
-                }}
-              >
-                <img
-                  src={
-                    isWidgetActive
-                      ? "/assets/images/green-checkmark.svg"
-                      : "/assets/images/x-icon.svg"
-                  }
-                  alt="icon"
-                  className="size-3"
-                />
-              </div>
+              <img
+                src={
+                  isWidgetActive
+                    ? "/assets/icons/green-checkmark.svg"
+                    : "/assets/icons/x-icon.svg"
+                }
+                alt="icon"
+                className="size-3"
+              />
+
               <span
                 style={{
                   fontSize: "14px",
@@ -203,7 +190,7 @@ export default function Home() {
                 backgroundColor: "#ff5b00",
                 color: "white",
                 border: "none",
-                borderRadius: "6px",
+                borderRadius: "8px",
                 fontSize: "14px",
                 fontWeight: 600,
                 cursor: "pointer",

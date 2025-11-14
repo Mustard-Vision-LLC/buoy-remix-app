@@ -1,6 +1,5 @@
 import {
   Modal,
-  Button,
   BlockStack,
   Text,
   InlineStack,
@@ -33,7 +32,7 @@ export default function WidgetActivationModal({
       }}
     >
       <Modal.Section>
-        <Scrollable style={{ maxHeight: "70vh" }}>
+        <Scrollable>
           <BlockStack gap="600">
             {/* Step 1 */}
             <BlockStack gap="300">
@@ -41,9 +40,23 @@ export default function WidgetActivationModal({
                 Step 1. Click the button below to take you to the theme editor.
               </Text>
               <InlineStack align="start">
-                <Button variant="primary" onClick={handleGoToThemeEditor}>
+                <button
+                  style={{
+                    padding: "8px 20px",
+                    backgroundColor: "#ff5b00",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "8px",
+                    fontSize: "14px",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                    transition: "background-color 0.2s",
+                  }}
+                  onClick={handleGoToThemeEditor}
+                >
                   Go to Theme Editor
-                </Button>
+                </button>
               </InlineStack>
             </BlockStack>
 
@@ -88,9 +101,6 @@ export default function WidgetActivationModal({
 
             {/* Verification */}
             <BlockStack gap="400">
-              <Text as="h3" variant="headingMd" fontWeight="semibold">
-                Verification
-              </Text>
               <Text as="p" variant="bodyMd">
                 To verify that you have correctly activated the widget, wait for
                 15 seconds. The widget should then pop up in the admin theme
