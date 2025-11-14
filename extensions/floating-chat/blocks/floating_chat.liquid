@@ -1,7 +1,7 @@
 {{ 'output.css' | asset_url | stylesheet_tag }}
 
 <script src="https://embed.fishook.online/js/widget.js" defer></script>
-<script src="{{ 'widget.js' | asset_url }}" defer></script>
+{% comment %} <script src="{{ 'widget.js' | asset_url }}" defer></script> {% endcomment %}
 
 <script>
   const btn = document.querySelector('.buoy-btn');
