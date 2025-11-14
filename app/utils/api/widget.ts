@@ -35,7 +35,19 @@ class WidgetApi extends BaseApiClient {
     }>("/shopify/widget-settings/config", { method: "GET" });
   }
 
-  async updateWidgetAppearance(appearance: Record<string, any>) {
+  async updateWidgetAppearance(appearance: FormData | Record<string, any>) {
+    // If appearance is FormData, use uploadRequest
+    if (appearance instanceof FormData) {
+      return this.uploadRequest<{
+        status_code: number;
+        message: string;
+        data: {
+          widgetAppearance: any;
+        };
+      }>("/shopify/widget-settings/config", appearance, "PUT");
+    }
+
+    // Otherwise, use regular request with JSON
     return this.request<{
       status_code: number;
       message: string;

@@ -57,11 +57,12 @@ export default function WidgetAppearanceTab() {
     const fetchWidgetAppearance = async () => {
       try {
         const response = await apiClient.getWidgetAppearance();
-        if (response.data) {
-          setCustomize(response.data.is_customized || false);
-          setTheme(response.data.theme || "");
-          if (response.data.logo_image_file) {
-            setLogoPreview(response.data.logo_image_file);
+        if (response.data?.widgetAppearance) {
+          const appearance = response.data.widgetAppearance;
+          setCustomize(appearance.is_customized || false);
+          setTheme(appearance.theme || "");
+          if (appearance.logo_image_file) {
+            setLogoPreview(appearance.logo_image_file);
           }
         } else {
           // No data returned, use defaults
@@ -116,11 +117,12 @@ export default function WidgetAppearanceTab() {
       // Refresh the data
       try {
         const response = await apiClient.getWidgetAppearance();
-        if (response.data) {
-          setCustomize(response.data.is_customized || false);
-          setTheme(response.data.theme || "");
-          if (response.data.logo_image_file) {
-            setLogoPreview(response.data.logo_image_file);
+        if (response.data?.widgetAppearance) {
+          const appearance = response.data.widgetAppearance;
+          setCustomize(appearance.is_customized || false);
+          setTheme(appearance.theme || "");
+          if (appearance.logo_image_file) {
+            setLogoPreview(appearance.logo_image_file);
           }
         }
       } catch (refreshError) {
