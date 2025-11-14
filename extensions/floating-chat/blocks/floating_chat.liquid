@@ -1,13 +1,13 @@
 {{ 'output.css' | asset_url | stylesheet_tag }}
 
 <script src="https://embed.fishook.online/js/widget.js" defer></script>
-<script src="{{ 'widget.js' | asset_url }}" defer></script>
+{% comment %} <script src="{{ 'widget.js' | asset_url }}" defer></script> {% endcomment %}
 
 <script>
   const btn = document.querySelector('.buoy-btn');
   const iframe = document.querySelector('iframe');
 
-  const shop = "{{ shop.domain }}";
+  const shop = Shopify.shop;
   const customerId = "{{ customer.id }}";
   const script_tag_id = 'null'; //No longer need to pass it
   const shop_type = 'SHOPIFY';
@@ -81,11 +81,9 @@
 
 {% schema %}
 {
-  "name": "Buoy AI Chat",
+  "name": "Fishook AI",
   "target": "body",
-  "settings": [
-    { "type": "product", "id": "product", "label": "product", "autofill": true }
-  ]
+  "settings": [ ]
 }
 {% endschema %}
 

@@ -2,10 +2,10 @@ COOKIE_NAME = "fishook_guest_id";
 JWT_COOKIE_NAME = "fishook_jwt";
 VISITOR_COOKIE_NAME = "fishook_customer_token";
 VISITOR_SESSION_COOKIE_NAME = "fishook_customer_session_token";
-const HOST = "https://sandbox.fishook.online";
-const trackProductClicksUrl = `${HOST}/shopify/products/interactions`;
-const saveCartURL = `${HOST}/shopify/carts`;
-let lastCartState = null;
+const fishookHost = "https://sandbox.fishook.online";
+const embedTrackProductClicksUrl = `${fishookHost}/shopify/products/interactions`;
+const embedsaveCartURL = `${fishookHost}/shopify/carts`;
+let embedLastCartState = null;
 
 function generateUUID() {
   if (window.crypto?.randomUUID) return crypto.randomUUID();
@@ -43,11 +43,11 @@ async function updateCustomerCart(widget_jwt) {
     const cart = await response.json();
     const cartJSON = JSON.stringify(cart);
 
-    if (cartJSON !== lastCartState) {
-      lastCartState = cartJSON;
+    if (cartJSON !== embedLastCartState) {
+      embedLastCartState = cartJSON;
     }
     //const customer = window.Shopify?.customer || null;
-    await fetch(saveCartURL, {
+    await fetch(embedsaveCartURL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -86,7 +86,7 @@ async function trackProductClicks(widget_jwt) {
   if (window.ShopifyAnalytics?.meta?.product) {
     const product = window.ShopifyAnalytics.meta.product;
     const customer = window.Shopify?.customer || null;
-    await fetch(trackProductClicksUrl, {
+    await fetch(embedTrackProductClicksUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -100,17 +100,17 @@ async function trackProductClicks(widget_jwt) {
   }
 }
 
-let isIframeUpdated = false;
+let embedIsIframeUpdated = false;
 window.addEventListener('message', (event) => {
   // const widget_jwt = getCookie(JWT_COOKIE_NAME)
   // const CUSTOMER_ID = getCookie(VISITOR_COOKIE_NAME)
   if (event.origin !== 'https://embed.fishook.online') return;
-  if(!isIframeUpdated) {
+  if(!embedIsIframeUpdated) {
     if (event.data?.type === 'fishook_session') {
       setCookieStorage(VISITOR_SESSION_COOKIE_NAME, event.data)
       const fishookIframe = document.getElementById('buoy-chat-frame');
       if(fishookIframe){
-        isIframeUpdated = true;
+        embedIsIframeUpdated = true;
         //fishookIframe.src = 'https://embed.fishook.online?script_tag_id=null&shop_url='+shop+'&shop_type='+shop_type+'&jwt='+widget_jwt+'&customer_id='+CUSTOMER_ID+'&socket_id='+event.data.sessionId
       }
     }
