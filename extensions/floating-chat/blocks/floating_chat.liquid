@@ -44,7 +44,7 @@
     iframe.className = 'buoy-chat-frame';
     iframe.id = 'buoy-chat-frame';
     iframe.allow = "microphone; clipboard-write";
-    iframe.src = `https://embed.fishook.online?script_tag_id=${script_tag_id}&shop_url=${shop}&shop_type=${shop_type}&jwt=${JWT}&customer_id=${CUSTOMER_ID}`;
+    iframe.src = `https://embed.fishook.online?script_tag_id=${script_tag_id}&shop_url=${Shopify.shop}&shop_type=${shop_type}&jwt=${JWT}&customer_id=${CUSTOMER_ID}`;
     document.body.appendChild(iframe);
 
     iframe.style.opacity = '1';
@@ -81,7 +81,7 @@
 
 {% schema %}
 {
-  "name": "Fishook AI",
+  "name": "Fishook",
   "target": "body",
   "settings": [ ]
 }
