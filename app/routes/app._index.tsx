@@ -6,6 +6,8 @@ import prisma from "~/db.server";
 import { checkIfAppEmbedIsActivated } from "~/services/ThemeFunctions.server";
 import { apiClient, setAccessToken, setShopUrl } from "~/utils/api";
 import DashboardPage from "~/components/dashboard/DashboardPage";
+import WidgetActivationModal from "~/components/WidgetActivationModal";
+import { useState } from "react";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session, admin } = await authenticate.admin(request);
@@ -101,6 +103,8 @@ export default function Home() {
     checkActiveEmbed: any;
   }>();
 
+  const [showActivationModal, setShowActivationModal] = useState(false);
+
   console.log("checkActiveEmbed", checkActiveEmbed);
   console.log("jsonData", JSON.stringify(jsonData));
 
@@ -121,7 +125,7 @@ export default function Home() {
     if (isWidgetActive) {
       window.open(dashboardUrl, "_blank", "noopener,noreferrer");
     } else {
-      window.open(deeplink, "_blank", "noopener,noreferrer");
+      setShowActivationModal(true);
     }
   };
 
@@ -138,28 +142,76 @@ export default function Home() {
                 loading="lazy"
               />
             </div>
-
-            <div className="flex items-center flex-nowrap gap-4">
-              <p className="text-lg font-medium">
-                {isWidgetActive
-                  ? "View Dashboard"
-                  : "Please click here to activate Fishook Widget!"}
-              </p>
-
-              <button
-                className="h-12 bg-primary text-white font-medium rounded-xl px-8 py-3"
-                onClick={handleButtonClick}
-              >
-                {isWidgetActive ? "Log in" : "Activate Widget"}
-              </button>
-            </div>
           </div>
-          {/* )} */}
+
+          <div
+            style={{
+              width: "100%",
+              backgroundColor: isWidgetActive ? "#F0FDF4" : "#FEF2F2",
+              border: `1px solid ${isWidgetActive ? "#00A63E" : "#FB2C36"}`,
+              borderRadius: "8px",
+              padding: "8px 14px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "8px",
+              marginTop: "20px",
+              marginLeft: "auto",
+              marginRight: "auto",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <img
+                src={
+                  isWidgetActive
+                    ? "/assets/icons/green-checkmark.svg"
+                    : "/assets/icons/x-icon.svg"
+                }
+                alt="icon"
+              />
+
+              <span
+                style={{
+                  fontSize: "14px",
+                  fontWeight: 500,
+                  color: "#2C2C2C",
+                }}
+              >
+                {isWidgetActive
+                  ? "Widget activated"
+                  : "Widget successfully installed but not activated yet."}
+              </span>
+            </div>
+
+            <button
+              style={{
+                padding: "8px 10px",
+                backgroundColor: "#ff5b00",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                fontSize: "12px",
+                fontWeight: 600,
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                transition: "background-color 0.2s",
+              }}
+              onClick={handleButtonClick}
+            >
+              {isWidgetActive ? "Go to Dashboard" : "Activate Widget"}
+            </button>
+          </div>
         </Layout>
         <Layout>
           <DashboardPage />
         </Layout>
       </BlockStack>
+
+      <WidgetActivationModal
+        open={showActivationModal}
+        onClose={() => setShowActivationModal(false)}
+        deeplink={deeplink}
+      />
     </Page>
   );
 }
