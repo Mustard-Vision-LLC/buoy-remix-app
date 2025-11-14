@@ -192,7 +192,6 @@ export default function Home() {
                 borderRadius: "8px",
                 fontSize: "10px",
                 fontWeight: 600,
-                height: "25px",
                 cursor: "pointer",
                 whiteSpace: "nowrap",
                 transition: "background-color 0.2s",
