@@ -185,7 +185,7 @@ export default function Home() {
 
             <button
               style={{
-                padding: "8px 20px",
+                padding: "8px 10px",
                 backgroundColor: "#ff5b00",
                 color: "white",
                 border: "none",
