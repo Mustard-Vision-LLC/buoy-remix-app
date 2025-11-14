@@ -2,9 +2,9 @@ COOKIE_NAME = "fishook_guest_id";
 JWT_COOKIE_NAME = "fishook_jwt";
 VISITOR_COOKIE_NAME = "fishook_customer_token";
 VISITOR_SESSION_COOKIE_NAME = "fishook_customer_session_token";
-const HOST = "https://sandbox.fishook.online";
-const trackProductClicksUrl = `${HOST}/shopify/products/interactions`;
-const saveCartURL = `${HOST}/shopify/carts`;
+const fishookHost = "https://sandbox.fishook.online";
+const trackProductClicksUrl = `${fishookHost}/shopify/products/interactions`;
+const saveCartURL = `${fishookHost}/shopify/carts`;
 let lastCartState = null;
 
 function generateUUID() {

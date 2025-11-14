@@ -7,7 +7,7 @@
   const btn = document.querySelector('.buoy-btn');
   const iframe = document.querySelector('iframe');
 
-  const shop = "{{ shop.domain }}";
+  const shop = Shopify.shop;
   const customerId = "{{ customer.id }}";
   const script_tag_id = 'null'; //No longer need to pass it
   const shop_type = 'SHOPIFY';
@@ -83,9 +83,7 @@
 {
   "name": "Buoy AI Chat",
   "target": "body",
-  "settings": [
-    { "type": "product", "id": "product", "label": "product", "autofill": true }
-  ]
+  "settings": [ ]
 }
 {% endschema %}
 
