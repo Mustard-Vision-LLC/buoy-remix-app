@@ -160,7 +160,7 @@ export default function Home() {
               marginRight: "auto",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <img
                 src={
                   isWidgetActive
@@ -168,7 +168,6 @@ export default function Home() {
                     : "/assets/icons/x-icon.svg"
                 }
                 alt="icon"
-                className="size-3"
               />
 
               <span
@@ -191,8 +190,9 @@ export default function Home() {
                 color: "white",
                 border: "none",
                 borderRadius: "8px",
-                fontSize: "14px",
+                fontSize: "10px",
                 fontWeight: 600,
+                height: "25px",
                 cursor: "pointer",
                 whiteSpace: "nowrap",
                 transition: "background-color 0.2s",
