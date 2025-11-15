@@ -8,7 +8,16 @@
   const iframe = document.querySelector('iframe');
 
   const shop = Shopify.shop;
-  const customerId = "{{ customer.id }}";
+  let customerId = "{{ customer.id | default: "" }}";
+  let cartToken = "{{ cart.token | default: "" }}";
+
+  if (customerId) {
+
+  } else if (cartToken) {
+    customerId = cartToken;
+  } else {
+    customerId = Math.random().toString(36).substring(2, 14);
+  }
   const script_tag_id = 'null'; //No longer need to pass it
   const shop_type = 'SHOPIFY';
   const widgetInitUrl = `https://sandbox.fishook.online/oauth/widget/init`;
@@ -21,7 +30,7 @@
         body: JSON.stringify({
           shop_url: shop,
           shop_type: shop_type,
-          guest_id: "{{ customer.id }}"
+          guest_id: customerId
         })
       });
 
