@@ -2,32 +2,28 @@
 
 client_id = "d0f416a00e31e62a4d4bb6f4ecc698f9"
 name = "fishook"
-handle = "fishook-1"
 application_url = "https://buoy-remix-app-rough-glitter-2019.fly.dev/"
 embedded = true
-
-[build]
-automatically_update_urls_on_dev = false
+handle = "fishook-1"
 
 [webhooks]
 api_version = "2025-04"
 
   [[webhooks.subscriptions]]
-  topics = [ "app/scopes_update" ]
-  uri = "/webhooks/app/scopes_update"
-
-  [[webhooks.subscriptions]]
   topics = [ "app/uninstalled" ]
   uri = "/webhooks/app/uninstalled"
 
-[webhooks.privacy_compliance]
-customer_deletion_url = "https://sandbox.fishook.online/shopify/webhook"
-customer_data_request_url = "https://sandbox.fishook.online/shopify/webhook"
-shop_deletion_url = "https://sandbox.fishook.online/shopify/webhook"
+  [[webhooks.subscriptions]]
+  uri = "https://sandbox.fishook.online/shopify/webhook"
+  compliance_topics = [ "customers/data_request", "customers/redact", "shop/redact" ]
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/scopes_update" ]
+  uri = "/webhooks/app/scopes_update"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "write_themes,read_price_rules,write_price_rules,read_discounts,write_discounts,read_discounts_allocator_functions,write_discounts_allocator_functions,read_inventory,read_inventory_shipments,read_inventory_shipments_received_items,read_inventory_transfers,read_orders,read_product_feeds,read_product_listings,read_products,write_products,read_script_tags,write_script_tags,customer_read_orders,unauthenticated_read_customers,unauthenticated_read_product_pickup_locations,unauthenticated_read_product_listings"
+scopes = "customer_read_orders,read_discounts,read_discounts_allocator_functions,read_inventory,read_inventory_shipments,read_inventory_shipments_received_items,read_inventory_transfers,read_orders,read_price_rules,read_product_feeds,read_product_listings,read_products,read_script_tags,unauthenticated_read_customers,unauthenticated_read_product_listings,unauthenticated_read_product_pickup_locations,write_discounts,write_discounts_allocator_functions,write_price_rules,write_products,write_script_tags,write_themes,write_customers"
 
 [auth]
 redirect_urls = [

@@ -1,9 +1,34 @@
 {{ 'output.css' | asset_url | stylesheet_tag }}
+<div id="debug-liquid">
+  customer: {{ customer | json }}
+  <br/>
+  metafield: {{ customer.metafields.fishook | json }}
+</div>
 
 <script src="https://embed.fishook.online/js/widget.js" defer></script>
-{% comment %} <script src="{{ 'widget.js' | asset_url }}" defer></script> {% endcomment %}
+
 
 <script>
+  let chatWidgetBaseURL = 'https://embed.fishook.online';
+
+  {% if customer %}
+    console.log("Customer logged in");
+
+    const checkoutAbandon = "{{ customer.metafields.fishook.checkout_intervention | default: '' }}";
+    console.log("checkoutAbandon metafield:", checkoutAbandon);
+
+    if (checkoutAbandon === "true") {
+      chatWidgetBaseURL = chatWidgetBaseURL + "/checkout";
+    } else {
+      console.log("Metafield missing or false");
+    }
+
+  {% else %}
+    console.log("Customer NOT logged in");
+  {% endif %}
+
+  console.log("Final URL:", chatWidgetBaseURL);
+
   const btn = document.querySelector('.buoy-btn');
   const iframe = document.querySelector('iframe');
 
@@ -53,7 +78,7 @@
     iframe.className = 'buoy-chat-frame';
     iframe.id = 'buoy-chat-frame';
     iframe.allow = "microphone; clipboard-write";
-    iframe.src = `https://embed.fishook.online?script_tag_id=${script_tag_id}&shop_url=${Shopify.shop}&shop_type=${shop_type}&jwt=${JWT}&customer_id=${CUSTOMER_ID}`;
+    iframe.src = `${chatWidgetBaseURL}?script_tag_id=${script_tag_id}&shop_url=${Shopify.shop}&shop_type=${shop_type}&jwt=${JWT}&customer_id=${CUSTOMER_ID}`;
     document.body.appendChild(iframe);
 
     iframe.style.opacity = '1';
