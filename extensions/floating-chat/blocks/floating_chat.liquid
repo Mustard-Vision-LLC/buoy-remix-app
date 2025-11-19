@@ -17,8 +17,10 @@
     const checkoutAbandon = "{{ customer.metafields.fishook.checkout_intervention | default: '' }}";
     console.log("checkoutAbandon metafield:", checkoutAbandon);
 
+    const iframe = document.getElementById('buoy-chat-frame');
     if (checkoutAbandon === "true") {
       chatWidgetBaseURL = chatWidgetBaseURL + "/checkout";
+       iframe.contentWindow?.postMessage({ type: 'FORCE_OPEN_WIDGET' }, '*');
     } else {
       console.log("Metafield missing or false");
     }
@@ -62,7 +64,7 @@
       if (!response.ok) {
         throw new Error('Request failed');
       }
-      
+
       var returnVal = await response.json();
       console.log('returnVal', returnVal);
       return returnVal;
