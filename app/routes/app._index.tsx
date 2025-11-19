@@ -198,7 +198,6 @@ export default function Home() {
               }}
               onClick={handleButtonClick}
             >
-              test build{" "}
               {isWidgetActive ? "Go to Dashboard" : "Activate Widget"}
             </button>
           </div>
