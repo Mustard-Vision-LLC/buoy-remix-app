@@ -91,7 +91,6 @@
 
     if (shouldForceOpenWidget) {
       iframe.addEventListener('load', function() {
-        console.log("Iframe loaded, sending FORCE_OPEN_WIDGET message");
         iframe.contentWindow.postMessage({ type: 'FORCE_OPEN_WIDGET' }, '*');
       });
     }
