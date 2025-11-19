@@ -11,6 +11,8 @@
 <script>
   let chatWidgetBaseURL = 'https://embed.fishook.online';
 
+  let shouldForceOpenWidget = false;
+
   {% if customer %}
     console.log("Customer logged in");
 
@@ -19,11 +21,9 @@
 
 
     if (checkoutAbandon === "true") {
-      const iframe = document.getElementById('buoy-chat-frame');
-      console.log(iframe, "iframe element");
       chatWidgetBaseURL = chatWidgetBaseURL + "/checkout";
-      console.log("forcing widget to open");
-      iframe.contentWindow?.postMessage({ type: 'FORCE_OPEN_WIDGET' }, '*');
+      console.log("Setting flag to force widget open");
+      shouldForceOpenWidget = true;
     } else {
       console.log("Metafield missing or false");
     }
@@ -88,6 +88,13 @@
 
     iframe.style.opacity = '1';
     iframe.style.transform = 'scale(1)';
+
+    if (shouldForceOpenWidget) {
+      iframe.addEventListener('load', function() {
+        console.log("Iframe loaded, sending FORCE_OPEN_WIDGET message");
+        iframe.contentWindow.postMessage({ type: 'FORCE_OPEN_WIDGET' }, '*');
+      });
+    }
   }
 
   btn.addEventListener('click', () => {
