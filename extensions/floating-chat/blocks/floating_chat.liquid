@@ -17,10 +17,13 @@
     const checkoutAbandon = "{{ customer.metafields.fishook.checkout_intervention | default: '' }}";
     console.log("checkoutAbandon metafield:", checkoutAbandon);
 
-    const iframe = document.getElementById('buoy-chat-frame');
+
     if (checkoutAbandon === "true") {
+      const iframe = document.getElementById('buoy-chat-frame');
+      console.log(iframe, "iframe element");
       chatWidgetBaseURL = chatWidgetBaseURL + "/checkout";
-       iframe.contentWindow?.postMessage({ type: 'FORCE_OPEN_WIDGET' }, '*');
+      console.log("forcing widget to open");
+      iframe.contentWindow?.postMessage({ type: 'FORCE_OPEN_WIDGET' }, '*');
     } else {
       console.log("Metafield missing or false");
     }
