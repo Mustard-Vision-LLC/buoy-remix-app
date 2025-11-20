@@ -10,6 +10,7 @@
   {% if customer %}
     console.log("Customer logged in");
 
+    {% if cart.item_count > 0 %}
     const checkoutAbandon = "{{ customer.metafields.fishook.checkout_intervention | default: '' }}";
     console.log("checkoutAbandon metafield:", checkoutAbandon);
 
@@ -21,6 +22,7 @@
     } else {
       console.log("Metafield missing or false");
     }
+    {% endif %}
 
   {% else %}
     console.log("Customer NOT logged in");
