@@ -5,7 +5,7 @@
 <script>
   let chatWidgetBaseURL = 'https://embed.fishook.online';
 
-  let shouldForceOpenWidget = false;
+
 
   {% comment %}
   {% if customer %}
@@ -87,11 +87,6 @@
     iframe.style.opacity = '1';
     iframe.style.transform = 'scale(1)';
 
-    if (shouldForceOpenWidget) {
-      iframe.addEventListener('load', function() {
-        iframe.contentWindow.postMessage({ type: 'FORCE_OPEN_WIDGET' }, '*');
-      });
-    }
   }
 
   btn.addEventListener('click', () => {
