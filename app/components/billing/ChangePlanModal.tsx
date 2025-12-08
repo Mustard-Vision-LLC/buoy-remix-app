@@ -8,28 +8,6 @@ import {
 } from "@shopify/polaris";
 import PricingCard from "./PricingCard";
 
-// Map feature codes to user-friendly display names
-const featureDisplayNames: Record<string, string> = {
-  abadoned_cart: "Abandoned cart recovery",
-  window_shopper: "Window shopper conversion",
-  assisted_shopping: "Assisted shopping",
-  customer_support_24_7: "24/7 customer support",
-  live_agent_support: "Live agent support",
-  intervention_analysis: "Intervention analysis",
-  customer_behavioral_analysis: "Customer behavioral analysis",
-};
-
-// Define the order of features to display
-const allFeatures = [
-  "abadoned_cart",
-  "window_shopper",
-  "assisted_shopping",
-  "customer_support_24_7",
-  "live_agent_support",
-  "intervention_analysis",
-  "customer_behavioral_analysis",
-];
-
 interface Feature {
   uuid: string;
   feature_is_enabled: boolean;
@@ -78,18 +56,9 @@ export default function ChangePlanModal({
 
   // Transform API plans to match PricingCard format
   const transformedPlans = plans.map((plan) => {
-    // Create a map of feature codes to their enabled status
-    const planFeatureMap = new Map(
-      plan.features.map((feature) => [
-        feature.feature.code,
-        feature.feature_is_enabled,
-      ]),
-    );
-
-    // Build features array in consistent order with display names
-    const features = allFeatures.map((featureCode) => ({
-      name: featureDisplayNames[featureCode] || featureCode,
-      available: planFeatureMap.get(featureCode) || false,
+    const features = plan.features.map((feature) => ({
+      name: feature.feature.name,
+      available: feature.feature_is_enabled,
     }));
 
     return {
