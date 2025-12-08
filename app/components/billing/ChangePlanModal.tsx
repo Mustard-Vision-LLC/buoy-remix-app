@@ -10,9 +10,10 @@ import PricingCard from "./PricingCard";
 
 // Map feature codes to user-friendly display names
 const featureDisplayNames: Record<string, string> = {
-  abadoned_cart: "Abandoned cart recovery",
+  abandoned_cart: "Abandoned cart recovery",
   window_shopper: "Window shopper conversion",
   assisted_shopping: "Assisted shopping",
+  checkout: "Checkout",
   customer_support_24_7: "24/7 customer support",
   live_agent_support: "Live agent support",
   intervention_analysis: "Intervention analysis",
@@ -21,9 +22,10 @@ const featureDisplayNames: Record<string, string> = {
 
 // Define the order of features to display
 const allFeatures = [
-  "abadoned_cart",
+  "abandoned_cart",
   "window_shopper",
   "assisted_shopping",
+  "checkout",
   "customer_support_24_7",
   "live_agent_support",
   "intervention_analysis",
