@@ -39,7 +39,7 @@ export default function InterventionsChart() {
   }, []);
 
   const hasData =
-    chartData.series.length > 0 && chartData.series.some((s) => s > 0);
+    chartData?.series?.length > 0 && chartData.series.some((s) => s > 0);
 
   return (
     <Card>

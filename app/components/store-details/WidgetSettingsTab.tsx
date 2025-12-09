@@ -144,7 +144,7 @@ export default function WidgetSettingsTab() {
 
       <Card>
         <BlockStack gap="400">
-          {features.length > 0 ? (
+          {features?.length > 0 ? (
             features.map((feature) => (
               <WidgetSettingItem
                 key={feature.id}

@@ -75,7 +75,7 @@ export default function ChatsTab() {
           selectedCustomer,
           1,
         );
-        const sessionsData = response.data.customers.data.map((s: any) => {
+        const sessionsData = response?.data?.customers?.data.map((s: any) => {
           const date = new Date(s.created_at);
           return {
             date: date.toLocaleDateString("en-US", {
@@ -93,8 +93,8 @@ export default function ChatsTab() {
           };
         });
         setSessions(sessionsData);
-        if (sessionsData.length > 0) {
-          setSelectedSession(sessionsData[0].session_id);
+        if (sessionsData?.length > 0) {
+          setSelectedSession(sessionsData[0]?.session_id);
         }
       } catch (error) {
         console.error("Error fetching sessions:", error);

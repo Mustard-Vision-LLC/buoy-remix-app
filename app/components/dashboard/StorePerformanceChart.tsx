@@ -51,7 +51,7 @@ export default function StorePerformanceChart({ data }: Props) {
     ];
 
     const categories =
-      conversionsLabels.length > 0 ? conversionsLabels : engagementsLabels;
+      conversionsLabels?.length > 0 ? conversionsLabels : engagementsLabels;
 
     const options: ApexOptions = {
       chart: {
@@ -88,8 +88,8 @@ export default function StorePerformanceChart({ data }: Props) {
   }, [data]);
 
   const hasData =
-    chartData.series.length > 0 &&
-    chartData.series.some((s) => s.data.length > 0);
+    chartData?.series?.length > 0 &&
+    chartData?.series?.some((s) => s.data?.length > 0);
 
   return (
     <Card>

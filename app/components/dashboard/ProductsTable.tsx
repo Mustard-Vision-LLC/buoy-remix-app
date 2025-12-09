@@ -19,7 +19,7 @@ interface ProductsTableProps {
 
 export default function ProductsTable({ type, data = [] }: ProductsTableProps) {
   // Empty state - no products
-  if (!data || data.length === 0) {
+  if (!data || data?.length === 0) {
     return (
       <Box padding="400">
         <div

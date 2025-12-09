@@ -130,15 +130,15 @@ const ChatsList: React.FC<ChatListProps> = ({
   // Transform chat rooms to match the expected format
   const chats = chatRooms.map((room) => {
     const lastMessage =
-      room.live_chat_messages.length > 0
+      room?.live_chat_messages?.length > 0
         ? room.live_chat_messages[room.live_chat_messages.length - 1].message
         : "No messages yet";
     const timestamp =
-      room.live_chat_messages.length > 0
+      room?.live_chat_messages?.length > 0
         ? new Date(
-            room.live_chat_messages[
-              room.live_chat_messages.length - 1
-            ].created_at,
+            room?.live_chat_messages[
+              room?.live_chat_messages?.length - 1
+            ]?.created_at,
           ).toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
@@ -147,22 +147,22 @@ const ChatsList: React.FC<ChatListProps> = ({
             hour: "2-digit",
             minute: "2-digit",
           });
-    const unreadCount = room.live_chat_messages.filter(
+    const unreadCount = room?.live_chat_messages?.filter(
       (msg) => !msg.is_read && msg.sender_type === "CUSTOMER",
-    ).length;
+    )?.length;
 
     return {
-      id: room.uuid,
-      customerName: `Customer ${room.customer_id}`,
+      id: room?.uuid,
+      customerName: `Customer ${room?.customer_id}`,
       lastMessage,
       timestamp,
-      isOnline: room.status === "ACTIVE",
+      isOnline: room?.status === "ACTIVE",
       unreadCount,
     };
   });
 
   const filteredChats = chats.filter((chat) =>
-    chat.customerName.toLowerCase().includes(searchQuery.toLowerCase()),
+    chat?.customerName.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -179,7 +179,7 @@ const ChatsList: React.FC<ChatListProps> = ({
 
       <Scrollable shadow style={{ height: "520px" }}>
         <BlockStack gap="100">
-          {filteredChats.length === 0 ? (
+          {filteredChats?.length === 0 ? (
             <div style={{ padding: "20px", textAlign: "center" }}>
               <Text as="p" variant="bodyMd" tone="subdued">
                 {searchQuery
@@ -188,7 +188,7 @@ const ChatsList: React.FC<ChatListProps> = ({
               </Text>
             </div>
           ) : (
-            filteredChats.map((chat) => (
+            filteredChats?.map((chat) => (
               <div key={chat.id}>
                 <ChatListItem
                   chat={chat}
@@ -283,7 +283,7 @@ const ChatSessionView: React.FC<ChatSessionViewProps> = ({
 
   // Mark messages as read
   useEffect(() => {
-    if (selectedChatId && !isLoadingMessages && sortedMessages.length > 0) {
+    if (selectedChatId && !isLoadingMessages && sortedMessages?.length > 0) {
       apiClient
         .markChatMessagesAsRead(selectedChatId)
         .then(() => {
@@ -293,7 +293,7 @@ const ChatSessionView: React.FC<ChatSessionViewProps> = ({
           console.error("Error marking messages as read:", err);
         });
     }
-  }, [selectedChatId, isLoadingMessages, sortedMessages.length]);
+  }, [selectedChatId, isLoadingMessages, sortedMessages?.length]);
 
   const handleSendMessage = useCallback(() => {
     if (inputMessage.trim() && isConnected) {
@@ -407,7 +407,7 @@ const ChatSessionView: React.FC<ChatSessionViewProps> = ({
               Loading messages...
             </Text>
           </div>
-        ) : sortedMessages.length === 0 ? (
+        ) : sortedMessages?.length === 0 ? (
           <div style={{ textAlign: "center", padding: "20px" }}>
             <Text as="p" variant="bodyMd" tone="subdued">
               No messages yet. Start the conversation!
@@ -415,7 +415,7 @@ const ChatSessionView: React.FC<ChatSessionViewProps> = ({
           </div>
         ) : (
           <BlockStack gap="300">
-            {sortedMessages.map((message) => (
+            {sortedMessages?.map((message) => (
               <div
                 key={message.id}
                 style={{

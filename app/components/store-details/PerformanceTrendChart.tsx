@@ -64,7 +64,7 @@ export default function PerformanceTrendChart() {
     ];
 
     const categories =
-      conversionsLabels.length > 0 ? conversionsLabels : engagementsLabels;
+      conversionsLabels?.length > 0 ? conversionsLabels : engagementsLabels;
 
     const options: ApexOptions = {
       chart: {
@@ -95,7 +95,7 @@ export default function PerformanceTrendChart() {
       },
       xaxis: {
         type:
-          categories.length > 0 && categories[0]?.includes("GMT")
+          categories?.length > 0 && categories[0]?.includes("GMT")
             ? "datetime"
             : "category",
         categories,
@@ -116,9 +116,9 @@ export default function PerformanceTrendChart() {
   }, [data]);
 
   const hasData =
-    chartData.series.length > 0 &&
-    chartData.series.some((s) => s.data.length > 0) &&
-    chartData.options.xaxis?.categories?.length > 0;
+    chartData?.series?.length > 0 &&
+    chartData?.series.some((s) => s?.data?.length > 0) &&
+    chartData?.options.xaxis?.categories?.length > 0;
 
   return (
     <Card>

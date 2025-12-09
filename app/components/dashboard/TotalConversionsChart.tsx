@@ -76,8 +76,8 @@ export default function TotalConversionsChart({ data }: Props) {
   }, [data]);
 
   const hasData =
-    chartData.series.length > 0 &&
-    chartData.series.some((s) => s.data.length > 0);
+    chartData?.series?.length > 0 &&
+    chartData?.series?.some((s) => s.data?.length > 0);
 
   return (
     <Card>

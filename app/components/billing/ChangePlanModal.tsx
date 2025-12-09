@@ -119,7 +119,7 @@ export default function ChangePlanModal({
               Loading plans...
             </Text>
           </div>
-        ) : plans.length === 0 ? (
+        ) : plans?.length === 0 ? (
           <div style={{ textAlign: "center", padding: "2rem" }}>
             <Text variant="bodyMd" as="p" tone="critical">
               No plans available

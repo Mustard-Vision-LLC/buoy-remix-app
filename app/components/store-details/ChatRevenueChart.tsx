@@ -88,8 +88,8 @@ export default function ChatRevenueChart() {
   }, [data]);
 
   const hasData =
-    chartData.series[0].data.length > 0 &&
-    chartData.options.xaxis?.categories?.length > 0;
+    chartData?.series[0]?.data?.length > 0 &&
+    chartData?.options.xaxis?.categories?.length > 0;
 
   return (
     <Card>
