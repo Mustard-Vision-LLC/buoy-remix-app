@@ -61,8 +61,9 @@ export default function WidgetSettingsTab() {
     const fetchWidgetConfig = async () => {
       try {
         const response = await apiClient.getWidgetConfig();
-        setFeatures(response.data);
-        const enabled = response.data
+        const widgetConfig = response.data.widgetConfig || [];
+        setFeatures(widgetConfig);
+        const enabled = widgetConfig
           .filter((feature: WidgetFeature) => feature.feature_is_enabled)
           .map((feature: WidgetFeature) => feature.id);
         setEnabledFeatures(enabled);
@@ -105,8 +106,9 @@ export default function WidgetSettingsTab() {
 
       // Refresh the data
       const response = await apiClient.getWidgetConfig();
-      setFeatures(response.data);
-      const enabled = response.data
+      const widgetConfig = response.data.widgetConfig || [];
+      setFeatures(widgetConfig);
+      const enabled = widgetConfig
         .filter((feature: WidgetFeature) => feature.feature_is_enabled)
         .map((feature: WidgetFeature) => feature.id);
       setEnabledFeatures(enabled);
