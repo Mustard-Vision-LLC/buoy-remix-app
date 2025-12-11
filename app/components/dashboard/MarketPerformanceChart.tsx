@@ -1,46 +1,58 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, BlockStack, InlineStack, Text, Select } from "@shopify/polaris";
 import Chart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
+import { apiClient } from "~/utils/api";
 
-interface MarketPerformanceData {
-  status_code: number;
-  message: string;
-  data: {
-    conversions: {
-      datasets: Array<{ data: number[]; label: string }>;
-      labels: string[];
-    };
-    engagements: {
-      datasets: Array<{ data: number[]; label: string }>;
-      labels: string[];
-    };
-  };
+interface MarketPerformanceDataPoint {
+  date: string;
+  revenue: number;
+  interventions: number;
 }
 
-interface Props {
-  data: MarketPerformanceData | null;
-}
+export default function MarketPerformanceChart() {
+  const [filter, setFilter] = useState<
+    "hourly" | "daily" | "weekly" | "monthly" | "yearly"
+  >("daily");
+  const [data, setData] = useState<MarketPerformanceDataPoint[] | null>(null);
 
-export default function MarketPerformanceChart({ data }: Props) {
-  const [filter, setFilter] = useState("weekly");
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await apiClient.getMarketPerformance(filter);
+        setData(response.data);
+      } catch (error) {
+        console.error("Error fetching market performance:", error);
+        setData(null);
+      }
+    };
+
+    fetchData();
+  }, [filter]);
 
   const chartData = useMemo(() => {
-    const conversionsData = data?.data?.conversions?.datasets?.[0]?.data ?? [];
-    const engagementsData = data?.data?.engagements?.datasets?.[0]?.data ?? [];
-    const conversionsLabels = data?.data?.conversions?.labels ?? [];
-    const engagementsLabels = data?.data?.engagements?.labels ?? [];
-    const categories =
-      conversionsLabels?.length > 0 ? conversionsLabels : engagementsLabels;
+    if (!data || !Array.isArray(data)) {
+      return {
+        series: [],
+        options: {
+          chart: { type: "line" as const, height: 350 },
+          xaxis: { categories: [] },
+        },
+      };
+    }
+
+    const revenueData = data.map((item) => item.revenue);
+    const interventionsData = data.map((item) => item.interventions);
+    const categories = data.map((item) => item.date);
 
     const series = [
       {
         name: "Revenue",
-        data: conversionsData,
+        data: revenueData,
       },
       {
         name: "Intervention",
-        data: engagementsData,
+        data: interventionsData,
       },
     ];
 
@@ -115,12 +127,14 @@ export default function MarketPerformanceChart({ data }: Props) {
             label=""
             labelHidden
             options={[
+              { label: "Hourly", value: "hourly" },
+              { label: "Daily", value: "daily" },
               { label: "Weekly", value: "weekly" },
               { label: "Monthly", value: "monthly" },
               { label: "Yearly", value: "yearly" },
             ]}
             value={filter}
-            onChange={(value) => setFilter(value)}
+            onChange={(value) => setFilter(value as typeof filter)}
           />
         </InlineStack>
 

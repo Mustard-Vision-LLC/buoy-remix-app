@@ -1,57 +1,60 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, BlockStack, InlineStack, Text, Select } from "@shopify/polaris";
 import Chart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
+import { apiClient } from "~/utils/api";
 
 interface StorePerformanceData {
-  status_code: number;
-  message: string;
-  conversions: {
-    datasets: Array<{ data: number[]; label: string }>;
-    labels: string[];
-  };
-  engagements: {
-    datasets: Array<{ data: number[]; label: string }>;
-    labels: string[];
-  };
+  date: string;
+  totalEngagement: number;
+  totalConversions: number;
 }
 
-interface Props {
-  data: StorePerformanceData | null;
-}
+export default function StorePerformanceChart() {
+  const [filter, setFilter] = useState<
+    "hourly" | "daily" | "weekly" | "monthly" | "yearly"
+  >("daily");
+  const [data, setData] = useState<StorePerformanceData[] | null>(null);
 
-export default function StorePerformanceChart({ data }: Props) {
-  const [filter, setFilter] = useState("weekly");
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await apiClient.getStorePerformance(filter);
+        setData(response.data);
+      } catch (error) {
+        console.error("Error fetching store performance:", error);
+        setData(null);
+      }
+    };
+
+    fetchData();
+  }, [filter]);
 
   const chartData = useMemo(() => {
-    const conversions = data?.conversions ?? { datasets: [], labels: [] };
-    const engagements = data?.engagements ?? { datasets: [], labels: [] };
-    const conversionsDatasets = Array.isArray(conversions.datasets)
-      ? conversions.datasets
-      : [];
-    const engagementsDatasets = Array.isArray(engagements.datasets)
-      ? engagements.datasets
-      : [];
-    const conversionsLabels = Array.isArray(conversions.labels)
-      ? conversions.labels
-      : [];
-    const engagementsLabels = Array.isArray(engagements.labels)
-      ? engagements.labels
-      : [];
+    if (!data || !Array.isArray(data)) {
+      return {
+        series: [],
+        options: {
+          chart: { type: "bar" as const, height: 350 },
+          xaxis: { categories: [] },
+        },
+      };
+    }
+
+    const categories = data.map((item) => item.date);
+    const conversionsData = data.map((item) => item.totalConversions);
+    const engagementsData = data.map((item) => item.totalEngagement);
 
     const allSeries = [
-      ...conversionsDatasets.map((dataset) => ({
+      {
         name: "Conversions",
-        data: Array.isArray(dataset.data) ? dataset.data : [],
-      })),
-      ...engagementsDatasets.map((dataset) => ({
+        data: conversionsData,
+      },
+      {
         name: "Engagements",
-        data: Array.isArray(dataset.data) ? dataset.data : [],
-      })),
+        data: engagementsData,
+      },
     ];
-
-    const categories =
-      conversionsLabels?.length > 0 ? conversionsLabels : engagementsLabels;
 
     const options: ApexOptions = {
       chart: {
@@ -102,12 +105,14 @@ export default function StorePerformanceChart({ data }: Props) {
             label=""
             labelHidden
             options={[
+              { label: "Hourly", value: "hourly" },
+              { label: "Daily", value: "daily" },
               { label: "Weekly", value: "weekly" },
               { label: "Monthly", value: "monthly" },
               { label: "Yearly", value: "yearly" },
             ]}
             value={filter}
-            onChange={(value) => setFilter(value)}
+            onChange={(value) => setFilter(value as typeof filter)}
           />
         </InlineStack>
 

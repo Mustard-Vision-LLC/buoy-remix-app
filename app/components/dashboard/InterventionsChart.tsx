@@ -1,14 +1,41 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, BlockStack, InlineStack, Text, Select } from "@shopify/polaris";
 import Chart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
+import { apiClient } from "~/utils/api";
 
 export default function InterventionsChart() {
-  const [filter, setFilter] = useState("weekly");
+  const [filter, setFilter] = useState<
+    "hourly" | "daily" | "weekly" | "monthly" | "yearly"
+  >("daily");
+  const [interventionData, setInterventionData] = useState<{
+    assistedShopping: number;
+    abandonedCart: number;
+    windowShopper: number;
+  } | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await apiClient.getInterventionAnalysis(filter);
+        setInterventionData(response.data);
+      } catch (error) {
+        console.error("Error fetching intervention analysis:", error);
+        setInterventionData(null);
+      }
+    };
+
+    fetchData();
+  }, [filter]);
 
   const chartData = useMemo(() => {
-    // Empty data for now - replace with real data from API based on filter
-    const series: number[] = []; // e.g., [44, 55, 13] for [Assisted Shopping, Abandoned Cart, Window Shopper]
+    const series = interventionData
+      ? [
+          interventionData.assistedShopping,
+          interventionData.abandonedCart,
+          interventionData.windowShopper,
+        ]
+      : [];
 
     const options: ApexOptions = {
       chart: {
@@ -36,7 +63,7 @@ export default function InterventionsChart() {
     };
 
     return { series, options };
-  }, []);
+  }, [interventionData]);
 
   const hasData =
     chartData?.series?.length > 0 && chartData.series.some((s) => s > 0);
@@ -52,12 +79,14 @@ export default function InterventionsChart() {
             label=""
             labelHidden
             options={[
+              { label: "Hourly", value: "hourly" },
               { label: "Daily", value: "daily" },
               { label: "Weekly", value: "weekly" },
+              { label: "Monthly", value: "monthly" },
               { label: "Yearly", value: "yearly" },
             ]}
             value={filter}
-            onChange={(value) => setFilter(value)}
+            onChange={(value) => setFilter(value as typeof filter)}
           />
         </InlineStack>
 

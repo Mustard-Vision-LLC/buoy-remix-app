@@ -1,7 +1,106 @@
 import { BaseApiClient } from "./base";
 import { API_BASE_URL } from "./config";
 
+type Period = "hourly" | "daily" | "weekly" | "monthly" | "yearly";
+
 class DashboardApi extends BaseApiClient {
+  // New API methods matching merchant dashboard
+  async getDashboardMetrics(period: Period = "daily") {
+    return this.request<{
+      status_code: number;
+      message: string;
+      data: {
+        total_engagement: number;
+        total_conversions: number;
+        conversion_rate: number;
+        total_revenue: number;
+        avg_time_chats: number;
+        assisted_shopping: number;
+        coupon_intervention: number;
+        total_abandoned_carts: number;
+        couponBudgets: number;
+      };
+    }>(`/shopify/dashboard-metrics?period=${period}`, {
+      method: "GET",
+    });
+  }
+
+  async getCouponBudget(period: Period = "daily") {
+    return this.request<{
+      status_code: number;
+      message: string;
+      data: {
+        data: {
+          labels: string[];
+          values: number[];
+          percentages: number[];
+          colors: string[];
+        };
+      };
+    }>(`/shopify/dashboard-metrics/coupon-budget?period=${period}`, {
+      method: "GET",
+    });
+  }
+
+  async getTotalConversions(period: Period = "daily") {
+    return this.request<{
+      status_code: number;
+      message: string;
+      data: Array<{
+        date: string;
+        value: number;
+      }>;
+    }>(`/shopify/dashboard-metrics/chart/total-conversions?period=${period}`, {
+      method: "GET",
+    });
+  }
+
+  async getMarketPerformance(period: Period = "daily") {
+    return this.request<{
+      status_code: number;
+      message: string;
+      data: Array<{
+        date: string;
+        revenue: number;
+        interventions: number;
+      }>;
+    }>(`/shopify/dashboard-metrics/chart/market-performance?period=${period}`, {
+      method: "GET",
+    });
+  }
+
+  async getInterventionAnalysis(period: Period = "daily") {
+    return this.request<{
+      status_code: number;
+      message: string;
+      data: {
+        assistedShopping: number;
+        abandonedCart: number;
+        windowShopper: number;
+      };
+    }>(
+      `/shopify/dashboard-metrics/chart/intervention-analysis?period=${period}`,
+      {
+        method: "GET",
+      },
+    );
+  }
+
+  async getStorePerformance(period: Period = "daily") {
+    return this.request<{
+      status_code: number;
+      message: string;
+      data: Array<{
+        date: string;
+        totalEngagement: number;
+        totalConversions: number;
+      }>;
+    }>(`/shopify/dashboard-metrics/chart/store-performance?period=${period}`, {
+      method: "GET",
+    });
+  }
+
+  // Old API methods for backward compatibility
   async getAnalytics(params?: { filter_param?: string; period?: string }) {
     const queryParams = new URLSearchParams();
     if (params?.filter_param)

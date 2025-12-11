@@ -1,28 +1,47 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, BlockStack, InlineStack, Text, Select } from "@shopify/polaris";
 import Chart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
+import { apiClient } from "~/utils/api";
 
-interface ConversionsData {
-  status_code: number;
-  message: string;
-  data: {
-    datasets: Array<{ data: number[]; label: string }>;
-    labels: string[];
-  };
+interface ConversionDataPoint {
+  date: string;
+  value: number;
 }
 
-interface Props {
-  data: ConversionsData | null;
-}
+export default function TotalConversionsChart() {
+  const [filter, setFilter] = useState<
+    "hourly" | "daily" | "weekly" | "monthly" | "yearly"
+  >("daily");
+  const [data, setData] = useState<ConversionDataPoint[] | null>(null);
 
-export default function TotalConversionsChart({ data }: Props) {
-  const [filter, setFilter] = useState("weekly");
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await apiClient.getTotalConversions(filter);
+        setData(response.data);
+      } catch (error) {
+        console.error("Error fetching total conversions:", error);
+        setData(null);
+      }
+    };
+
+    fetchData();
+  }, [filter]);
 
   const chartData = useMemo(() => {
-    // Transform API data to chart format
-    const conversionsData = data?.data?.datasets?.[0]?.data ?? [];
-    const categories = data?.data?.labels ?? [];
+    if (!data || !Array.isArray(data)) {
+      return {
+        series: [],
+        options: {
+          chart: { type: "line" as const, height: 350 },
+          xaxis: { categories: [] },
+        },
+      };
+    }
+
+    const conversionsData = data.map((item) => item.value);
+    const categories = data.map((item) => item.date);
 
     const series = [
       {
@@ -90,12 +109,14 @@ export default function TotalConversionsChart({ data }: Props) {
             label=""
             labelHidden
             options={[
+              { label: "Hourly", value: "hourly" },
+              { label: "Daily", value: "daily" },
               { label: "Weekly", value: "weekly" },
               { label: "Monthly", value: "monthly" },
               { label: "Yearly", value: "yearly" },
             ]}
             value={filter}
-            onChange={(value) => setFilter(value)}
+            onChange={(value) => setFilter(value as typeof filter)}
           />
         </InlineStack>
 

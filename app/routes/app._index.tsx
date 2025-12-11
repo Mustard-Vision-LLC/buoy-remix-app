@@ -46,40 +46,54 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const jsonData = await response.json();
 
   try {
-    // Fetch dashboard analytics and chart data
+    // Fetch dashboard data using new API endpoints
+    const period = "daily"; // Default period, can be made dynamic later
+
     const [
-      analyticsResponse,
+      metricsResponse,
+      couponBudgetResponse,
       storePerformanceResponse,
       conversionsResponse,
       marketPerformanceResponse,
+      interventionAnalysisResponse,
+      analyticsResponse, // Keep for product tables
     ] = await Promise.all([
-      apiClient.getDashboardAnalytics(),
-      apiClient.getDashboardStorePerformance({ period: "year" }),
-      apiClient.getDashboardConversions({ period: "year" }),
-      apiClient.getDashboardMarketPerformance({ period: "year" }),
+      apiClient.getDashboardMetrics(period),
+      apiClient.getCouponBudget(period),
+      apiClient.getStorePerformance(period),
+      apiClient.getTotalConversions(period),
+      apiClient.getMarketPerformance(period),
+      apiClient.getInterventionAnalysis(period),
+      apiClient.getDashboardAnalytics(), // For product tables
     ]);
 
     return {
       shop: session.shop,
       jsonData: jsonData,
+      metrics: metricsResponse.data || null,
+      couponBudget: couponBudgetResponse.data || null,
+      storePerformance: storePerformanceResponse.data || null,
+      conversions: conversionsResponse.data || null,
+      marketPerformance: marketPerformanceResponse.data || null,
+      interventionAnalysis: interventionAnalysisResponse.data || null,
       analytics: analyticsResponse.data?.analytics || null,
-      storePerformance: storePerformanceResponse || null,
-      conversions: conversionsResponse || null,
-      marketPerformance: marketPerformanceResponse || null,
       checkActiveEmbed: checkActiveEmbed,
     };
   } catch (error) {
     console.error("Error fetching dashboard analytics:", error);
-    // Return with null analytics if the API call fails
+    // Return with null data if the API call fails
     return {
       session,
       jsonData,
       shop: shop,
       accessToken: dbRecord.accessToken,
-      analytics: null,
+      metrics: null,
+      couponBudget: null,
       storePerformance: null,
       conversions: null,
       marketPerformance: null,
+      interventionAnalysis: null,
+      analytics: null,
       checkActiveEmbed: checkActiveEmbed,
     };
   }

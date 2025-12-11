@@ -56,17 +56,45 @@ export default function DashboardPage() {
   const loaderData = useLoaderData<{
     shop: string;
     accessToken: string;
+    metrics: {
+      total_engagement: number;
+      total_conversions: number;
+      conversion_rate: number;
+      total_revenue: number;
+      avg_time_chats: number;
+      assisted_shopping: number;
+      coupon_intervention: number;
+      total_abandoned_carts: number;
+      couponBudgets: number;
+    } | null;
+    couponBudget: {
+      data: {
+        labels: string[];
+        values: number[];
+        percentages: number[];
+        colors: string[];
+      };
+    } | null;
+    storePerformance: Array<{
+      date: string;
+      totalEngagement: number;
+      totalConversions: number;
+    }> | null;
+    conversions: Array<{
+      date: string;
+      value: number;
+    }> | null;
+    marketPerformance: Array<{
+      date: string;
+      revenue: number;
+      interventions: number;
+    }> | null;
+    interventionAnalysis: {
+      assistedShopping: number;
+      abandonedCart: number;
+      windowShopper: number;
+    } | null;
     analytics: {
-      engagements: number;
-      total_conversion: number;
-      average_time_spent: number;
-      total_successful_sales: number;
-      total_generated_revenue: string;
-      abandoned_cart: number;
-      total_assisted_shopping: number;
-      total_coupon_intervention: number;
-      current_coupon_budget: string;
-      available_coupon_budget: string;
       tables?: {
         top_viewed_products: Array<{
           product: { title: string };
@@ -80,42 +108,9 @@ export default function DashboardPage() {
         }>;
       };
     } | null;
-    storePerformance: {
-      status_code: number;
-      message: string;
-      conversions: {
-        datasets: Array<{ data: number[]; label: string }>;
-        labels: string[];
-      };
-      engagements: {
-        datasets: Array<{ data: number[]; label: string }>;
-        labels: string[];
-      };
-    } | null;
-    conversions: {
-      status_code: number;
-      message: string;
-      data: {
-        datasets: Array<{ data: number[]; label: string }>;
-        labels: string[];
-      };
-    } | null;
-    marketPerformance: {
-      status_code: number;
-      message: string;
-      data: {
-        conversions: {
-          datasets: Array<{ data: number[]; label: string }>;
-          labels: string[];
-        };
-        engagements: {
-          datasets: Array<{ data: number[]; label: string }>;
-          labels: string[];
-        };
-      };
-    } | null;
   }>();
 
+  const metrics = loaderData.metrics;
   const analytics = loaderData.analytics;
 
   // Set access token and shop URL for client-side API calls (e.g., charts with filters)
@@ -126,49 +121,43 @@ export default function DashboardPage() {
     }
   }, [loaderData.accessToken, loaderData.shop]);
 
-  // Statistics using real analytics data
+  // Statistics using new metrics data structure
   const statistics = [
     {
       title: "Total Engagement",
-      value: analytics?.engagements || 0,
+      value: metrics?.total_engagement || 0,
     },
     {
-      title: "Total Conversion",
-      value: analytics?.total_conversion ?? 0,
+      title: "Total Conversions",
+      value: metrics?.total_conversions || 0,
     },
     {
-      title: "Avg Time Spent on Chat",
-      value: analytics?.average_time_spent
-        ? `${Math.round(analytics.average_time_spent)} min`
-        : "0 min",
+      title: "Conversion Rate",
+      value: `${metrics?.conversion_rate || 0}%`,
     },
     {
-      title: "Total Successful Sales",
-      value: analytics?.total_successful_sales || 0,
+      title: "Total Revenue",
+      value: `$${metrics?.total_revenue || 0}`,
     },
     {
-      title: "Total Generated Revenue",
-      value: `$${analytics?.total_generated_revenue || 0}`,
+      title: "Avg Time on Chats",
+      value: Math.round(metrics?.avg_time_chats || 0),
+    },
+    {
+      title: "Assisted Shopping",
+      value: metrics?.assisted_shopping || 0,
+    },
+    {
+      title: "Coupon Intervention",
+      value: metrics?.coupon_intervention || 0,
     },
     {
       title: "Total Abandoned Carts",
-      value: analytics?.abandoned_cart || 0,
+      value: metrics?.total_abandoned_carts || 0,
     },
     {
-      title: "Total Assisted Shopping",
-      value: analytics?.total_assisted_shopping || 0,
-    },
-    {
-      title: "Total Coupon Intervention",
-      value: analytics?.total_coupon_intervention || 0,
-    },
-    {
-      title: "Current Coupon Budget",
-      value: `$${analytics?.current_coupon_budget || 0}`,
-    },
-    {
-      title: "Available Coupon Budget",
-      value: `$${analytics?.available_coupon_budget || 0}`,
+      title: "Coupon Budget",
+      value: `$${metrics?.couponBudgets || 0}`,
     },
   ];
 
@@ -212,11 +201,11 @@ export default function DashboardPage() {
             <Suspense fallback={<ChartSkeleton />}>
               <Layout>
                 <Layout.Section variant="oneHalf">
-                  <StorePerformanceChart data={loaderData.storePerformance} />
+                  <StorePerformanceChart />
                 </Layout.Section>
 
                 <Layout.Section variant="oneHalf">
-                  <TotalConversionsChart data={loaderData.conversions} />
+                  <TotalConversionsChart />
                 </Layout.Section>
               </Layout>
 
@@ -226,7 +215,7 @@ export default function DashboardPage() {
                 </Layout.Section>
 
                 <Layout.Section variant="oneHalf">
-                  <MarketPerformanceChart data={loaderData.marketPerformance} />
+                  <MarketPerformanceChart />
                 </Layout.Section>
               </Layout>
             </Suspense>

@@ -21,6 +21,13 @@ export const apiClient = {
   upgradePlan: billingApi.upgradePlan.bind(billingApi),
 
   // Dashboard
+  getDashboardMetrics: dashboardApi.getDashboardMetrics.bind(dashboardApi),
+  getCouponBudget: dashboardApi.getCouponBudget.bind(dashboardApi),
+  getTotalConversions: dashboardApi.getTotalConversions.bind(dashboardApi),
+  getMarketPerformance: dashboardApi.getMarketPerformance.bind(dashboardApi),
+  getInterventionAnalysis:
+    dashboardApi.getInterventionAnalysis.bind(dashboardApi),
+  getStorePerformance: dashboardApi.getStorePerformance.bind(dashboardApi),
   getAnalytics: dashboardApi.getAnalytics.bind(dashboardApi),
   getDashboardAnalytics: dashboardApi.getDashboardAnalytics.bind(dashboardApi),
   getDashboardStorePerformance:
