@@ -41,7 +41,9 @@ export default function TotalConversionsChart() {
     }
 
     const conversionsData = data.map((item) => item.value);
-    const categories = data.map((item) => item.date);
+    const categories = data.map((item) =>
+      new Date(item.date).toLocaleDateString(),
+    );
 
     const series = [
       {

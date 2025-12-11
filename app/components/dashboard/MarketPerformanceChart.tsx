@@ -43,7 +43,9 @@ export default function MarketPerformanceChart() {
 
     const revenueData = data.map((item) => item.revenue);
     const interventionsData = data.map((item) => item.interventions);
-    const categories = data.map((item) => item.date);
+    const categories = data.map((item) =>
+      new Date(item.date).toLocaleDateString(),
+    );
 
     const series = [
       {

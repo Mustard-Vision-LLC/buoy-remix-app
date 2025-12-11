@@ -41,7 +41,9 @@ export default function StorePerformanceChart() {
       };
     }
 
-    const categories = data.map((item) => item.date);
+    const categories = data.map((item) =>
+      new Date(item.date).toLocaleDateString(),
+    );
     const conversionsData = data.map((item) => item.totalConversions);
     const engagementsData = data.map((item) => item.totalEngagement);
 
