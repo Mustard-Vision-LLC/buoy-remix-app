@@ -56,7 +56,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       conversionsResponse,
       marketPerformanceResponse,
       interventionAnalysisResponse,
-      analyticsResponse, // Keep for product tables
     ] = await Promise.all([
       apiClient.getDashboardMetrics(period),
       apiClient.getCouponBudget(period),
@@ -64,23 +63,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       apiClient.getTotalConversions(period),
       apiClient.getMarketPerformance(period),
       apiClient.getInterventionAnalysis(period),
-      apiClient.getDashboardAnalytics(), // For product tables
     ]);
-
-    console.log("=== ANALYTICS DEBUG ===");
-    console.log("Analytics Response Status:", analyticsResponse.status_code);
-    console.log("Has analytics?:", !!analyticsResponse.data?.analytics);
-    console.log("Has tables?:", !!analyticsResponse.data?.analytics?.tables);
-    console.log(
-      "Top viewed products count:",
-      analyticsResponse.data?.analytics?.tables?.top_viewed_products?.length ||
-        0,
-    );
-    console.log(
-      "Top purchased products count:",
-      analyticsResponse.data?.analytics?.tables?.top_purchased_products
-        ?.length || 0,
-    );
 
     return {
       shop: session.shop,
@@ -92,7 +75,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       conversions: conversionsResponse.data || null,
       marketPerformance: marketPerformanceResponse.data || null,
       interventionAnalysis: interventionAnalysisResponse.data || null,
-      analytics: analyticsResponse.data?.analytics || null,
       checkActiveEmbed: checkActiveEmbed,
     };
   } catch (error) {
@@ -109,7 +91,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       conversions: null,
       marketPerformance: null,
       interventionAnalysis: null,
-      analytics: null,
       checkActiveEmbed: checkActiveEmbed,
     };
   }
@@ -141,20 +122,6 @@ export default function Home() {
       coupon_intervention: number;
       total_abandoned_carts: number;
       couponBudgets: number;
-    } | null;
-    analytics: {
-      tables?: {
-        top_viewed_products: Array<{
-          product: { title: string };
-          view_count: number;
-        }>;
-        top_purchased_products: Array<{
-          serialNumber: number;
-          productName: string;
-          revenue: string;
-          quantitySold: number;
-        }>;
-      };
     } | null;
   }>();
 

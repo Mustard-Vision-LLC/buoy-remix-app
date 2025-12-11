@@ -9,10 +9,10 @@ import {
 } from "@shopify/polaris";
 import ClientOnly from "./ClientOnly";
 import ProductsTable from "./ProductsTable";
-import { setAccessToken, setShopUrl } from "~/utils/api";
+import { setAccessToken, setShopUrl, apiClient } from "~/utils/api";
 
 // Lazy load chart components to avoid SSR issues with ApexCharts
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 
 interface DashboardPageProps {
   loaderData: {
@@ -28,20 +28,6 @@ interface DashboardPageProps {
       coupon_intervention: number;
       total_abandoned_carts: number;
       couponBudgets: number;
-    } | null;
-    analytics: {
-      tables?: {
-        top_viewed_products: Array<{
-          product: { title: string };
-          view_count: number;
-        }>;
-        top_purchased_products: Array<{
-          serialNumber: number;
-          productName: string;
-          revenue: string;
-          quantitySold: number;
-        }>;
-      };
     } | null;
   };
 }
@@ -85,19 +71,43 @@ function StatCard({ title, value }: { title: string; value: string | number }) {
 
 export default function DashboardPage({ loaderData }: DashboardPageProps) {
   const metrics = loaderData.metrics;
-  const analytics = loaderData.analytics;
+  const [analytics, setAnalytics] = useState<{
+    tables?: {
+      top_viewed_products: Array<{
+        product: { title: string };
+        view_count: number;
+      }>;
+      top_purchased_products: Array<{
+        serialNumber: number;
+        productName: string;
+        revenue: string;
+        quantitySold: number;
+      }>;
+    };
+  } | null>(null);
 
-  console.log("DashboardPage - Full loaderData:", loaderData);
-  console.log("DashboardPage - Analytics:", analytics);
-  console.log("DashboardPage - Analytics Tables:", analytics?.tables);
-
-  // Set access token and shop URL for client-side API calls (e.g., charts with filters)
+  // Set access token and shop URL for client-side API calls
   useEffect(() => {
     if (loaderData.accessToken && loaderData.shop) {
       setAccessToken(loaderData.accessToken);
       setShopUrl(loaderData.shop);
     }
   }, [loaderData.accessToken, loaderData.shop]);
+
+  // Fetch analytics data client-side
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        const response = await apiClient.getDashboardAnalytics();
+        setAnalytics(response.data?.analytics || null);
+      } catch (error) {
+        console.error("Error fetching analytics:", error);
+        setAnalytics(null);
+      }
+    };
+
+    fetchAnalytics();
+  }, []);
 
   // Statistics using new metrics data structure
   const statistics = [
