@@ -1,4 +1,3 @@
-import { useLoaderData } from "@remix-run/react";
 import {
   Page,
   Layout,
@@ -14,6 +13,38 @@ import { setAccessToken, setShopUrl } from "~/utils/api";
 
 // Lazy load chart components to avoid SSR issues with ApexCharts
 import { lazy, Suspense, useEffect } from "react";
+
+interface DashboardPageProps {
+  loaderData: {
+    shop: string;
+    accessToken: string;
+    metrics: {
+      total_engagement: number;
+      total_conversions: number;
+      conversion_rate: number;
+      total_revenue: number;
+      avg_time_chats: number;
+      assisted_shopping: number;
+      coupon_intervention: number;
+      total_abandoned_carts: number;
+      couponBudgets: number;
+    } | null;
+    analytics: {
+      tables?: {
+        top_viewed_products: Array<{
+          product: { title: string };
+          view_count: number;
+        }>;
+        top_purchased_products: Array<{
+          serialNumber: number;
+          productName: string;
+          revenue: string;
+          quantitySold: number;
+        }>;
+      };
+    } | null;
+  };
+}
 
 const StorePerformanceChart = lazy(() => import("./StorePerformanceChart"));
 const TotalConversionsChart = lazy(() => import("./TotalConversionsChart"));
@@ -52,64 +83,7 @@ function StatCard({ title, value }: { title: string; value: string | number }) {
   );
 }
 
-export default function DashboardPage() {
-  const loaderData = useLoaderData<{
-    shop: string;
-    accessToken: string;
-    metrics: {
-      total_engagement: number;
-      total_conversions: number;
-      conversion_rate: number;
-      total_revenue: number;
-      avg_time_chats: number;
-      assisted_shopping: number;
-      coupon_intervention: number;
-      total_abandoned_carts: number;
-      couponBudgets: number;
-    } | null;
-    couponBudget: {
-      data: {
-        labels: string[];
-        values: number[];
-        percentages: number[];
-        colors: string[];
-      };
-    } | null;
-    storePerformance: Array<{
-      date: string;
-      totalEngagement: number;
-      totalConversions: number;
-    }> | null;
-    conversions: Array<{
-      date: string;
-      value: number;
-    }> | null;
-    marketPerformance: Array<{
-      date: string;
-      revenue: number;
-      interventions: number;
-    }> | null;
-    interventionAnalysis: {
-      assistedShopping: number;
-      abandonedCart: number;
-      windowShopper: number;
-    } | null;
-    analytics: {
-      tables?: {
-        top_viewed_products: Array<{
-          product: { title: string };
-          view_count: number;
-        }>;
-        top_purchased_products: Array<{
-          serialNumber: number;
-          productName: string;
-          revenue: string;
-          quantitySold: number;
-        }>;
-      };
-    } | null;
-  }>();
-
+export default function DashboardPage({ loaderData }: DashboardPageProps) {
   const metrics = loaderData.metrics;
   const analytics = loaderData.analytics;
 

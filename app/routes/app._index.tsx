@@ -125,13 +125,40 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export const action = async ({ request }: ActionFunctionArgs) => {};
 
 export default function Home() {
-  const { jsonData, checkActiveEmbed } = useLoaderData<{
-    session: string;
+  const loaderData = useLoaderData<{
+    session: any;
     jsonData: any;
     accessToken: string;
     shop: string;
     checkActiveEmbed: any;
+    metrics: {
+      total_engagement: number;
+      total_conversions: number;
+      conversion_rate: number;
+      total_revenue: number;
+      avg_time_chats: number;
+      assisted_shopping: number;
+      coupon_intervention: number;
+      total_abandoned_carts: number;
+      couponBudgets: number;
+    } | null;
+    analytics: {
+      tables?: {
+        top_viewed_products: Array<{
+          product: { title: string };
+          view_count: number;
+        }>;
+        top_purchased_products: Array<{
+          serialNumber: number;
+          productName: string;
+          revenue: string;
+          quantitySold: number;
+        }>;
+      };
+    } | null;
   }>();
+
+  const { jsonData, checkActiveEmbed } = loaderData;
 
   const [showActivationModal, setShowActivationModal] = useState(false);
 
@@ -233,7 +260,7 @@ export default function Home() {
           </div>
         </Layout>
         <Layout>
-          <DashboardPage />
+          <DashboardPage loaderData={loaderData} />
         </Layout>
       </BlockStack>
 
