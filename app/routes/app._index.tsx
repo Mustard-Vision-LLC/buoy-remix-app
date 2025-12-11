@@ -67,6 +67,21 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       apiClient.getDashboardAnalytics(), // For product tables
     ]);
 
+    console.log("=== ANALYTICS DEBUG ===");
+    console.log("Analytics Response Status:", analyticsResponse.status_code);
+    console.log("Has analytics?:", !!analyticsResponse.data?.analytics);
+    console.log("Has tables?:", !!analyticsResponse.data?.analytics?.tables);
+    console.log(
+      "Top viewed products count:",
+      analyticsResponse.data?.analytics?.tables?.top_viewed_products?.length ||
+        0,
+    );
+    console.log(
+      "Top purchased products count:",
+      analyticsResponse.data?.analytics?.tables?.top_purchased_products
+        ?.length || 0,
+    );
+
     return {
       shop: session.shop,
       accessToken: dbRecord.accessToken,

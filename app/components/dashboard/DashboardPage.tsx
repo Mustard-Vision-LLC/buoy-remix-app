@@ -113,6 +113,10 @@ export default function DashboardPage() {
   const metrics = loaderData.metrics;
   const analytics = loaderData.analytics;
 
+  console.log("DashboardPage - Full loaderData:", loaderData);
+  console.log("DashboardPage - Analytics:", analytics);
+  console.log("DashboardPage - Analytics Tables:", analytics?.tables);
+
   // Set access token and shop URL for client-side API calls (e.g., charts with filters)
   useEffect(() => {
     if (loaderData.accessToken && loaderData.shop) {
