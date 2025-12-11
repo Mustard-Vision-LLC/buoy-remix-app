@@ -6,9 +6,13 @@ class WidgetApi extends BaseApiClient {
     return this.request<{
       status_code: number;
       message: string;
-      data: {
-        widgetConfig: any;
-      };
+      data: Array<{
+        id: string;
+        code: string;
+        name: string;
+        description: string;
+        feature_is_enabled: boolean | null;
+      }>;
     }>("/shopify/widget-settings", { method: "GET" });
   }
 
@@ -16,9 +20,13 @@ class WidgetApi extends BaseApiClient {
     return this.request<{
       status_code: number;
       message: string;
-      data: {
-        widgetConfig: any;
-      };
+      data: Array<{
+        id: string;
+        code: string;
+        name: string;
+        description: string;
+        feature_is_enabled: boolean | null;
+      }>;
     }>("/shopify/widget-settings", {
       method: "PUT",
       body: JSON.stringify(config),

@@ -16,7 +16,7 @@ interface WidgetFeature {
   code: string;
   name: string;
   description: string;
-  feature_is_enabled: boolean;
+  feature_is_enabled: boolean | null;
 }
 
 function WidgetSettingItem({
@@ -61,7 +61,7 @@ export default function WidgetSettingsTab() {
     const fetchWidgetConfig = async () => {
       try {
         const response = await apiClient.getWidgetConfig();
-        const widgetConfig = response.data.widgetConfig || [];
+        const widgetConfig = response.data || [];
         setFeatures(widgetConfig);
         const enabled = widgetConfig
           .filter((feature: WidgetFeature) => feature.feature_is_enabled)
@@ -106,7 +106,7 @@ export default function WidgetSettingsTab() {
 
       // Refresh the data
       const response = await apiClient.getWidgetConfig();
-      const widgetConfig = response.data.widgetConfig || [];
+      const widgetConfig = response.data || [];
       setFeatures(widgetConfig);
       const enabled = widgetConfig
         .filter((feature: WidgetFeature) => feature.feature_is_enabled)
