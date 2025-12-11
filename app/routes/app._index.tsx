@@ -69,6 +69,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     return {
       shop: session.shop,
+      accessToken: dbRecord.accessToken,
       jsonData: jsonData,
       metrics: metricsResponse.data || null,
       couponBudget: couponBudgetResponse.data || null,
